@@ -82,6 +82,7 @@
   @keyframes blink{ 50%{ opacity:.35; } }
 
   /* ============ screens ============ */
+  #title{ justify-content:center; }
   .screen{
     position:absolute; inset:0; z-index:20; display:flex; flex-direction:column; align-items:center;
     padding:calc(env(safe-area-inset-top) + 38px) 20px calc(env(safe-area-inset-bottom) + 16px);
@@ -150,7 +151,7 @@
 
   .bigBtn{
     display:flex; align-items:center; justify-content:center; gap:8px;
-    width:100%; max-width:330px; min-height:56px; margin-top:auto;
+    width:100%; max-width:330px; min-height:56px; margin-top:20px;
     border:0; border-radius:16px; cursor:pointer;
     font-family:inherit; font-size:17px; font-weight:900; letter-spacing:.04em; color:#2a0713;
     background:linear-gradient(135deg,#ffd0e0,#ff5f9e 55%,#ff3b7f);
@@ -361,7 +362,7 @@
     background:linear-gradient(135deg,#8dffd0,#38e0a5); padding:4px 10px; border-radius:999px; }
 
   /* ============ result ============ */
-  #result{ justify-content:flex-start; }
+  #result{ justify-content:center; }
   .rankWrap{
     flex:0 0 auto; display:flex; flex-direction:column; align-items:center;
     margin-top:2px;
@@ -411,7 +412,7 @@
     background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
   }
   .stat b{ color:#fff; }
-  .resultBtns{ width:100%; max-width:336px; margin-top:auto; padding-top:12px; }
+  .resultBtns{ width:100%; max-width:336px; margin-top:16px; padding-top:0; }
   #shareBtn{ text-decoration:none; }
   .shareIcon{ font-size:15px; }
 
@@ -500,7 +501,7 @@
     <!-- TITLE -->
     <section class="screen" id="title">
       <div class="logoBatt">🪫</div>
-      <h1>電池<span class="pct">1%</span>！<br><span class="l2">電源落ちる前に返信しろ</span></h1>
+      <h1 aria-label="電池1%！電源落ちる前に返信しろ">電池<span class="pct">1%</span>！<br><span class="l2">電源落ちる前に返信しろ</span></h1>
       <p class="lead">好きな人から「いまどこ？会える？」。<br>スマホの残量は<b>残り1%</b>。<br><b>予測変換をタップ</b>して返信を組み立て、画面が真っ暗になる前に送信しろ！</p>
       <div class="chips">
         <span class="chip red">⏱ 約14秒</span>
@@ -1123,7 +1124,7 @@
       R = {
         rank: 'D', cls: 'D',
         title: '電源プツン。既読スルー。',
-        desc: '返信は下書きのまま、画面は黒くなった。相手の「会える？」は宙に浮いたまま。',
+        desc: '返信は下書きのまま、画面は真っ暗になった。',
         reaction: ['（既読ついたまま、返事は来なかった）', '…まだ？'],
         reason: 'timeup'
       };
