@@ -288,7 +288,7 @@
   .btn2:active{ transform:translateY(1px) scale(.995); filter:brightness(.96); }
   .btn2.primary{ color:#2b0a1a; background:linear-gradient(180deg,#ffd9e5,#ff9fbe); box-shadow:0 8px 22px rgba(255,107,157,.35); }
   .btn2.ghost{ color:#e9dcff; background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.18); }
-  .btnX{ display:flex; align-items:center; justify-content:center; gap:8px; }
+  .btnX{ display:flex; align-items:center; justify-content:center; gap:8px; text-decoration:none; }
   .btnX b{ font-size:16px; }
   .tiny{ font-size:10px; color:#8e7fa8; margin-top:10px; letter-spacing:.04em; }
 </style>
@@ -366,7 +366,7 @@
       </div>
       <div class="btnRow">
         <button id="retryBtn" class="btn2 primary">もう一度挑戦</button>
-        <button id="shareBtn" class="btn2 ghost btnX"><b>𝕏</b> 結果をXでシェア</button>
+        <a id="shareBtn" class="btn2 ghost btnX" href="https://twitter.com/intent/tweet" target="_blank" rel="noopener"><b>𝕏</b> 結果をXでシェア</a>
       </div>
       <div class="tiny">※ 名義・本人確認はフィクションです</div>
     </div>
@@ -709,6 +709,8 @@
     document.getElementById('resMsg').textContent = R.msg;
     document.getElementById('resTime').textContent = R.time.toFixed(1) + '秒';
     document.getElementById('resProg').textContent = R.prog + '%';
+    var shareEl = document.getElementById('shareBtn');
+    if (shareEl) shareEl.href = shareUrl(R);
     resultEl.classList.remove('hidden');
     void resultEl.offsetWidth;
   }
@@ -740,15 +742,14 @@
     hintEl.classList.remove('show'); void hintEl.offsetWidth; hintEl.classList.add('show');
   });
 
-  document.getElementById('shareBtn').addEventListener('click', function(e){
-    e.stopPropagation();
-    if (!lastResult) return;
-    Sound.ui();
+  function shareUrl(R){
     var url = location.origin + location.pathname;
-    var text = shareText(lastResult);
-    var href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text)
-             + '&url=' + encodeURIComponent(url);
-    window.open(href, '_blank', 'noopener');
+    return 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareText(R))
+         + '&url=' + encodeURIComponent(url);
+  }
+
+  document.getElementById('shareBtn').addEventListener('click', function(){
+    Sound.ui();
   });
 
   /* =========================================================
