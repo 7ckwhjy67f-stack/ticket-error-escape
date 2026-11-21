@@ -2091,12 +2091,12 @@ function neonUchiwaText(text, y, maxW, baseSize){
   ctx.shadowColor = 'rgba(255,80,190,.9)';
   ctx.shadowBlur = 13;
   ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = size * 0.40;
+  ctx.lineWidth = size * 0.34;
   ctx.strokeText(text, 0, y);
   ctx.restore();
   // 黒の縁取り
   ctx.strokeStyle = '#0a0512';
-  ctx.lineWidth = size * 0.27;
+  ctx.lineWidth = size * 0.24;
   ctx.strokeText(text, 0, y);
   // 色の縁取り
   ctx.strokeStyle = g;
@@ -2177,31 +2177,31 @@ function paintUchiwaFace(idx, shade){
   // neon bag-moji
   var lines = c.lines || [c.text];
   var two = lines.length > 1;
-  var lsize = two ? 31 : 36;
-  var lstep = lsize * 1.04;
-  var lstart = cy + (two ? -34 : -24);
+  var lsize = 36;
+  var lstep = lsize * 1.06;
+  var lstart = cy + (two ? -40 : -24);
   for (var li = 0; li < lines.length; li++){
     neonUchiwaText(lines[li], lstart + li * lstep, R * 1.52, lsize);
   }
 
   // emoji on a soft glow
   ctx.save();
-  var eg = ctx.createRadialGradient(0, cy + 38, 2, 0, cy + 38, 30);
+  var eg = ctx.createRadialGradient(0, cy + (two ? 40 : 38), 2, 0, cy + (two ? 40 : 38), 30);
   eg.addColorStop(0, 'rgba(255,255,255,.30)');
   eg.addColorStop(1, 'rgba(255,255,255,0)');
   ctx.fillStyle = eg;
-  circle(0, cy + 38, 30); ctx.fill();
+  circle(0, cy + (two ? 40 : 38), 30); ctx.fill();
   ctx.shadowColor = 'rgba(255,255,255,.75)';
   ctx.shadowBlur = 16;
   ctx.font = '38px ' + FONT;
   ctx.fillStyle = '#fff';
-  ctx.fillText(c.emoji, 0, cy + 38);
+  ctx.fillText(c.emoji, 0, cy + (two ? 40 : 38));
   ctx.restore();
 
   // thin label
   ctx.fillStyle = 'rgba(255,255,255,.42)';
   ctx.font = '800 9px ' + FONT;
-  ctx.fillText('確定ファンサ用', 0, cy + 66);
+  ctx.fillText('確定ファンサ用', 0, cy + (two ? 70 : 66));
 
   // shiny rim
   uchiwaBody(R - 8, cy);
