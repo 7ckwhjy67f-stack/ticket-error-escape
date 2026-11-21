@@ -1176,7 +1176,7 @@
       R = {
         rank: 'SSS+', cls: 'SSSplus',
         title: 'モバイルバッテリー発見！神返信',
-        desc: '電池100%。余裕で完璧な返信、しかもハートスタンプまで送れた。',
+        desc: '電池100%。余裕の完璧な返信＋ハートスタンプ付き。',
         reaction: ['即レスうれしい！', '💗（ハートスタンプ）'],
         reason: 'battery'
       };
@@ -1256,6 +1256,7 @@
 
     show(el.result);
     el.poweroff.classList.remove('go');
+    el.bonus.classList.remove('show');
     el.dim.style.opacity = '0';
     el.vig.classList.remove('on');
     el.alert.classList.remove('show');
@@ -1326,20 +1327,30 @@
       };
     },
     start: startGame,
-    correctText: function(){ return G.slots[G.idx] ? G.slots[G.idx].options[0].t : null; },
-    pickCorrect: function(){
+    correctText: function(){ var i = window.__battery1.correctIndex(); return i < 0 ? null : G.slots[G.idx].options[i].t; },
+    correctIndex: function(){
       var sl = G.slots[G.idx];
-      if (!sl) return false;
-      var b = el.cands.querySelector('[data-i="0"]');
+      if (!sl) return -1;
+      for (var i = 0; i < sl.options.length; i++) if (sl.options[i].ok) return i;
+      return -1;
+    },
+    pickCorrect: function(){
+      var i = window.__battery1.correctIndex();
+      if (i < 0) return false;
+      var b = el.cands.querySelector('[data-i="' + i + '"]');
       if (!b) return false;
       b.click(); return true;
     },
     pickWrong: function(){
       var sl = G.slots[G.idx];
-      if (!sl || sl.options.length < 2) return false;
-      var b = el.cands.querySelector('[data-i="1"]');
-      if (!b) return false;
-      b.click(); return true;
+      if (!sl) return false;
+      for (var i = 0; i < sl.options.length; i++){
+        if (!sl.options[i].ok){
+          var b = el.cands.querySelector('[data-i="' + i + '"]');
+          if (b){ b.click(); return true; }
+        }
+      }
+      return false;
     },
     send: send,
     undo: undo,
