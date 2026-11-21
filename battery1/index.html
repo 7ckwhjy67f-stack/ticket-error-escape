@@ -550,7 +550,7 @@
     </section>
 
     <!-- low battery alert -->
-    <div id="alert" role="status" aria-live="polite">
+    <div id="alert" role="status" aria-live="polite" aria-hidden="true">
       <div class="ico">🪫</div>
       <div class="body">
         <b>バッテリー残量が低下しています</b>
@@ -834,11 +834,13 @@
   var alertHideTimer = null;
   function showAlert(){
     el.alert.classList.add('show');
+    el.alert.setAttribute('aria-hidden', 'false');
     Sound.alert();
     if (navigator.vibrate){ try { navigator.vibrate([30, 60, 30]); } catch (e) {} }
   }
   function hideAlert(){
     el.alert.classList.remove('show');
+    el.alert.setAttribute('aria-hidden', 'true');
   }
   $('alertCancel').addEventListener('click', function(){
     Sound.ui();
