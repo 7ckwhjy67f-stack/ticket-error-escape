@@ -699,6 +699,7 @@
     if (!lastResult) return;
     state = 'result'; stateT = 0;
     hudEl.classList.add('hidden');
+    bannerEl.className = ''; bannerEl.textContent = '';
     var R = lastResult;
     document.getElementById('resIcon').textContent = R.icon;
     document.getElementById('resKicker').textContent = R.kicker;
@@ -735,6 +736,7 @@
     if (state !== 'result') return;
     Sound.ui();
     resultEl.classList.add('hidden');
+    bannerEl.className = ''; bannerEl.textContent = '';
     hudEl.classList.remove('hidden');
     resetRound();
     state = 'play'; stateT = 0;
