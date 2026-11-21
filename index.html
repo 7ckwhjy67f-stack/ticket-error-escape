@@ -2218,7 +2218,7 @@ window.addEventListener('unhandledrejection', function(e){ window.__errors.push(
     get holding(){ return holding; },
     get result(){ return lastResult; },
     player: player,
-    guards: guards,
+    get guards(){ return guards; },
     press: press,
     release: release,
     config: { W: W, get H(){ return H; }, START_Y: START_Y, GOAL_Y: GOAL_Y, RUN_SPEED: RUN_SPEED, CONE_LEN: CONE_LEN, CONE_HALF: CONE_HALF, TIME_LIMIT: TIME_LIMIT },
