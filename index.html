@@ -100,15 +100,15 @@
   #banner.gold{ background:linear-gradient(180deg,#ffe9a3,#ffb03a); color:#3a2000; box-shadow:0 10px 34px rgba(255,176,58,.55); }
   #banner.blue{ background:linear-gradient(180deg,#a6e4ff,#3aa9ff); color:#04223a; box-shadow:0 10px 34px rgba(58,169,255,.55); }
   #speech{
-    position:absolute; left:50%; top:53%; transform:translate(-50%,-50%) scale(.9);
-    z-index:9; pointer-events:none; opacity:0;
+    position:absolute; left:50%; top:73%; transform:translate(-50%,-50%) scale(.9);
+    z-index:9; pointer-events:none; opacity:0; visibility:hidden;
     width:min(88%, 320px); padding:12px 15px; border-radius:16px;
     background:rgba(255,255,255,.97); color:#2a1b3d; text-align:center;
     font-size:13px; font-weight:800; line-height:1.55; letter-spacing:.01em;
     box-shadow:0 14px 34px rgba(0,0,0,.5), 0 0 0 2px rgba(255,209,102,.75);
-    transition:opacity .25s ease, transform .32s cubic-bezier(.2,1.5,.4,1);
+    transition:opacity .25s ease, transform .32s cubic-bezier(.2,1.5,.4,1), visibility 0s .3s;
   }
-  #speech.show{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+  #speech.show{ opacity:1; visibility:visible; transform:translate(-50%,-50%) scale(1); transition:opacity .25s ease, transform .32s cubic-bezier(.2,1.5,.4,1); }
   #speech .who{ display:block; font-size:10px; font-weight:900; letter-spacing:.18em; color:#c2185b; margin-bottom:4px; }
   @keyframes bannerPop{
     0%{opacity:0; transform:translate(-50%,-50%) scale(.7)}
@@ -1360,9 +1360,10 @@ window.addEventListener('unhandledrejection', function(e){ window.__errors.push(
           Sound.oshi();
           doFlash('gold');
         }
-        if (stateT > 2.7){
+        if (stateT > 3.2){
           if (!REVEAL.walking){
             REVEAL.walking = true;
+            hideSpeech();
             showBanner('🎫 VIP裏口へご案内…', 'green');
           }
           player.moving = true;
@@ -1375,7 +1376,7 @@ window.addEventListener('unhandledrejection', function(e){ window.__errors.push(
       }
       updateGuards(dt * 0.7);
       camY += (player.y - H * 0.62 - camY) * Math.min(1, dt * 6);
-      if (stateT > 4.4){
+      if (stateT > 5.2){
         REVEAL.done = true;
         lastResult = buildResult('reveal', REVEAL.used, 1);
         showResult();
@@ -1936,12 +1937,12 @@ window.addEventListener('unhandledrejection', function(e){ window.__errors.push(
 
   function drawSaluteMark(g, y){
     ctx.save();
-    var txt = '2/2 OK ✓';
+    var txt = (state === 'reveal') ? '!' : '2/2 OK ✓';
     ctx.font = '900 10px "Hiragino Sans","Noto Sans JP",sans-serif';
     var wdt = ctx.measureText(txt).width + 14;
     ctx.fillStyle = 'rgba(255,255,255,.95)';
     rr(g.x - wdt/2, y - 58, wdt, 18, 9); ctx.fill();
-    ctx.fillStyle = '#1f7fbf';
+    ctx.fillStyle = (state === 'reveal') ? '#c2185b' : '#1f7fbf';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(txt, g.x, y - 49);
     ctx.restore();
