@@ -633,7 +633,10 @@ var Sound = (function(){
 /* =========================================================
    game state
 ========================================================= */
-var CANPE = [{ text: '指さして', emoji: '👉' }, { text: 'ハート作って', emoji: '🫶' }];
+var CANPE = [
+  { text: '指さして', emoji: '👉', lines: ['指さして'] },
+  { text: 'ハート作って', emoji: '🫶', lines: ['ハート', '作って'] }
+];
 var TIERS = [
   { name: 'お手振り', emoji: '👋', base: 40 },
   { name: '指さし', emoji: '👉', base: 80 },
@@ -671,6 +674,7 @@ var S = {
   endedKind: null
 };
 var ambient = 0;
+var flipFreeze = false;
 var lastTs = 0;
 var toastTimer = 0;
 
@@ -1125,7 +1129,7 @@ function update(dt){
   S.raiseAmt += (target - S.raiseAmt) * Math.min(1, dt * 13);
   if (Math.abs(target - S.raiseAmt) < 0.002) S.raiseAmt = target;
 
-  if (S.flipAnim < 1){
+  if (S.flipAnim < 1 && !flipFreeze){
     S.flipAnim = Math.min(1, S.flipAnim + dt / 0.26);
   }
 
@@ -2042,33 +2046,29 @@ function uchiwaHandle(){
     ctx.stroke();
   }
 
-  // fist holding it
+  // fist gripping the stick
   ctx.fillStyle = '#ffd9c6';
-  rr(-12, 138, 24, 26, 11); ctx.fill();
-  ctx.strokeStyle = 'rgba(190,120,100,.4)';
+  rr(-14, 129, 28, 35, 13); ctx.fill();
+  ctx.strokeStyle = 'rgba(185,115,96,.45)';
   ctx.lineWidth = 1.2;
-  rr(-12, 138, 24, 26, 11); ctx.stroke();
-  ctx.strokeStyle = 'rgba(200,132,110,.45)';
-  ctx.lineWidth = 1.1;
-  for (var f = 0; f < 3; f++){
-    var fy = 145 + f * 6.2;
-    ctx.beginPath();
-    ctx.moveTo(-7.5, fy);
-    ctx.lineTo(7.5, fy);
-    ctx.stroke();
+  rr(-14, 129, 28, 35, 13); ctx.stroke();
+  for (var f = 0; f < 4; f++){
+    var fy = 132.5 + f * 7.4;
+    ctx.fillStyle = f % 2 ? '#ffcfb9' : '#ffe0ce';
+    rr(-13.5, fy, 27, 7, 3.5); ctx.fill();
+    ctx.strokeStyle = 'rgba(185,115,96,.30)';
+    ctx.lineWidth = 0.9;
+    rr(-13.5, fy, 27, 7, 3.5); ctx.stroke();
   }
-  // thumb
-  ctx.fillStyle = '#ffe6d8';
-  ctx.beginPath();
-  ctx.moveTo(-9, 142);
-  ctx.quadraticCurveTo(-16, 146, -13, 154);
-  ctx.quadraticCurveTo(-9, 157, -6, 151);
-  ctx.closePath();
-  ctx.fill();
+  ctx.fillStyle = '#ffeade';
+  rr(-10, 126, 20, 9, 4.5); ctx.fill();
+  ctx.strokeStyle = 'rgba(185,115,96,.42)';
+  ctx.lineWidth = 1;
+  rr(-10, 126, 20, 9, 4.5); ctx.stroke();
 }
 
-function neonUchiwaText(text, y, maxW){
-  var size = 28;
+function neonUchiwaText(text, y, maxW, baseSize){
+  var size = baseSize || 32;
   ctx.font = '900 ' + size + 'px ' + FONT;
   while (size > 13 && ctx.measureText(text).width > maxW){
     size -= 1;
@@ -2080,26 +2080,27 @@ function neonUchiwaText(text, y, maxW){
   ctx.miterLimit = 2;
 
   var g = ctx.createLinearGradient(0, y - size * 0.62, 0, y + size * 0.62);
-  g.addColorStop(0, '#fff7a8');
-  g.addColorStop(0.34, '#ffd23f');
-  g.addColorStop(0.66, '#ff4fa6');
-  g.addColorStop(1, '#9a6bff');
+  g.addColorStop(0, '#fffbd0');
+  g.addColorStop(0.26, '#ffd94a');
+  g.addColorStop(0.58, '#ff63b4');
+  g.addColorStop(0.82, '#b478ff');
+  g.addColorStop(1, '#6fe4ff');
 
-  // 白の太い縁取り（外側）
+  // 白の縁取り（外側）
   ctx.save();
-  ctx.shadowColor = 'rgba(255,90,190,.85)';
-  ctx.shadowBlur = 14;
+  ctx.shadowColor = 'rgba(255,80,190,.9)';
+  ctx.shadowBlur = 13;
   ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = size * 0.62;
+  ctx.lineWidth = size * 0.40;
   ctx.strokeText(text, 0, y);
   ctx.restore();
   // 黒の縁取り
   ctx.strokeStyle = '#0a0512';
-  ctx.lineWidth = size * 0.40;
+  ctx.lineWidth = size * 0.27;
   ctx.strokeText(text, 0, y);
   // 色の縁取り
   ctx.strokeStyle = g;
-  ctx.lineWidth = size * 0.17;
+  ctx.lineWidth = size * 0.13;
   ctx.strokeText(text, 0, y);
   // 塗り
   ctx.fillStyle = g;
@@ -2174,20 +2175,27 @@ function paintUchiwaFace(idx, shade){
   }
 
   // neon bag-moji
-  neonUchiwaText(c.text, cy - 22, R * 1.5);
+  var lines = c.lines || [c.text];
+  var two = lines.length > 1;
+  var lsize = two ? 31 : 36;
+  var lstep = lsize * 1.04;
+  var lstart = cy + (two ? -34 : -24);
+  for (var li = 0; li < lines.length; li++){
+    neonUchiwaText(lines[li], lstart + li * lstep, R * 1.52, lsize);
+  }
 
   // emoji on a soft glow
   ctx.save();
-  var eg = ctx.createRadialGradient(0, cy + 36, 2, 0, cy + 36, 30);
+  var eg = ctx.createRadialGradient(0, cy + 38, 2, 0, cy + 38, 30);
   eg.addColorStop(0, 'rgba(255,255,255,.30)');
   eg.addColorStop(1, 'rgba(255,255,255,0)');
   ctx.fillStyle = eg;
-  circle(0, cy + 36, 30); ctx.fill();
+  circle(0, cy + 38, 30); ctx.fill();
   ctx.shadowColor = 'rgba(255,255,255,.75)';
   ctx.shadowBlur = 16;
-  ctx.font = '40px ' + FONT;
+  ctx.font = '38px ' + FONT;
   ctx.fillStyle = '#fff';
-  ctx.fillText(c.emoji, 0, cy + 36);
+  ctx.fillText(c.emoji, 0, cy + 38);
   ctx.restore();
 
   // thin label
@@ -2518,7 +2526,9 @@ if (testMode){
   window.__fansa.test = {
     forceHidden: function(){ S.forceHidden = true; },
     finish: function(kind){ finish(kind || 'normal'); },
-    setTime: function(t){ S.t = t; }
+    setTime: function(t){ S.t = t; },
+    setFlip: function(k){ flipFreeze = true; S.canpePrev = S.canpe; S.canpe = 1 - S.canpe; S.flipAnim = k; },
+    freezeFlip: function(on){ flipFreeze = !!on; }
   };
   var wm = /[?&]w=(\d{2,4})/.exec(location.search);
   var hm = /[?&]h=(\d{2,4})/.exec(location.search);
