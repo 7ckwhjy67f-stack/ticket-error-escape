@@ -882,7 +882,7 @@
     else if (R.reason === 'oshi') head = '【QR赤線エラー！】🌟推しを目の前にして全滅した…';
     else if (R.reason === 'clear') head = '【QR赤線エラー！】黒服から逃げ切った！';
     else head = '【QR赤線エラー！】黒服につかまった…';
-    var rankLine = 'ランク: ' + R.grade + (R.reason === 'hidden' ? '（隠しクリア）' : '') + '（称号「' + R.rank + '」）';
+    var rankLine = 'ランク: ' + R.grade + (R.reason === 'hidden' ? '（隠しクリア）' : '') + ' ／ 称号「' + R.rank + '」';
     var tail = R.reason === 'hidden'
       ? '推しと名義、どっちを選ぶ？'
       : (R.reason === 'oshi' ? '推しのためなら仕方ない…' : 'あなたは発券エラーから逃げ切れる？');
