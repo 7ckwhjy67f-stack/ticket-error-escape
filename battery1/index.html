@@ -219,6 +219,14 @@
   .bubble .stamp{ font-size:10px; color:#8d82a6; margin-top:4px; display:block; }
   @keyframes popIn{ from{ transform:translateY(6px) scale(.96); opacity:0; } to{ transform:none; opacity:1; } }
   .chat .spacer{ flex:1 1 auto; }
+  .playHint{
+    margin:auto 0; padding:0 8px; text-align:center;
+    font-size:11px; line-height:1.75; color:#6d6183; letter-spacing:.02em;
+    transition:opacity .35s ease;
+  }
+  .playHint b{ color:#a793c6; }
+  .playHint .warn{ display:inline-block; margin-top:3px; color:#b05f73; }
+  .playHint.gone{ opacity:0; }
   .needReply{
     align-self:flex-start; font-size:10.5px; color:#a99dc4; letter-spacing:.02em;
     display:flex; align-items:center; gap:5px; padding-left:2px;
@@ -902,6 +910,12 @@
     nr.style.marginTop = '4px';
     el.chat.appendChild(nr);
 
+    var hint = document.createElement('div');
+    hint.className = 'playHint';
+    hint.innerHTML = '残り<b>1%</b>。予測変換をタップして<br>返信を組み立てろ！' +
+      '<span class="warn">⚠ 黒歴史変換が混ざってる</span>';
+    el.chat.insertBefore(hint, el.chat.firstChild);
+
     G.total = 2600 + G.slots.length * 2350;   // 5 slots ≒ 14.4s, 4 slots ≒ 12.0s, 3 ≒ 9.7s
     if (G.battery) G.total = 46000;
     G.startedAt = performance.now();
@@ -977,6 +991,11 @@
 
     G.picks.push({ text: op.t, ok: op.ok });
     G.idx++;
+    var h = el.chat.querySelector('.playHint');
+    if (h && !h.classList.contains('gone')){
+      h.classList.add('gone');
+      setTimeout(function(){ if (h.parentNode) h.parentNode.removeChild(h); }, 400);
+    }
     renderPreview(true);
     if (G.idx >= G.slots.length) readyState(); else renderSlot();
   }
