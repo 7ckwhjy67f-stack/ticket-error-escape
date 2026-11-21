@@ -168,6 +168,11 @@
   /* ================= PULL ================= */
   #pull{ padding-top:calc(env(safe-area-inset-top) + 54px); }
   .p-head{ width:100%; display:flex; gap:6px; justify-content:center; flex-wrap:nowrap; }
+  .p-mid{ flex:1; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:0; gap:6px; }
+  .pullno{ font-size:11px; color:#cfc4ea; letter-spacing:.08em; }
+  .pullno b{ font-size:15px; color:#ffe27a; font-weight:900; margin-right:2px; }
+  .psum{ font-size:10.5px; color:#a99fd0; letter-spacing:.04em; min-height:13px; }
+  .psum i{ font-style:normal; color:#8ecbff; } .psum em{ font-style:normal; color:#ffd24a; } .psum s{ text-decoration:none; color:#ff9ad5; }
   .chip{
     flex:1 1 0; min-width:0; text-align:center; padding:5px 4px; border-radius:10px;
     background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
@@ -182,7 +187,7 @@
     display:grid; grid-template-columns:repeat(5,1fr); gap:6px; width:100%;
     perspective:900px; position:relative; z-index:3;
   }
-  .card{ position:relative; aspect-ratio:.70; }
+  .card{ position:relative; aspect-ratio:.62; }
   .card .inner{
     position:absolute; inset:0; transform-style:preserve-3d;
     transition:transform .17s cubic-bezier(.3,1.5,.55,1);
@@ -284,8 +289,8 @@
     background:linear-gradient(90deg,#ffd24a,#ff9ad5,#7dffd0); box-shadow:0 0 14px rgba(255,180,240,.7);
     letter-spacing:.04em;
   }
-  .hit-inner{ display:flex; gap:8px; align-items:center; }
-  .hit-art{ width:86px; height:108px; border-radius:9px; overflow:hidden; flex:none; box-shadow:0 0 16px rgba(255,200,255,.5); }
+  .hit-inner{ display:flex; gap:9px; align-items:center; }
+  .hit-art{ width:100px; height:125px; border-radius:9px; overflow:hidden; flex:none; box-shadow:0 0 18px rgba(255,200,255,.6); }
   .hit-art svg{ width:100%; height:100%; display:block; }
   .hit-txt{ min-width:0; flex:1; }
   .hit-r{ font-size:9px; font-weight:900; color:#ffd24a; letter-spacing:.14em; }
@@ -412,6 +417,8 @@
         <div class="chip dia"><b id="tDia">0</b>ダイヤ</div>
       </div>
 
+      <div class="p-mid">
+      <div class="pullno"><b id="tTen">1</b>回目の10連</div>
       <div id="gridwrap">
         <div id="grid"></div>
         <div id="piki">……ピキッ！</div>
@@ -429,7 +436,8 @@
         </div>
         <div id="light"></div>
       </div>
-
+      <div class="psum" id="tSum"></div>
+      </div>
       <div class="p-foot">
         <div class="phint" id="pHint">★5が出るまで回せ！</div>
         <button id="btnSkip" class="skipbtn">⏩ 全めくり／スキップ</button>
@@ -915,12 +923,13 @@
     // 昇格フラグ
     cards.forEach(c => {
       if(CHARS[c.key].r === 5){
-        c.promo = !!(c.road || c.ceil) || Math.random() < 0.55;
+        c.promo = S.forcePromo ? true : (!!(c.road || c.ceil) || Math.random() < 0.55);
         c.from = Math.random() < 0.3 ? 3 : 4;
       }else{
         c.promo = false;
       }
     });
+    if(S.forcePromo) S.forcePromo = false;
     return cards;
   }
 
@@ -1066,6 +1075,8 @@
 
     const cards = makePull();
     buildGrid();
+    $('#tTen').textContent = S.tens;
+    $('#tSum').innerHTML = '';
     $('#pHint').innerHTML = S.tens === 1 ? 'ダイヤ <b>350</b> 消費！ 10連スタート！' : '<b>' + S.tens + '回目</b>の10連！';
 
     await lightIntro();
@@ -1078,6 +1089,10 @@
 
     if(cards.every(c => CHARS[c.key].r >= 4)) S.allGold = true;
     S.maxHits = Math.max(S.maxHits, hitsHere);
+
+    const c3 = cards.filter(c => CHARS[c.key].r === 3).length;
+    const c4 = cards.filter(c => CHARS[c.key].r === 4).length;
+    $('#tSum').innerHTML = '今回：<i>★3×' + c3 + '</i>　<em>★4×' + c4 + '</em>' + (hitsHere ? '　<s>★5×' + hitsHere + '</s>' : '');
 
     if(hitsHere > 0){
       // ---- RTA ゴール ----
@@ -1275,6 +1290,7 @@
   window.__gacha = {
     state: S,
     force(list){ S.forced = list.map(a => a.slice()); },
+    forcePromo(v){ S.forcePromo = !!v; },
     rainbow(v){ S.rainbowRoad = !!v; titleEl.classList.toggle('aura', !!v); },
     fast(on){ S.skip = !!on; },
     start, reset: resetGame, calcRank
