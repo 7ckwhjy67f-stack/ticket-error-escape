@@ -819,7 +819,7 @@
     nowSec += dt;
 
     if (state === 'error'){
-      if (stateT > 1.0 && !errBannerShown){
+      if (stateT > 0.55 && !errBannerShown){
         errBannerShown = true;
         showBanner('🔴 発券エラー発生！本人確認窓口へ');
       }
