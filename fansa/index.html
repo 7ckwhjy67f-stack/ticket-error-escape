@@ -960,6 +960,10 @@ function buildResult(kind){
   var bestTier = count ? S.fansa[S.fansa.length - 1].tier : -1;
 
   if (kind === 'hidden'){
+    if (!S.fansa.length){
+      S.fansa.push({ n: 1, tier: 3, q: 'PERFECT', pts: 999, flip: true, t: S.t });
+    }
+    if (S.maxCombo < 1) S.maxCombo = 1;
     rank = 'SSS+';
     title = 'トロッコ停止・ゼロ距離確定ファンサ';
     sub = '推しのトロッコが目の前で緊急停止。5秒間のゼロ距離ロックオンで、確定ファンサを独占した。';
@@ -1770,12 +1774,13 @@ function drawGazeFx(pose, look, t){
 var staffLines = ['', '…お客様？', 'うちわ、高いよ！', ''];
 
 function drawStaff(t){
-  var x = 36, y = H * 0.895;
+  var x = 38, y = H * 0.875;
   var level = S.alert > 82 ? 2 : (S.alert > 52 ? 1 : 0);
   var shake = level === 2 ? Math.sin(t * 30) * 1.2 : 0;
 
   ctx.save();
   ctx.translate(x + shake, y);
+  ctx.scale(1.15, 1.15);
 
   // shadow
   ctx.fillStyle = 'rgba(0,0,0,.35)';
@@ -1865,7 +1870,7 @@ function drawStaff(t){
   // alert "!" above head
   if (level >= 1){
     ctx.save();
-    ctx.translate(x + 20, y - 84 + Math.sin(t * 9) * 2);
+    ctx.translate(x + 20, y - 96 + Math.sin(t * 9) * 2);
     ctx.fillStyle = level === 2 ? '#ff3355' : '#ffd76a';
     ctx.font = '900 18px ' + FONT;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -2161,6 +2166,11 @@ if (testMode){
     finish: function(kind){ finish(kind || 'normal'); },
     setTime: function(t){ S.t = t; }
   };
+  var wm = /[?&]w=(\d{2,4})/.exec(location.search);
+  var hm = /[?&]h=(\d{2,4})/.exec(location.search);
+  if (wm) stage.style.width = wm[1] + 'px';
+  if (hm) stage.style.height = hm[1] + 'px';
+  if (wm || hm) setTimeout(resize, 0);
 }
 })();
 </script>
