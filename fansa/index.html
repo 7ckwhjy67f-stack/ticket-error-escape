@@ -90,7 +90,7 @@
   }
   .lead{ margin:2px 0 4px; text-align:center; font-size:12.5px; line-height:1.7; color:#cfc2ec; }
   .lead b{ color:#ffe6a8; }
-  .canpes{ display:flex; gap:9px; margin:1px 0 3px; }
+  .canpes{ display:flex; gap:9px; margin:9px 0 3px; }
   .canpe{
     position:relative; min-width:140px; padding:15px 12px 10px;
     border-radius:14px; text-align:center;
@@ -905,7 +905,7 @@ function beginStop(){
   S.mode = 'stop';
   S.stop.active = true;
   S.stop.t = 0;
-  S.stop.p = clamp(S.t / DURATION, 0, 1);
+  S.stop.p = trolleyProgress();
   S.stop.pumped = false;
   S.stop.given = false;
   S.alert = Math.min(S.alert, 24);
@@ -1318,9 +1318,9 @@ function trolleyProgress(){
 function trolleyPose(p){
   var pc = clamp(p, -0.1, 1.15);
   var arc = Math.sin(Math.PI * clamp(pc, 0, 1));
-  var x = W * (-0.20) + W * 1.40 * pc;
+  var x = W * (0.10 + 0.80 * pc);
   var y = H * 0.395 + H * 0.085 * arc;
-  var s = 0.72 + 0.56 * arc;
+  var s = 0.78 + 0.50 * arc;
   return { x: x, y: y, s: s, arc: arc, p: pc };
 }
 
@@ -1428,22 +1428,89 @@ function drawBG(t){
   rg.addColorStop(1, 'rgba(255,160,220,0)');
   ctx.fillStyle = rg;
   ctx.fillRect(0, rimY, W, 24);
+
+  // stands behind the aisle
+  var stand = ctx.createLinearGradient(0, H * 0.25, 0, H * 0.57);
+  stand.addColorStop(0, 'rgba(20,9,38,0)');
+  stand.addColorStop(0.35, 'rgba(20,9,38,.55)');
+  stand.addColorStop(1, 'rgba(9,4,18,.92)');
+  ctx.fillStyle = stand;
+  ctx.fillRect(0, H * 0.25, W, H * 0.32);
+
+  // arena floor haze + barrier rail
+  var fy = H * 0.63;
+  var fg = ctx.createLinearGradient(0, fy - 46, 0, fy + 70);
+  fg.addColorStop(0, 'rgba(255,120,200,0)');
+  fg.addColorStop(0.55, 'rgba(255,120,200,.055)');
+  fg.addColorStop(1, 'rgba(255,120,200,0)');
+  ctx.fillStyle = fg;
+  ctx.fillRect(0, fy - 46, W, 120);
+  ctx.strokeStyle = 'rgba(255,255,255,.10)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, fy);
+  ctx.lineTo(W, fy);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,.055)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, fy + 7);
+  ctx.lineTo(W, fy + 7);
+  ctx.stroke();
+  for (var k = 0; k < 9; k++){
+    var kx = (k + 0.5) * W / 9;
+    var kc = k % 2 ? '255,140,200' : '140,190,255';
+    ctx.fillStyle = 'rgba(' + kc + ',.55)';
+    circle(kx, fy, 1.8);
+    ctx.fill();
+    var kg = ctx.createRadialGradient(kx, fy, 0, kx, fy, 9);
+    kg.addColorStop(0, 'rgba(' + kc + ',.35)');
+    kg.addColorStop(1, 'rgba(' + kc + ',0)');
+    ctx.fillStyle = kg;
+    circle(kx, fy, 9);
+    ctx.fill();
+  }
 }
 
 function drawCrowdBack(t){
-  for (var i = 0; i < 30; i++){
-    var x = ((i * 97 + 31) % 1000) / 1000 * W;
-    var baseY = H * 0.275 + ((i * 53) % 100) / 100 * H * 0.055;
-    var sway = Math.sin(t * 1.4 + i) * 3;
-    var col = i % 3 === 0 ? '120,200,255' : (i % 3 === 1 ? '255,140,200' : '255,225,150');
-    ctx.fillStyle = 'rgba(' + col + ',.55)';
-    ctx.beginPath();
-    ctx.ellipse(x + sway, baseY, 1.6, 4.5, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = 'rgba(' + col + ',.12)';
-    ctx.beginPath();
-    ctx.arc(x + sway, baseY, 5, 0, Math.PI * 2);
-    ctx.fill();
+  var rows = [
+    { y: 0.285, r: 2.6, a: 0.60 },
+    { y: 0.330, r: 3.0, a: 0.52 },
+    { y: 0.380, r: 3.4, a: 0.46 },
+    { y: 0.440, r: 3.9, a: 0.40 },
+    { y: 0.505, r: 4.4, a: 0.34 },
+    { y: 0.565, r: 4.9, a: 0.28 }
+  ];
+  for (var ri = 0; ri < rows.length; ri++){
+    var row = rows[ri];
+    var step = row.r * 4.6;
+    var off = (ri % 2) * step * 0.5;
+    for (var i = 0; i * step + off < W + step; i++){
+      var x = i * step + off;
+      var y = H * row.y;
+      var sway = Math.sin(t * 1.5 + i * 1.1 + ri) * (1.4 + ri * 0.4);
+      // silhouette
+      ctx.fillStyle = 'rgba(6,3,14,' + (row.a * 0.8).toFixed(2) + ')';
+      ctx.beginPath();
+      ctx.arc(x, y - row.r * 1.5 + sway, row.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(x, y + row.r * 0.25, row.r * 1.5, row.r * 1.1, 0, Math.PI, Math.PI * 2);
+      ctx.fill();
+      // penlight
+      if ((i + ri) % 3 !== 0){
+        var pc = (i * 2 + ri) % 3 === 0 ? '120,200,255' : ((i * 2 + ri) % 3 === 1 ? '255,140,200' : '255,225,150');
+        var lx = x + Math.sin(t * 2 + i) * 2;
+        var ly = y - row.r * 2.8 + sway;
+        ctx.strokeStyle = 'rgba(' + pc + ',' + (row.a * 0.9).toFixed(2) + ')';
+        ctx.lineWidth = Math.max(1.2, row.r * 0.5);
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(lx, ly);
+        ctx.lineTo(lx + Math.sin(t * 2.4 + i) * 1.5, ly - row.r * 1.5);
+        ctx.stroke();
+      }
+    }
   }
 }
 
