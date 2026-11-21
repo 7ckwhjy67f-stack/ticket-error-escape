@@ -105,7 +105,7 @@
     100%{opacity:0; transform:translate(-50%,-58%) scale(1)}
   }
   #startHint{
-    position:absolute; left:50%; top:62%; transform:translate(-50%,-50%);
+    position:absolute; left:50%; top:76%; transform:translate(-50%,-50%);
     z-index:7; pointer-events:none; opacity:0;
     font-size:14px; font-weight:900; letter-spacing:.03em; white-space:nowrap;
     color:#1c0b22; padding:10px 18px; border-radius:99px;
@@ -823,7 +823,7 @@
         errBannerShown = true;
         showBanner('🔴 発券エラー発生！本人確認窓口へ');
       }
-      if (stateT > 3.0) beginPlay();
+      if (stateT > 3.2) beginPlay();
       return;
     }
 
