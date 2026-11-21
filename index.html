@@ -57,7 +57,7 @@
     pointer-events:none;
     opacity:1; transition:opacity .25s ease;
   }
-  #hud.hidden{ opacity:0; }
+  #hud.hidden{ opacity:0; visibility:hidden; transition:opacity .25s ease, visibility 0s .25s; }
   .hudRow{ display:flex; align-items:center; gap:10px; }
   #timerBox{
     display:flex; align-items:baseline; gap:3px;
@@ -779,6 +779,9 @@
     errBannerShown = false;
     resetRound();
     state = 'intro'; stateT = 0;
+    timerEl.textContent = TIME_LIMIT.toFixed(1);
+    timerEl.classList.remove('warn');
+    progEl.style.width = '0%';
     var scanBtn = document.getElementById('scanBtn');
     scanBtn.style.display = '';
     introEl.classList.remove('dim');
