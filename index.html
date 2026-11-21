@@ -98,6 +98,18 @@
   #banner.show{ animation:bannerPop 2.6s cubic-bezier(.2,1.4,.3,1) forwards; }
   #banner.green{ background:linear-gradient(180deg,#43f0b4,#12b981); color:#04241a; box-shadow:0 10px 34px rgba(60,230,165,.5); }
   #banner.gold{ background:linear-gradient(180deg,#ffe9a3,#ffb03a); color:#3a2000; box-shadow:0 10px 34px rgba(255,176,58,.55); }
+  #banner.blue{ background:linear-gradient(180deg,#a6e4ff,#3aa9ff); color:#04223a; box-shadow:0 10px 34px rgba(58,169,255,.55); }
+  #speech{
+    position:absolute; left:50%; top:53%; transform:translate(-50%,-50%) scale(.9);
+    z-index:9; pointer-events:none; opacity:0;
+    width:min(88%, 320px); padding:12px 15px; border-radius:16px;
+    background:rgba(255,255,255,.97); color:#2a1b3d; text-align:center;
+    font-size:13px; font-weight:800; line-height:1.55; letter-spacing:.01em;
+    box-shadow:0 14px 34px rgba(0,0,0,.5), 0 0 0 2px rgba(255,209,102,.75);
+    transition:opacity .25s ease, transform .32s cubic-bezier(.2,1.5,.4,1);
+  }
+  #speech.show{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+  #speech .who{ display:block; font-size:10px; font-weight:900; letter-spacing:.18em; color:#c2185b; margin-bottom:4px; }
   @keyframes bannerPop{
     0%{opacity:0; transform:translate(-50%,-50%) scale(.7)}
     12%{opacity:1; transform:translate(-50%,-50%) scale(1.04)}
@@ -214,6 +226,11 @@
     background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2);
     font-size:9px; font-style:normal; text-align:center; line-height:14px;
   }
+  .secretHint{
+    font-size:10px; font-weight:800; letter-spacing:.02em; color:#8f7cad;
+    margin-top:-3px; text-align:center; line-height:1.4;
+  }
+  .secretHint b{ color:#ffbcd6; }
 
   /* error state */
   #stage.err{ animation:shake .42s linear 2; }
@@ -241,6 +258,27 @@
   .errHead.on{ opacity:1; transform:none; }
   .errHead b{ display:block; font-size:16px; font-weight:900; color:#ff5d7d; }
   .errHead span{ font-size:12px; color:#cbb9e2; font-weight:700; }
+
+  /* success state (hidden QR one-shot win) */
+  #stage.ok .ticket{ box-shadow:0 0 0 3px #3ce6a5, 0 18px 50px rgba(60,230,165,.55); }
+  #stage.ok .scanline{ display:none; }
+  #stage.ok .errTag{ display:none; }
+  #stage.ok .qrWrap::after{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(circle at 50% 50%, rgba(60,230,165,.05) 35%, rgba(60,230,165,.26));
+    animation:okPulse .9s ease-out both;
+  }
+  @keyframes okPulse{ 0%{opacity:0} 30%{opacity:1} 100%{opacity:.4} }
+  .okTag{
+    position:absolute; left:50%; top:50%;
+    transform:translate(-50%,-50%) rotate(-9deg) scale(.7);
+    font-size:21px; font-weight:900; color:#0a7a56; letter-spacing:.04em;
+    opacity:0; pointer-events:none; white-space:nowrap;
+    background:rgba(255,255,255,.9); border:3px solid #3ce6a5; border-radius:12px;
+    padding:2px 10px; text-shadow:0 0 12px rgba(60,230,165,.8);
+    transition:opacity .2s, transform .35s cubic-bezier(.2,1.6,.4,1);
+  }
+  #stage.ok .okTag{ opacity:1; transform:translate(-50%,-50%) rotate(-9deg) scale(1); }
 
   /* black suits sliding in on error */
   .suits{ position:absolute; inset:0; pointer-events:none; z-index:22; overflow:hidden; }
@@ -306,6 +344,11 @@
   #resGrade.d{ background:linear-gradient(160deg,#ff9aa8,#e01e40); color:#fff; }
   #resGrade.sss{ background:linear-gradient(160deg,#fff8d0,#ffd166 42%,#ff86c8 100%); color:#4a1b00;
     box-shadow:0 0 0 3px rgba(255,255,255,.4), 0 0 28px rgba(255,209,102,.85), 0 12px 30px rgba(255,120,200,.5); }
+  #resGrade.sssp{ background:linear-gradient(150deg,#fff8d6,#ffd166 38%,#ff86c8 72%,#c08bff 100%); color:#4a1b00;
+    box-shadow:0 0 0 3px rgba(255,255,255,.5), 0 0 34px rgba(255,209,102,.9), 0 12px 30px rgba(255,120,200,.55); }
+  #resGrade.ssr{ background:linear-gradient(150deg,#e8fbff,#8fd8ff 45%,#a98bff 100%); color:#0b2240;
+    box-shadow:0 0 0 3px rgba(255,255,255,.45), 0 12px 30px rgba(120,170,255,.6); }
+  #resGrade.sssp .g, #resGrade.ssr .g{ font-size:23px; }
   #resGrade.oshi{ background:linear-gradient(160deg,#ffe9f2,#ff5f9e); color:#fff;
     box-shadow:0 0 0 3px rgba(255,255,255,.35), 0 12px 30px rgba(255,95,158,.55); }
   #resIcon{ font-size:42px; line-height:1; margin-bottom:2px; }
@@ -354,6 +397,7 @@
 
   <div id="flash"></div>
   <div id="banner"></div>
+  <div id="speech"><span class="who">推し</span><span id="speechTxt"></span></div>
   <div id="startHint">長押しでダッシュ！</div>
   <button id="mute" aria-label="音のオン・オフ">🔊</button>
   <button id="oshiBtn" class="oshiBtn hidden">😍 推しに駆け寄る</button>
@@ -372,16 +416,17 @@
           <div class="tkLabel">DIGITAL TICKET</div>
           <div class="tkName">推し活ライブ 2026</div>
         </div>
-        <div class="tkCount">1/2名</div>
+        <div class="tkCount" id="tkCount">1/2名</div>
       </div>
       <div class="tkMeta">
-        <div><span>入場ゲート</span><b>扉 A</b></div>
+        <div><span>入場ゲート</span><b id="tkGate">扉 A</b></div>
         <div><span>開演</span><b>18:00</b></div>
       </div>
       <div class="qrWrap">
         <canvas id="qr" width="344" height="344"></canvas>
         <div class="scanline"></div>
         <div class="errTag">ERROR</div>
+        <div class="okTag">OK ✓</div>
       </div>
       <div class="tkFoot">発券済み ・ <b>転売・譲渡禁止</b></div>
     </div>
@@ -392,6 +437,7 @@
       <span><i>離</i>してやり過ごす</span>
       <span><i>30</i>秒で出口へ</span>
     </div>
+    <div class="secretHint">🔍 ごく<b>まれ</b>に起きる隠しルート全4種、探してみて</div>
   </div>
 
   <div class="suits">
@@ -420,6 +466,12 @@
   </div>
 </div>
 
+<script>
+/* 実行時のエラーを記録しておく（動作確認用・表示には影響しません） */
+window.__errors = [];
+window.addEventListener('error', function(e){ window.__errors.push(String((e && e.message) || e)); });
+window.addEventListener('unhandledrejection', function(e){ window.__errors.push('rejection: ' + e.reason); });
+</script>
 <script>
 (function(){
   'use strict';
@@ -468,6 +520,19 @@
     willFire:false, fired:false, active:false, tempted:false, wipedBanner:false,
     side:-1, x:0, y:0, t:0, life:6.5, hearts:[]
   };
+
+  /* hidden event: 黒服の正体は推し（確保からの大逆転） */
+  var REVEAL_PROB = 0.18;
+  var REVEAL = { fired:false, spoken:false, done:false, used:0 };
+  var RG = null;                 // 正体が推しだった黒服
+
+  /* hidden event: 奇跡のQR一発発券 */
+  var QR_PROB = 0.10;
+  var QR = { banner2:false };
+
+  /* hidden event: 同行者が同意チェック完了 */
+  var ALLY_PROB = 0.18;
+  var ALLY = { willFire:false, fired:false, active:false, used:0, cheer:false };
   var guards = [];
   var crowd  = [];
   var pops   = [];            // little particles (footprints, sparkles)
@@ -574,6 +639,23 @@
           tone({f0:f, dur:0.18, type:'square', gain:0.11, delay:0.16 + i*0.11});
         });
         noiseBurst(0.2, 0.12, 0.5, 700);
+      },
+      qrOk: function(){
+        tone({f0:1046.5, dur:0.09, type:'triangle', gain:0.15});
+        tone({f0:1568, dur:0.13, type:'triangle', gain:0.13, delay:0.09});
+        tone({f0:2093, dur:0.55, type:'sine', gain:0.08, delay:0.22});
+        noiseBurst(0.06, 0.05, 0.02, 2400);
+      },
+      notify: function(){
+        tone({f0:1318.5, dur:0.09, type:'sine', gain:0.17});
+        tone({f0:1760, dur:0.16, type:'sine', gain:0.15, delay:0.11});
+      },
+      reveal: function(){
+        noiseBurst(0.16, 0.12, 0, 1500);
+        [523.25, 659.25, 783.99, 1046.5, 1567.98].forEach(function(f,i){
+          tone({f0:f, dur:0.22, type:'triangle', gain:0.13, delay:0.14 + i*0.08});
+        });
+        tone({f0:2093, dur:0.7, type:'sine', gain:0.07, delay:0.52});
       }
     };
   })();
@@ -671,7 +753,12 @@
     OSHI.willFire = Math.random() < OSHI_PROB;
     OSHI.fired = false; OSHI.active = false; OSHI.tempted = false;
     OSHI.t = 0; OSHI.hearts.length = 0; OSHI.wipedBanner = false;
+    ALLY.willFire = !OSHI.willFire && Math.random() < ALLY_PROB;
+    ALLY.fired = false; ALLY.active = false; ALLY.used = 0; ALLY.cheer = false;
+    REVEAL.fired = false; REVEAL.spoken = false; REVEAL.done = false; REVEAL.walking = false; REVEAL.used = 0;
+    RG = null;
     hideOshiBtn();
+    hideSpeech();
   }
 
   /* =========================================================
@@ -691,18 +778,33 @@
     bannerEl.textContent = text;
     if (kind === 'green') bannerEl.classList.add('green');
     if (kind === 'gold') bannerEl.classList.add('gold');
+    if (kind === 'blue') bannerEl.classList.add('blue');
     void bannerEl.offsetWidth;
     bannerEl.classList.add('show');
   }
-  function doFlash(){
+  function doFlash(kind){
     flashEl.classList.remove('on');
     void flashEl.offsetWidth;
-    flashEl.style.background = 'radial-gradient(circle at 50% 45%, rgba(255,45,85,.85), rgba(255,45,85,.15) 70%)';
+    flashEl.style.background = kind === 'blue'
+      ? 'radial-gradient(circle at 50% 45%, rgba(70,180,255,.85), rgba(70,180,255,.12) 70%)'
+      : (kind === 'gold'
+        ? 'radial-gradient(circle at 50% 45%, rgba(255,226,150,.85), rgba(255,209,102,.12) 70%)'
+        : 'radial-gradient(circle at 50% 45%, rgba(255,45,85,.85), rgba(255,45,85,.15) 70%)');
     flashEl.classList.add('on');
   }
 
   function showOshiBtn(){ var b = document.getElementById('oshiBtn'); if (b) b.classList.remove('hidden'); }
   function hideOshiBtn(){ var b = document.getElementById('oshiBtn'); if (b) b.classList.add('hidden'); }
+
+  var speechEl = document.getElementById('speech');
+  var speechTxtEl = document.getElementById('speechTxt');
+  function showSpeech(who, text){
+    var w = speechEl ? speechEl.querySelector('.who') : null;
+    if (w) w.textContent = who;
+    if (speechTxtEl) speechTxtEl.textContent = text;
+    if (speechEl) speechEl.classList.add('show');
+  }
+  function hideSpeech(){ if (speechEl) speechEl.classList.remove('show'); }
 
   function triggerOshi(){
     OSHI.fired = true; OSHI.active = true; OSHI.t = 0;
@@ -763,6 +865,78 @@
     if (navigator.vibrate) { try{ navigator.vibrate([40,60,40,60,140]); }catch(e){} }
   }
 
+  /* ---- 隠し②：奇跡のQR一発発券（エラーなしで神席即クリア） ---- */
+  function startQrWin(){
+    if (state !== 'intro') return;
+    state = 'qrwin'; stateT = 0;
+    QR.banner2 = false;
+    stage.classList.add('ok');
+    var scanBtn = document.getElementById('scanBtn');
+    if (scanBtn) scanBtn.style.display = 'none';
+    var gate = document.getElementById('tkGate');
+    if (gate) gate.textContent = 'アリーナA・1列目';
+    var cnt = document.getElementById('tkCount');
+    if (cnt) cnt.textContent = '2/2名';
+    Sound.qrOk();
+    showBanner('✨ ピピッ！発券成功！✨', 'green');
+    if (navigator.vibrate) { try{ navigator.vibrate([18,40,18]); }catch(e){} }
+  }
+
+  /* ---- 隠し③：同行者が同意チェック完了 ---- */
+  function triggerAlly(){
+    if (state !== 'play' || ALLY.fired) return;
+    ALLY.fired = true; ALLY.active = true;
+    ALLY.used = Math.min(TIME_LIMIT, TIME_LIMIT - timeLeft);
+    ALLY.clearedLine = false; ALLY.cheer = false; ALLY.arrived = false;
+    state = 'ally'; stateT = 0;
+    holding = false;
+    if (OSHI.active) endOshi();
+    hideOshiBtn();
+    for (var i = 0; i < guards.length; i++){
+      var g = guards[i];
+      g.mode = 'salute'; g.side = (i % 2 === 0) ? -1 : 1;
+      g.seeT = 0; g.bumpT = 0; g.shout = 0;
+    }
+    showBanner('📱 ピコン！', 'blue');
+    showSpeech('📱 通知', '同行者が同意チェックを完了しました');
+    Sound.notify();
+    doFlash('blue');
+    if (navigator.vibrate) { try{ navigator.vibrate([20,50,20]); }catch(e){} }
+  }
+
+  /* ---- 隠し①：捕まえた黒服が実は推し（確保からの大逆転） ---- */
+  function startReveal(reason, src){
+    var best = src || null;
+    if (!best){
+      var bd = 1e9;
+      for (var i = 0; i < guards.length; i++){
+        var d = Math.abs(guards[i].x - player.x) + Math.abs(guards[i].y - player.y);
+        if (d < bd){ bd = d; best = guards[i]; }
+      }
+    }
+    RG = best;
+    REVEAL.fired = true; REVEAL.spoken = false; REVEAL.done = false; REVEAL.walking = false;
+    REVEAL.used = Math.min(TIME_LIMIT, TIME_LIMIT - timeLeft);
+    state = 'reveal'; stateT = 0;
+    holding = false;
+    if (OSHI.active) endOshi();
+    hideOshiBtn();
+    for (var j = 0; j < guards.length; j++){
+      if (guards[j] !== RG){
+        guards[j].mode = 'salute'; guards[j].side = (j % 2 === 0) ? -1 : 1;
+        guards[j].seeT = 0; guards[j].bumpT = 0; guards[j].shout = 0;
+      }
+    }
+    if (RG){
+      RG.mode = 'oshi';
+      RG.x = Math.max(CORR_L + 44, Math.min(CORR_R - 44, RG.x));
+    }
+    Sound.reveal();
+    showBanner('🕶️ ……あれ？', 'gold');
+    shake = 0.4;
+    if (navigator.vibrate) { try{ navigator.vibrate([30,60,30,60,90]); }catch(e){} }
+  }
+
   function startError(){
     if (state !== 'intro') return;
     state = 'error'; stateT = 0;
@@ -786,8 +960,13 @@
     resetRound();
   }
 
-  function endRound(reason){
+  function endRound(reason, src){
     if (state !== 'play') return;
+    /* 隠し①：確保される瞬間、一定確率で大逆転 */
+    if ((reason === 'cone' || reason === 'bump') && Math.random() < REVEAL_PROB){
+      startReveal(reason, src);
+      return;
+    }
     var used = Math.min(TIME_LIMIT, TIME_LIMIT - timeLeft);
     var prog = Math.max(0, Math.min(1, (START_Y - player.y) / SPAN));
     if (reason === 'clear' && OSHI.fired && !OSHI.tempted) reason = 'hidden';
@@ -808,6 +987,9 @@
   }
 
   function gradeFor(reason, used){
+    if (reason === 'reveal') return { g:'SSS+', cls:'sssp' };
+    if (reason === 'qr') return { g:'SSR', cls:'ssr' };
+    if (reason === 'ally') return { g:'SS', cls:'ss' };
     if (reason === 'hidden') return { g:'SSS', cls:'sss' };
     if (reason === 'oshi') return { g:'D', cls:'oshi' };
     if (reason !== 'clear') return { g:'D', cls:'d' };
@@ -826,6 +1008,15 @@
     } else if (reason === 'oshi'){
       r = { icon:'💘', kicker:'尊死エンド', rank:'推しに釣られて全滅', cls:'red',
             msg:'推しを目の前にして理性が飛んだ。黑服「お客様、お気持ちはわかりますが…」→ 本人確認。' };
+    } else if (reason === 'reveal'){
+      r = { icon:'🕶️', kicker:'隠しルート', rank:'黒服の正体は推し！VIP裏口入場', cls:'gold',
+            msg:'確保された瞬間、サングラスの下から推しが現れた。「内緒で通してあげる」— 捕まったのにVIP裏口。これが最高の結末。' };
+    } else if (reason === 'qr'){
+      r = { icon:'✨', kicker:'隠しルート', rank:'エラー回避！アリーナ最前神席', cls:'gold',
+            msg:'発券機がまさかの一発成功。赤線も黒服も出番なしで、アリーナAブロック1列目へご案内。今日はすべてが噛み合っている。' };
+    } else if (reason === 'ally'){
+      r = { icon:'📱', kicker:'隠しルート', rank:'同行者の神タイミング！堂々入場', cls:'gold',
+            msg:'「同行者が同意チェックを完了しました」の一言で赤線が青に消えた。黒服が一斉に道を開けてくれた。同行者よ、ありがとう。' };
     } else if (reason === 'clear'){
       if (used <= 13) r = { icon:'👑', kicker:'完全犯罪級', rank:'名義守り抜き神', cls:'gold',
         msg:'黒服の死角だけでここまで来た…！名義も席も守り抜いた、伝説の入場。' };
@@ -855,6 +1046,9 @@
   function showResult(){
     if (!lastResult) return;
     state = 'result'; stateT = 0;
+    holding = false;
+    player.moving = false;
+    hideSpeech();
     hudEl.classList.add('hidden');
     bannerEl.className = ''; bannerEl.textContent = '';
     var R = lastResult;
@@ -880,11 +1074,15 @@
     var head;
     if (R.reason === 'hidden') head = '【QR赤線エラー！】🌟推しが通りかかったのに逃げ切った！';
     else if (R.reason === 'oshi') head = '【QR赤線エラー！】🌟推しを目の前にして全滅した…';
+    else if (R.reason === 'reveal') head = '【QR赤線エラー！】🕶️捕まえた黒服の正体は推しだった！';
+    else if (R.reason === 'qr') head = '【QR赤線エラー！】✨QR一発でアリーナ最前席きた！';
+    else if (R.reason === 'ally') head = '【QR赤線エラー！】📱同行者の同意チェックが神タイミングすぎた';
     else if (R.reason === 'clear') head = '【QR赤線エラー！】黒服から逃げ切った！';
     else head = '【QR赤線エラー！】黒服につかまった…';
-    var rankLine = 'ランク: ' + R.grade + (R.reason === 'hidden' ? '（隠しクリア）' : '') + ' ／ 称号「' + R.rank + '」';
-    var tail = R.reason === 'hidden'
-      ? '推しと名義、どっちを選ぶ？'
+    var secret = (R.reason === 'hidden' || R.reason === 'reveal' || R.reason === 'qr' || R.reason === 'ally');
+    var rankLine = 'ランク: ' + R.grade + (secret ? '（隠しルート）' : '') + ' ／ 称号「' + R.rank + '」';
+    var tail = secret
+      ? '全4種の隠しルート、見つけられる？'
       : (R.reason === 'oshi' ? '推しのためなら仕方ない…' : 'あなたは発券エラーから逃げ切れる？');
     return head + '\n' + rankLine + '\nタイム ' + R.time.toFixed(1) + '秒・突破率 ' + R.prog + '%\n'
       + tail + '\n#チケ発エラー #黒服から逃げ切れ #推し活';
@@ -895,7 +1093,8 @@
     if (state !== 'intro') return;
     Sound.unlock();
     Sound.ui();
-    startError();
+    if (Math.random() < QR_PROB) startQrWin();
+    else startError();
   });
 
   function backToIntro(){
@@ -903,7 +1102,13 @@
     hudEl.classList.add('hidden');
     bannerEl.className = ''; bannerEl.textContent = '';
     stage.classList.remove('err');
+    stage.classList.remove('ok');
     errBannerShown = false;
+    hideSpeech();
+    var gate = document.getElementById('tkGate');
+    if (gate) gate.textContent = '扉 A';
+    var cnt = document.getElementById('tkCount');
+    if (cnt) cnt.textContent = '1/2名';
     resetRound();
     state = 'intro'; stateT = 0;
     timerEl.textContent = TIME_LIMIT.toFixed(1);
@@ -981,6 +1186,13 @@
   function updateGuards(dt){
     for (var i=0;i<guards.length;i++){
       var g = guards[i];
+      if (g.mode === 'salute'){
+        var sx = (g.side < 0) ? CORR_L + 24 : CORR_R - 24;
+        g.x += (sx - g.x) * Math.min(1, dt * 3.2);
+        g.seeT = 0; g.bumpT = 0;
+        continue;
+      }
+      if (g.mode === 'oshi'){ continue; }
       if (g.mode === 'escort'){
         var qx = OSHI.x + (OSHI.side < 0 ? 16 : -16);
         var qy = OSHI.y + 34 + g.queue * 30;
@@ -1033,6 +1245,18 @@
       return;
     }
 
+    if (state === 'qrwin'){
+      if (stateT > 1.05 && !QR.banner2){
+        QR.banner2 = true;
+        showBanner('🎫 アリーナAブロック1列目！', 'gold');
+      }
+      if (stateT > 2.55){
+        lastResult = buildResult('qr', 0, 1);
+        showResult();
+      }
+      return;
+    }
+
     if (state === 'play'){
       timeLeft -= dt;
       elapsed += dt;
@@ -1065,11 +1289,11 @@
       // catch tests
       for (var i=0;i<guards.length;i++){
         var g = guards[i];
-        if (g.mode === 'escort') continue;
+        if (g.mode === 'escort' || g.mode === 'salute' || g.mode === 'oshi') continue;
         if (inCone(g, player.x, player.y)){
           if (player.moving){
             g.seeT += dt;
-            if (g.seeT > GRACE){ endRound('cone'); break; }
+            if (g.seeT > GRACE){ endRound('cone', g); break; }
           } else {
             g.seeT = Math.max(0, g.seeT - dt * 2);
           }
@@ -1080,7 +1304,7 @@
         if (Math.abs(dx) < BODY_HIT && Math.abs(dy) < BODY_HIT){
           if (player.moving){
             g.bumpT += dt;
-            if (g.bumpT > BUMP_GRACE){ endRound('bump'); break; }
+            if (g.bumpT > BUMP_GRACE){ endRound('bump', g); break; }
           } else g.bumpT = 0;
         } else g.bumpT = 0;
       }
@@ -1089,6 +1313,11 @@
       var target = player.y - H * 0.62;
       camY += (target - camY) * Math.min(1, dt * 9);
       camY = Math.max(camY, GOAL_Y - 70);
+
+      /* 隠し③：中盤で同行者の同意チェックが完了 */
+      if (state === 'play' && !ALLY.fired && ALLY.willFire && prog > 0.32 && timeLeft > 8 && !OSHI.active){
+        triggerAlly();
+      }
     }
 
     if (state === 'wiped'){
@@ -1111,6 +1340,72 @@
       }
       camY += (player.y - H * 0.55 - camY) * Math.min(1, dt * 5);
       if (stateT > 1.6) showResult();
+    }
+
+    /* 隠し①：黒服の正体は推し。サングラスを外してVIP裏口へ */
+    if (state === 'reveal'){
+      shake = Math.max(0, shake - dt * 3);
+      if (RG){
+        if (stateT < 1.0){
+          var tx = RG.x + (player.x < RG.x ? 28 : -28);
+          player.x += (tx - player.x) * Math.min(1, dt * 6);
+          player.y += ((RG.y + 36) - player.y) * Math.min(1, dt * 6);
+          player.moving = false;
+        }
+        if (stateT > 0.8 && !REVEAL.spoken){
+          REVEAL.spoken = true;
+          showBanner('✨ 黒服の正体は…推し！✨', 'gold');
+          showSpeech('推し（黒服）', '……俺のライブ、そんなに見たかったの？内緒で通してあげる。');
+          Sound.oshi();
+          doFlash('gold');
+        }
+        if (stateT > 2.7){
+          if (!REVEAL.walking){
+            REVEAL.walking = true;
+            showBanner('🎫 VIP裏口へご案内…', 'green');
+          }
+          player.moving = true;
+          player.anim += dt;
+          player.y -= 300 * dt;
+          RG.y = Math.max(GOAL_Y + 40, player.y - 46);
+          RG.x += (player.x - RG.x) * Math.min(1, dt * 4);
+          if (player.y <= GOAL_Y + 26) player.y = GOAL_Y + 26;
+        }
+      }
+      updateGuards(dt * 0.7);
+      camY += (player.y - H * 0.62 - camY) * Math.min(1, dt * 6);
+      if (stateT > 4.4){
+        REVEAL.done = true;
+        lastResult = buildResult('reveal', REVEAL.used, 1);
+        showResult();
+      }
+    }
+
+    /* 隠し③：同行者の同意で赤線が青く消え、黒服が道を開ける */
+    if (state === 'ally'){
+      if (stateT > 0.9 && !ALLY.clearedLine){
+        ALLY.clearedLine = true;
+        showBanner('🟦 赤線エラー、青く消滅', 'blue');
+        doFlash('blue');
+      }
+      if (stateT > 1.9 && !ALLY.cheer){
+        ALLY.cheer = true;
+        hideSpeech();
+        showBanner('🫡 2/2確認OK！失礼しました〜', 'green');
+        Sound.clear();
+      }
+      if (stateT > 2.9){
+        player.moving = true;
+        player.anim += dt;
+        player.y -= 430 * dt;
+        if (player.y <= GOAL_Y + 14){ player.y = GOAL_Y + 14; ALLY.arrived = true; }
+      }
+      updateGuards(dt);
+      camY += (player.y - H * 0.62 - camY) * Math.min(1, dt * 7);
+      if (ALLY.arrived || stateT > 6.2){
+        lastResult = buildResult('ally', ALLY.used, 1);
+        showResult();
+      }
     }
 
     if (state === 'caught' || state === 'cleared'){
@@ -1301,6 +1596,37 @@
     ctx.fill();
   }
 
+  function drawRevealGlow(){
+    if (state !== 'reveal' || !RG) return;
+    var x = RG.x, y = sy(RG.y);
+    if (y < -200 || y > H + 200) return;
+    var t = nowSec;
+    var lg = ctx.createLinearGradient(x, y - 170, x, y + 40);
+    lg.addColorStop(0, 'rgba(255,236,190,0)');
+    lg.addColorStop(0.5, 'rgba(255,226,160,.22)');
+    lg.addColorStop(1, 'rgba(255,180,220,.36)');
+    ctx.fillStyle = lg;
+    ctx.beginPath();
+    ctx.moveTo(x - 20, y - 170);
+    ctx.lineTo(x + 20, y - 170);
+    ctx.lineTo(x + 70, y + 34);
+    ctx.lineTo(x - 70, y + 34);
+    ctx.closePath();
+    ctx.fill();
+
+    var k = Math.min(1, stateT / 0.5);
+    for (var i = 0; i < 10; i++){
+      var a = t * 2.2 + i * 0.63;
+      var rad = 20 + (i % 4) * 12 + Math.sin(t * 3 + i) * 5;
+      var sxp = x + Math.cos(a) * rad;
+      var syp = y - 22 + Math.sin(a * 1.3) * rad * 0.7;
+      ctx.globalAlpha = k * (0.35 + 0.6 * Math.abs(Math.sin(a * 1.7)));
+      ctx.fillStyle = i % 2 ? '#fff3b0' : '#ffd1e8';
+      star(sxp, syp, 2 + Math.abs(Math.sin(a * 2)) * 3.2);
+    }
+    ctx.globalAlpha = 1;
+  }
+
   function drawOshi(){
     if (!OSHI.active && !OSHI.tempted) return;
     var x = OSHI.x, y = sy(OSHI.y);
@@ -1473,7 +1799,9 @@
     if (y < -120 || y > H + 120) return;
     if (g.mode === 'escort'){
       drawEscortMark(g, y);
-    } else {
+    } else if (g.mode === 'salute'){
+      drawSaluteMark(g, y);
+    } else if (g.mode !== 'oshi'){
       drawCone(g);
     }
 
@@ -1509,6 +1837,42 @@
     rr(10.5, -10, 4.5, 17, 2.4); ctx.fill();
 
     // head
+    if (g.mode === 'oshi'){
+      // サングラスの下から推しが登場
+      ctx.beginPath(); ctx.arc(0, -21, 9, 0, 7);
+      ctx.fillStyle = '#ffe2d3'; ctx.fill();
+      // pink twin-tail hair
+      ctx.fillStyle = '#f0a8d0';
+      ctx.beginPath();
+      ctx.arc(0, -22, 9.6, Math.PI * 1.02, Math.PI * 2.02);
+      ctx.fill();
+      ctx.beginPath(); ctx.arc(-10.5, -20, 4.2, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(10.5, -20, 4.2, 0, 7); ctx.fill();
+      // sparkling eyes
+      ctx.fillStyle = '#3a1730';
+      ctx.beginPath(); ctx.arc(-3.4, -19.5, 1.6, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(3.4, -19.5, 1.6, 0, 7); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(-2.9, -20.1, 0.7, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(3.9, -20.1, 0.7, 0, 7); ctx.fill();
+      // smile
+      ctx.strokeStyle = '#c4537f'; ctx.lineWidth = 1.1;
+      ctx.beginPath(); ctx.arc(0, -17.6, 2.4, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+      // halo star
+      ctx.fillStyle = '#ffe27a';
+      star(0, -35 + Math.sin(nowSec * 4) * 1.4, 5);
+      // falling sunglasses
+      if (state === 'reveal' && stateT < 1.4){
+        ctx.save();
+        ctx.translate(3, 4 + stateT * 22);
+        ctx.rotate(stateT * 1.8);
+        ctx.globalAlpha = Math.max(0, 1 - stateT * 0.7);
+        ctx.fillStyle = '#0b0813';
+        rr(-8, 0, 16, 4.6, 2); ctx.fill();
+        ctx.restore();
+        ctx.globalAlpha = 1;
+      }
+    } else {
     ctx.beginPath(); ctx.arc(0, -21, 9, 0, 7);
     ctx.fillStyle = '#f4cfb8'; ctx.fill();
     // hair
@@ -1528,6 +1892,15 @@
     ctx.beginPath(); ctx.arc(-8, -23, 3.2, -0.4, 1.6); ctx.stroke();
     ctx.fillStyle = '#ff4d6d';
     ctx.beginPath(); ctx.arc(-9.6, -19.5, 1.5, 0, 7); ctx.fill();
+    }
+
+    // salute arm (隠し③)
+    if (g.mode === 'salute'){
+      ctx.strokeStyle = '#221b32'; ctx.lineWidth = 4.5; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(10, -9); ctx.lineTo(14, -20); ctx.stroke();
+      ctx.fillStyle = '#f4cfb8';
+      ctx.beginPath(); ctx.arc(14.5, -22, 3.2, 0, 7); ctx.fill();
+    }
 
     // badge
     ctx.fillStyle = 'rgba(255,255,255,.5)';
@@ -1547,6 +1920,29 @@
       ctx.fillText('?', 0, 1);
       ctx.restore();
     }
+    ctx.restore();
+
+    // nameplate for the revealed oshi
+    if (g.mode === 'oshi'){
+      ctx.fillStyle = 'rgba(255,255,255,.94)';
+      rr(g.x - 44, y - 62, 88, 19, 9); ctx.fill();
+      ctx.fillStyle = '#c2185b';
+      ctx.font = '900 11px "Hiragino Sans","Noto Sans JP",sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('🌟 推し（黒服）', g.x, y - 52);
+    }
+  }
+
+  function drawSaluteMark(g, y){
+    ctx.save();
+    var txt = '2/2 OK ✓';
+    ctx.font = '900 10px "Hiragino Sans","Noto Sans JP",sans-serif';
+    var wdt = ctx.measureText(txt).width + 14;
+    ctx.fillStyle = 'rgba(255,255,255,.95)';
+    rr(g.x - wdt/2, y - 58, wdt, 18, 9); ctx.fill();
+    ctx.fillStyle = '#1f7fbf';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(txt, g.x, y - 49);
     ctx.restore();
   }
 
@@ -1729,6 +2125,16 @@
       ctx.fillStyle = g2;
       ctx.fillRect(0, 0, W, H);
     }
+    if (state === 'ally'){
+      var kb = Math.max(0, 1 - stateT * 0.45);
+      ctx.fillStyle = 'rgba(70,180,255,' + (0.20 * kb) + ')';
+      ctx.fillRect(0, 0, W, H);
+    }
+    if (state === 'reveal'){
+      var kg = Math.max(0, 1 - stateT * 0.35);
+      ctx.fillStyle = 'rgba(255,209,102,' + (0.12 * kg) + ')';
+      ctx.fillRect(0, 0, W, H);
+    }
   }
 
   /* ---------------- render ---------------- */
@@ -1745,6 +2151,7 @@
     drawExit();
     drawPops();
     drawOshi();
+    drawRevealGlow();
 
     var items = guards.map(function(g){ return { y: g.y, d: g }; });
     items.push({ y: player.y, d: 'player' });
@@ -1807,12 +2214,29 @@
     get state(){ return state; },
     get timeLeft(){ return timeLeft; },
     get holding(){ return holding; },
+    get result(){ return lastResult; },
     player: player,
     guards: guards,
     press: press,
     release: release,
     config: { W: W, get H(){ return H; }, START_Y: START_Y, GOAL_Y: GOAL_Y, RUN_SPEED: RUN_SPEED, CONE_LEN: CONE_LEN, CONE_HALF: CONE_HALF, TIME_LIMIT: TIME_LIMIT },
-    inCone: function(g){ return inCone(g, player.x, player.y); }
+    inCone: function(g){ return inCone(g, player.x, player.y); },
+    /* 動作確認用：隠しルートを強制発動 */
+    test: {
+      odds: function(o){
+        if (!o) return { qr: QR_PROB, reveal: REVEAL_PROB, ally: ALLY_PROB, oshi: OSHI_PROB };
+        if (typeof o.qr === 'number') QR_PROB = o.qr;
+        if (typeof o.reveal === 'number') REVEAL_PROB = o.reveal;
+        if (typeof o.ally === 'number') ALLY_PROB = o.ally;
+        if (typeof o.oshi === 'number') OSHI_PROB = o.oshi;
+        return { qr: QR_PROB, reveal: REVEAL_PROB, ally: ALLY_PROB, oshi: OSHI_PROB };
+      },
+      qrWin: function(){ startQrWin(); },
+      reveal: function(){ if (state === 'play') startReveal('cone', null); },
+      ally: function(){ if (state === 'play') triggerAlly(); },
+      allyWillFire: function(){ ALLY.willFire = true; },
+      scan: function(){ if (state === 'intro'){ Sound.unlock(); if (QR_PROB > 0 && Math.random() < QR_PROB) startQrWin(); else startError(); } }
+    }
   };
 })();
 </script>
