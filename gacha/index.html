@@ -569,6 +569,10 @@
   .al-dog.zero .art{ filter:grayscale(1) brightness(.45); }
   .al-dog .txt{ font-size:10.5px; line-height:1.45; color:#ffd9b0; }
   .al-dog .txt b{ font-size:12px; color:#ffe9c8; }
+  .al-dog .breeds{ display:inline-flex; align-items:center; gap:3px; margin-top:5px; flex-wrap:wrap; }
+  .al-dog .breed{ font-size:9px; color:#8a7a66; }
+  .al-dog .breed.on{ color:#ffe9b0; font-weight:900; }
+  .al-dog .arrow{ font-size:8px; color:#8a7a66; }
   .al-dog .ban{
     display:inline-block; margin-left:4px; font-size:9px; font-weight:900; color:#2a1200;
     background:#ffb347; border-radius:5px; padding:1px 5px; vertical-align:1px;
@@ -882,7 +886,7 @@
       <div class="dart" id="dogArt"></div>
       <div class="dword">ワンッ！！</div>
       <div class="dwarn">⚠️ 警告：猫ガチャに犬が紛れ込みました！</div>
-      <div class="dsub">…出禁にゃ。ダイヤは返却するにゃ</div>
+      <div class="dsub" id="dogSub">…出禁にゃ。ダイヤは返却するにゃ</div>
     </div>
   </div>
 
@@ -1303,12 +1307,19 @@
 
     // 🐶 謎の犬（出禁）の記録
     const dog = $('#alDog');
+    const di = breedIdxFor(S.dogCount || 1);
+    const dogName = S.dogCount ? DOGS[di].name + '（出禁）' : '謎の犬（出禁）';
+    const dogTrack = DOGS.map((dd, i) => {
+      const seen = S.dogCount > i;
+      return `<span class="breed ${seen ? 'on' : ''}">${seen ? dd.name : '？？？'}</span>`;
+    }).join('<span class="arrow">→</span>');
     dog.className = 'al-dog' + (S.dogCount ? '' : ' zero');
-    dog.innerHTML = `<div class="art">${dogSvg()}</div>
-      <div class="txt"><b>🐶 謎の犬（出禁）</b><span class="ban">出禁</span><br>
+    dog.innerHTML = `<div class="art">${dogSvg(di)}</div>
+      <div class="txt"><b>🐶 ${dogName}</b><span class="ban">出禁</span><br>
       ${S.dogCount
-        ? '激レア遭遇 ×' + S.dogCount + '回にゃ。もう来るにゃ…'
-        : 'まだ出会っていないにゃ。2%の激レアにゃ'}</div>`;
+        ? '激レア遭遇 ×' + S.dogCount + '回にゃ。最新は「' + DOGS[di].name + '」にゃ'
+        : 'まだ出会っていないにゃ。2%の激レアにゃ'}<br>
+      <span class="breeds">${dogTrack}</span></div>`;
   }
   function loadDog(){
     try{ return Math.max(0, Math.floor(+localStorage.getItem(DOG_KEY) || 0)); }catch(e){ return 0; }
@@ -1444,34 +1455,60 @@
     </svg>`;
   }
 
-  function dogSvg(){
+  const DOGS = [
+    { key:'shiba', name:'柴犬', fur:'#e8ab63', fur2:'#d98f45', belly:'#fff8ee', eye:'#2a1a14', bg1:'#8a5a20', bg2:'#2a1406' },
+    { key:'corgi', name:'コーギー', fur:'#e8a24a', fur2:'#c9802e', belly:'#fffdf6', eye:'#3a2414', bg1:'#7a4a1a', bg2:'#241206', blaze:true, bigEars:true },
+    { key:'pom', name:'ポメラニアン', fur:'#f6c88a', fur2:'#e0a45c', belly:'#fff8ee', eye:'#2a1a14', bg1:'#8a6420', bg2:'#2a1a06', fluff:true, smallEars:true },
+    { key:'husky', name:'シベリアンハスキー', fur:'#8a93a8', fur2:'#5f6878', belly:'#f4f7ff', eye:'#5aa9ff', bg1:'#2c3a6a', bg2:'#0a1020', mask:true }
+  ];
+  function breedIdxFor(n){
+    return Math.max(0, Math.min(DOGS.length - 1, Math.floor(n) - 1));
+  }
+  function dogSvg(breed){
+    const d = DOGS[Math.max(0, Math.min(DOGS.length - 1, breed | 0))];
+    const uid = 'd' + (++uidSeq);
+    const ear = d.bigEars
+      ? ['M36 54 L24 12 L58 40 Z', 'M84 54 L96 12 L62 40 Z']
+      : d.smallEars
+        ? ['M41 54 L35 28 L55 45 Z', 'M79 54 L85 28 L65 45 Z']
+        : ['M38 54 L30 20 L56 42 Z', 'M82 54 L90 20 L64 42 Z'];
+    const fluff = d.fluff ? `
+      <circle cx="60" cy="75" r="39" fill="${d.fur2}" opacity=".95"/>
+      <circle cx="27" cy="60" r="12" fill="${d.fur2}"/><circle cx="93" cy="60" r="12" fill="${d.fur2}"/>
+      <circle cx="30" cy="90" r="11" fill="${d.fur2}"/><circle cx="90" cy="90" r="11" fill="${d.fur2}"/>` : '';
+    const blaze = d.blaze ? `<path d="M60 44 Q53 64 55 101 L65 101 Q67 64 60 44 Z" fill="#fffdf6" opacity=".96"/>` : '';
+    const mask = d.mask ? `
+      <ellipse cx="47" cy="71" rx="11" ry="10" fill="#f4f7ff" opacity=".96"/>
+      <ellipse cx="73" cy="71" rx="11" ry="10" fill="#f4f7ff" opacity=".96"/>
+      <ellipse cx="60" cy="85" rx="20" ry="13" fill="#f4f7ff" opacity=".97"/>` : '';
     return `<svg viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
       <defs>
-        <radialGradient id="dbg" cx="50%" cy="30%" r="80%">
-          <stop offset="0" stop-color="#8a5a20"/><stop offset="1" stop-color="#2a1406"/>
+        <radialGradient id="dbg${uid}" cx="50%" cy="30%" r="80%">
+          <stop offset="0" stop-color="${d.bg1}"/><stop offset="1" stop-color="${d.bg2}"/>
         </radialGradient>
       </defs>
-      <rect width="120" height="150" fill="url(#dbg)"/>
+      <rect width="120" height="150" fill="url(#dbg${uid})"/>
       <circle cx="60" cy="120" r="44" fill="#fff" opacity=".06"/>
       <g opacity=".7">
         <path d="${starPath(18,26,4)}" fill="#ffd9a0" opacity=".7"/>
         <path d="${starPath(103,110,3)}" fill="#ffd9a0" opacity=".5"/>
       </g>
-      <path d="M96 140 Q116 130 110 112 Q108 124 94 124" stroke="#e0a45c" stroke-width="10" fill="none" stroke-linecap="round"/>
-      <path d="M60 99 C40 99 28 114 24 150 L96 150 C92 114 80 99 60 99 Z" fill="#e8ab63" stroke="#fff" stroke-opacity=".14"/>
-      <ellipse cx="60" cy="144" rx="21" ry="20" fill="#fff8ee" opacity=".95"/>
-      <path d="M38 54 L30 20 L56 42 Z" fill="#d98f45" stroke="#d98f45" stroke-width="2.5" stroke-linejoin="round"/>
-      <path d="M82 54 L90 20 L64 42 Z" fill="#d98f45" stroke="#d98f45" stroke-width="2.5" stroke-linejoin="round"/>
-      <path d="M39 50 L35 29 L50 43 Z" fill="#ffc9a0" opacity=".8"/>
-      <path d="M81 50 L85 29 L70 43 Z" fill="#ffc9a0" opacity=".8"/>
-      <ellipse cx="60" cy="72" rx="32" ry="29" fill="#e8ab63" stroke="#fff" stroke-opacity=".16"/>
-      <ellipse cx="60" cy="85" rx="21" ry="14" fill="#fff8ee"/>
-      <ellipse cx="38" cy="82" rx="9" ry="8" fill="#fff8ee" opacity=".9"/>
-      <ellipse cx="82" cy="82" rx="9" ry="8" fill="#fff8ee" opacity=".9"/>
-      <ellipse cx="48" cy="60" rx="5" ry="3" fill="#fff8ee" opacity=".9"/>
-      <ellipse cx="72" cy="60" rx="5" ry="3" fill="#fff8ee" opacity=".9"/>
-      <ellipse cx="48" cy="70" rx="4.6" ry="5.4" fill="#2a1a14"/>
-      <ellipse cx="72" cy="70" rx="4.6" ry="5.4" fill="#2a1a14"/>
+      ${fluff}
+      <path d="M94 140 Q118 128 108 106 Q106 122 92 122" stroke="${d.fur}" stroke-width="11" fill="none" stroke-linecap="round"/>
+      <path d="M60 99 C40 99 28 114 24 150 L96 150 C92 114 80 99 60 99 Z" fill="${d.fur}" stroke="#fff" stroke-opacity=".14"/>
+      <ellipse cx="60" cy="144" rx="21" ry="20" fill="${d.belly}" opacity=".95"/>
+      <path d="${ear[0]}" fill="${d.fur2}" stroke="${d.fur2}" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="${ear[1]}" fill="${d.fur2}" stroke="${d.fur2}" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M40 50 L36 29 L50 43 Z" fill="#ffc9a0" opacity=".8"/>
+      <path d="M80 50 L84 29 L70 43 Z" fill="#ffc9a0" opacity=".8"/>
+      <ellipse cx="60" cy="72" rx="32" ry="29" fill="${d.fur}" stroke="#fff" stroke-opacity=".16"/>
+      ${blaze}
+      ${mask}
+      <ellipse cx="60" cy="86" rx="20" ry="13" fill="${d.belly}" opacity=".96"/>
+      <ellipse cx="48" cy="60" rx="5" ry="3" fill="${d.belly}" opacity=".9"/>
+      <ellipse cx="72" cy="60" rx="5" ry="3" fill="${d.belly}" opacity=".9"/>
+      <ellipse cx="48" cy="70" rx="4.6" ry="5.4" fill="${d.eye}"/>
+      <ellipse cx="72" cy="70" rx="4.6" ry="5.4" fill="${d.eye}"/>
       <circle cx="49.8" cy="68" r="1.6" fill="#fff"/>
       <circle cx="73.8" cy="68" r="1.6" fill="#fff"/>
       <ellipse cx="60" cy="80" rx="5" ry="3.6" fill="#2a1a14"/>
@@ -1807,7 +1844,7 @@
     // 🐶 犬カードはめくった瞬間に大事件
     if(c.dog){
       card.querySelector('.front').innerHTML = `<div class="fr dogcard">
-        <div class="ico">${dogSvg()}</div>
+        <div class="ico">${dogSvg(breedIdxFor(S.dogCount + 1))}</div>
         <div class="rv">🐶 ワン?</div>
       </div>`;
       Sfx.flip();
@@ -1967,7 +2004,9 @@
     saveDog();
     Sfx.bark();
     shake();
-    $('#dogArt').innerHTML = dogSvg();
+    const bi = breedIdxFor(S.dogCount);
+    $('#dogArt').innerHTML = dogSvg(bi);
+    $('#dogSub').textContent = DOGS[bi].name + '、出禁にゃ。ダイヤは返却するにゃ';
     const p = centerPos(card);
     dogEl.classList.add('on');
     FX.burst(p.x, p.y, { n:36, speed:4.8, life:800, lift:1.2, colors:['#fff','#ffd24a','#ffb347','#ff4d5e'] });
@@ -2300,18 +2339,20 @@
 
     resEl.className = 'screen show rk-DOG';
     $('#rRank').textContent = 'DOG';
-    $('#rTitle').textContent = '🐶 猫ガチャに犬が紛れ込んで弾かれた';
+    $('#rTitle').textContent = '🐶 猫ガチャに' + DOGS[bi].name + 'が紛れ込んで弾かれた';
     $('#rNote').textContent = '⚠️ 激レア！ 猫ガチャに犬が紛れ込みました！ ダイヤは返却されたから、そのまま再挑戦できるにゃ。';
 
+    const bi = breedIdxFor(S.dogCount);
+    const dn = DOGS[bi].name + '（出禁）';
     const wrap = $('#rCards');
     wrap.className = 'r-cards one';
     wrap.innerHTML = `<div class="rcard dogcard">
       <div class="crown">🐶</div>
       <div class="in">
-        <div class="art">${dogSvg()}</div>
+        <div class="art">${dogSvg(bi)}</div>
         <div class="meta">
           <div class="rr">🐶 激レア ／ 出禁</div>
-          <div class="nm">謎の犬（出禁）</div>
+          <div class="nm">${dn}</div>
           <div class="ln">「ワンッ！！」</div>
         </div>
       </div>
@@ -2326,6 +2367,7 @@
       '【にゃんこ10連ガチャ！ゴロゴロ確定演出】\n' +
       '🐶 激レア！ 猫ガチャに犬が紛れ込んだ！\n' +
       '結果：DOG「猫ガチャに犬が紛れ込んで弾かれた」\n' +
+      '🐶 今回の出禁犬：' + DOGS[bi].name + '（通算' + S.dogCount + '回目）\n' +
       '⚠️ 警告：猫ガチャに犬が紛れ込みました！ 出禁にゃ。\n' +
       'ダイヤは返却されたから、そのまま再挑戦できるにゃ👇\n' +
       PRICE_URL + '\n#にゃんこ10連ガチャ';
