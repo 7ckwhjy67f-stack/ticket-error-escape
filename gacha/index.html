@@ -659,7 +659,8 @@
   /* =========================================================
      小さなヘルパー
      ========================================================= */
-  const wait = ms => new Promise(res => setTimeout(res, S.skip ? Math.min(ms, 16) : ms));
+  let SPEED = 1;
+  const wait = ms => new Promise(res => setTimeout(res, S.skip ? Math.min(ms, 16) : ms * SPEED));
   const pick = arr => arr[Math.floor(Math.random()*arr.length)];
   const nf = n => n.toLocaleString('ja-JP');
   const secs = ms => (Math.max(0,ms)/1000).toFixed(2);
@@ -1291,6 +1292,7 @@
     state: S,
     force(list){ S.forced = list.map(a => a.slice()); },
     forcePromo(v){ S.forcePromo = !!v; },
+    speed(v){ SPEED = Math.max(0.2, +v || 1); },
     rainbow(v){ S.rainbowRoad = !!v; titleEl.classList.toggle('aura', !!v); },
     fast(on){ S.skip = !!on; },
     start, reset: resetGame, calcRank
