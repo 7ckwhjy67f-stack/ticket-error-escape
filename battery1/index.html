@@ -398,7 +398,7 @@
     background:linear-gradient(135deg,#ff5f9e,#ff3b7f); color:#2b0713;
     font-size:12.5px; line-height:1.55; word-break:break-word; font-weight:700;
   }
-  .sentBubble .bad{ background:rgba(0,0,0,.28); color:#fff; border-radius:4px; padding:0 2px; }
+  .sentBubble .bad{ background:#2b0713; color:#ff9db0; border-radius:4px; padding:0 3px; box-shadow:0 0 0 1px rgba(255,51,82,.55) inset; }
   .sentBubble .empty{ opacity:.75; font-weight:700; }
   .reactBubble{
     margin-top:9px; padding:8px 11px; border-radius:14px 14px 14px 4px; max-width:88%;
@@ -765,6 +765,7 @@
     alertLevel: 0,
     alertFired: [],
     alertUntil: 0,
+    sentAt: 0,
     forceBattery: false,
     forceSsr: false,
     finished: false
@@ -1081,6 +1082,8 @@
     if (G.phase !== 'play' || G.finished) return;
     G.finished = true;
     G.phase = 'sending';
+    G.sentAt = performance.now();
+    G.remain = Math.max(0, G.deadline - G.sentAt);
     Sound.send();
     el.flash.classList.remove('go');
     void el.flash.offsetWidth;
@@ -1113,7 +1116,9 @@
     var picks = G.picks.slice();
     var text = picks.map(function(p){ return p.text; }).join('');
     var wrongs = picks.filter(function(p){ return !p.ok; });
-    var elapsed = Math.min(G.total, performance.now() - G.startedAt) / 1000;
+    var elapsed = (kind === 'send' && G.sentAt)
+      ? (G.sentAt - G.startedAt) / 1000
+      : Math.min(G.total, performance.now() - G.startedAt) / 1000;
     if (kind === 'timeup') elapsed = G.total / 1000;
     var ratio = kind === 'timeup' ? 0 : clamp(G.remain / G.total, 0, 1);
     var complete = picks.length === G.slots.length;
@@ -1142,7 +1147,7 @@
         R = {
           rank: 'SSR', cls: 'SSR',
           title: '誤爆から恋が始まった',
-          desc: '「' + w0 + '」がまさかのフリになった。奇跡のノリ乗り。',
+          desc: '「' + w0 + '」がまさかのフリに。奇跡のノリ乗り。',
           reaction: [w0 + '…？笑', 'じゃあ今度それ一緒に行こ！'],
           reason: 'ssr'
         };
