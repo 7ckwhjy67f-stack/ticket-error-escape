@@ -2336,14 +2336,14 @@
     hitEl.classList.remove('comp');
     hitEl.classList.remove('secret');
     const t = (S.t1 || performance.now()) - S.t0;
+    const bi = breedIdxFor(S.dogCount);
+    const dn = DOGS[bi].name + '（出禁）';
 
     resEl.className = 'screen show rk-DOG';
     $('#rRank').textContent = 'DOG';
     $('#rTitle').textContent = '🐶 猫ガチャに' + DOGS[bi].name + 'が紛れ込んで弾かれた';
     $('#rNote').textContent = '⚠️ 激レア！ 猫ガチャに犬が紛れ込みました！ ダイヤは返却されたから、そのまま再挑戦できるにゃ。';
 
-    const bi = breedIdxFor(S.dogCount);
-    const dn = DOGS[bi].name + '（出禁）';
     const wrap = $('#rCards');
     wrap.className = 'r-cards one';
     wrap.innerHTML = `<div class="rcard dogcard">
