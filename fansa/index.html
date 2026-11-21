@@ -13,7 +13,7 @@
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="トロッコ通過！確定ファンサ奪取" />
 <meta name="twitter:description" content="推しのトロッコが目の前を通過する約16秒。うちわを掲げて、見られた瞬間にカンペめくり！確定ファンサを奪え。" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0716'/%3E%3Ccircle cx='32' cy='26' r='13' fill='%23ffe0cf'/%3E%3Cpath d='M18 26c0-9 6-14 14-14s14 5 14 14c-4-5-8-6-14-6s-10 1-14 6z' fill='%23b9a6ff'/%3E%3Crect x='20' y='40' width='24' height='12' rx='5' fill='%23ff5fa2'/%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0716'/%3E%3Crect x='30' y='39' width='4' height='21' rx='2' fill='%23ded2f5'/%3E%3Ccircle cx='32' cy='26' r='18' fill='%23ffffff'/%3E%3Ccircle cx='32' cy='26' r='14' fill='%231d1133'/%3E%3Ccircle cx='32' cy='26' r='14' fill='none' stroke='%23ff5fa2' stroke-width='2'/%3E%3C/svg%3E" />
 <style>
   :root{
     --pink:#ff5fa2;
@@ -90,21 +90,37 @@
   }
   .lead{ margin:2px 0 4px; text-align:center; font-size:12.5px; line-height:1.7; color:#cfc2ec; }
   .lead b{ color:#ffe6a8; }
-  .canpes{ display:flex; gap:9px; margin:16px 0 3px; }
+  .canpes{ display:flex; gap:26px; margin:16px 0 23px; }
   .canpe{
-    position:relative; min-width:140px; padding:15px 12px 10px;
-    border-radius:14px; text-align:center;
-    background:linear-gradient(180deg,#fff,#ffe6f0);
-    border:2.5px solid var(--pink);
-    color:#c0236a; font-weight:900; font-size:14px;
-    box-shadow:0 6px 20px rgba(255,95,162,.28);
-    transform:rotate(-2deg);
+    position:relative; width:104px; height:104px; flex:0 0 auto;
+    border-radius:50%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    background:radial-gradient(circle at 34% 26%, #4c2c80 0%, #221140 56%, #0a0616 100%);
+    border:3.5px solid #fff;
+    box-shadow:0 0 0 3px var(--pink), 0 9px 22px rgba(255,95,162,.38), inset 0 -12px 22px rgba(255,95,162,.22);
+    color:#fff; font-weight:900; font-size:12.5px; line-height:1.15; text-align:center;
+    transform:rotate(-7deg);
   }
-  .canpe:nth-child(2){ transform:rotate(2deg); }
+  .canpe:nth-child(2){ transform:rotate(7deg); }
+  .canpe b{
+    display:block; font-size:12.5px; font-weight:900; letter-spacing:.01em;
+    color:#ffe14d;
+    text-shadow:-2px -2px 0 #0a0512, 2px -2px 0 #0a0512, -2px 2px 0 #0a0512, 2px 2px 0 #0a0512, 0 0 12px rgba(255,90,190,.95);
+  }
+  .canpe i{ font-style:normal; font-size:19px; line-height:1; filter:drop-shadow(0 0 7px rgba(255,255,255,.65)); }
+  .canpe::after{
+    content:""; position:absolute; left:50%; top:calc(100% - 6px); transform:translateX(-50%);
+    width:12px; height:36px; border-radius:0 0 7px 7px;
+    background:linear-gradient(90deg,#bda6e2 0%,#fff 38%,#f2e8ff 62%,#b29ad9 100%);
+    box-shadow:0 3px 7px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.7);
+  }
   .cTab{
-    position:absolute; top:-9px; left:50%; transform:translateX(-50%);
-    background:var(--pink); color:#fff; font-size:9px; letter-spacing:.06em;
-    padding:2px 8px; border-radius:999px; white-space:nowrap;
+    position:absolute; top:-14px; left:50%; transform:translateX(-50%);
+    background:linear-gradient(180deg,#fff,#ffe2ef); color:#c0236a;
+    border:1.5px solid var(--pink);
+    font-size:8.5px; letter-spacing:.07em; font-weight:900;
+    padding:1px 7px; border-radius:999px; white-space:nowrap;
+    box-shadow:0 2px 7px rgba(0,0,0,.4);
   }
   .howto{ list-style:none; margin:6px 0 2px; padding:0; width:100%; display:flex; flex-direction:column; gap:6px; }
   .howto li{ display:flex; align-items:center; gap:9px; padding:7px 10px; border-radius:12px; background:rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.09); }
@@ -298,7 +314,11 @@
   .rtable td:first-child{ font-weight:900; color:#ffe9b8; width:52px; }
 
   @media (max-height:620px){
-    .canpe{ min-width:124px; padding:13px 9px 8px; font-size:12.5px; }
+    .canpe{ width:90px; height:90px; }
+    .canpe b{ font-size:11px; }
+    .canpe i{ font-size:17px; }
+    .canpe::after{ height:28px; }
+    .canpes{ gap:22px; margin:12px 0 19px; }
     .howto li{ padding:5px 9px; }
     #title h1{ font-size:26px; }
     .lead{ font-size:11.5px; }
@@ -349,8 +369,8 @@
       <h1><em>トロッコ通過！</em><b>確定ファンサ奪取</b></h1>
       <p class="lead">推しのトロッコが目の前を通る<b>約16秒</b>。<br>スタッフにバレずに、カンペうちわで<br><b>確定ファンサ</b>を奪い取れ！</p>
       <div class="canpes" aria-hidden="true">
-        <div class="canpe"><span class="cTab">カンペ</span>指さして👉</div>
-        <div class="canpe"><span class="cTab">カンペ</span>ハート作って🫶</div>
+        <div class="canpe"><span class="cTab">カンペ</span><b>指さして</b><i>👉</i></div>
+        <div class="canpe"><span class="cTab">カンペ</span><b>ハート作って</b><i>🫶</i></div>
       </div>
       <ul class="howto">
         <li><i>1</i><div><b>長押し／タップでうちわを掲げる</b><small>もう一度タップで胸の高さに戻す</small></div></li>
@@ -637,6 +657,7 @@ var S = {
   raiseAmt: 0,
   holdT: 0,
   canpe: 0,
+  canpePrev: 1,
   flipAt: -9,
   flipAnim: 1,
   lastFlip: -9,
@@ -729,6 +750,7 @@ function startGame(){
   S.raiseAmt = 0;
   S.holdT = 0;
   S.canpe = 0;
+  S.canpePrev = 1;
   S.flipAnim = 1;
   S.flipAt = -9;
   S.lastFlip = -9;
@@ -875,6 +897,7 @@ function doFlip(){
   S.lastFlip = now;
   S.flipAt = now;
   S.flipAnim = 0;
+  S.canpePrev = S.canpe;
   S.canpe = 1 - S.canpe;
   Sound.flip();
 
@@ -1962,102 +1985,350 @@ function drawStaff(t){
   }
 }
 
+/* =========================================================
+   uchiwa: jumbo canpe uchiwa (round disc, frill, neon bag-moji)
+========================================================= */
+var UW = { R: 92, cy: -26 };
+var UW_DECO = [
+  { t: 'heart', x: -62, y: -74, s: 9, c: '#ff4f97' },
+  { t: 'heart', x: 61, y: -76, s: 7, c: '#ff9ec8' },
+  { t: 'star', x: 70, y: 4, s: 8.5, c: '#ffe066' },
+  { t: 'star', x: -70, y: 0, s: 7, c: '#7ee8ff' },
+  { t: 'dot', x: -42, y: -94, s: 3, c: 'rgba(255,255,255,.9)' },
+  { t: 'dot', x: 44, y: -92, s: 2.4, c: 'rgba(255,255,255,.85)' },
+  { t: 'dot', x: 33, y: 46, s: 2.2, c: 'rgba(255,208,230,.9)' },
+  { t: 'dot', x: -34, y: 42, s: 2.6, c: 'rgba(255,208,230,.9)' }
+];
+
+function uchiwaBody(R, cy){
+  ctx.beginPath();
+  ctx.moveTo(0, cy + R * 0.93);
+  ctx.bezierCurveTo(-R * 0.52, cy + R * 0.99, -R, cy + R * 0.66, -R, cy);
+  ctx.bezierCurveTo(-R, cy - R * 0.68, -R * 0.60, cy - R * 1.03, 0, cy - R * 1.03);
+  ctx.bezierCurveTo(R * 0.60, cy - R * 1.03, R, cy - R * 0.68, R, cy);
+  ctx.bezierCurveTo(R, cy + R * 0.66, R * 0.52, cy + R * 0.99, 0, cy + R * 0.93);
+  ctx.closePath();
+}
+
+function uchiwaHandle(){
+  var hw = 15;
+  // plastic collar at the joint
+  ctx.fillStyle = '#f6ecff';
+  rr(-11, 56, 22, 20, 6); ctx.fill();
+  ctx.strokeStyle = 'rgba(120,80,170,.35)';
+  ctx.lineWidth = 1.2;
+  rr(-11, 56, 22, 20, 6); ctx.stroke();
+
+  // stick
+  var hg = ctx.createLinearGradient(-hw / 2, 0, hw / 2, 0);
+  hg.addColorStop(0, '#bda6e2');
+  hg.addColorStop(0.26, '#ffffff');
+  hg.addColorStop(0.62, '#f2e8ff');
+  hg.addColorStop(1, '#b29ad9');
+  ctx.fillStyle = hg;
+  rr(-hw / 2, 48, hw, 102, 7); ctx.fill();
+  ctx.strokeStyle = 'rgba(96,58,140,.32)';
+  ctx.lineWidth = 1.1;
+  rr(-hw / 2, 48, hw, 102, 7); ctx.stroke();
+
+  // grip bands
+  ctx.strokeStyle = 'rgba(130,96,176,.22)';
+  ctx.lineWidth = 1.2;
+  for (var i = 0; i < 3; i++){
+    var gy = 112 + i * 11;
+    ctx.beginPath();
+    ctx.moveTo(-hw / 2 + 1.5, gy);
+    ctx.lineTo(hw / 2 - 1.5, gy);
+    ctx.stroke();
+  }
+
+  // fist holding it
+  ctx.fillStyle = '#ffd9c6';
+  rr(-12, 138, 24, 26, 11); ctx.fill();
+  ctx.strokeStyle = 'rgba(190,120,100,.4)';
+  ctx.lineWidth = 1.2;
+  rr(-12, 138, 24, 26, 11); ctx.stroke();
+  ctx.strokeStyle = 'rgba(200,132,110,.45)';
+  ctx.lineWidth = 1.1;
+  for (var f = 0; f < 3; f++){
+    var fy = 145 + f * 6.2;
+    ctx.beginPath();
+    ctx.moveTo(-7.5, fy);
+    ctx.lineTo(7.5, fy);
+    ctx.stroke();
+  }
+  // thumb
+  ctx.fillStyle = '#ffe6d8';
+  ctx.beginPath();
+  ctx.moveTo(-9, 142);
+  ctx.quadraticCurveTo(-16, 146, -13, 154);
+  ctx.quadraticCurveTo(-9, 157, -6, 151);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function neonUchiwaText(text, y, maxW){
+  var size = 28;
+  ctx.font = '900 ' + size + 'px ' + FONT;
+  while (size > 13 && ctx.measureText(text).width > maxW){
+    size -= 1;
+    ctx.font = '900 ' + size + 'px ' + FONT;
+  }
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
+  ctx.miterLimit = 2;
+
+  var g = ctx.createLinearGradient(0, y - size * 0.62, 0, y + size * 0.62);
+  g.addColorStop(0, '#fff7a8');
+  g.addColorStop(0.34, '#ffd23f');
+  g.addColorStop(0.66, '#ff4fa6');
+  g.addColorStop(1, '#9a6bff');
+
+  // 白の太い縁取り（外側）
+  ctx.save();
+  ctx.shadowColor = 'rgba(255,90,190,.85)';
+  ctx.shadowBlur = 14;
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = size * 0.62;
+  ctx.strokeText(text, 0, y);
+  ctx.restore();
+  // 黒の縁取り
+  ctx.strokeStyle = '#0a0512';
+  ctx.lineWidth = size * 0.40;
+  ctx.strokeText(text, 0, y);
+  // 色の縁取り
+  ctx.strokeStyle = g;
+  ctx.lineWidth = size * 0.17;
+  ctx.strokeText(text, 0, y);
+  // 塗り
+  ctx.fillStyle = g;
+  ctx.fillText(text, 0, y);
+}
+
+function paintUchiwaFace(idx, shade){
+  var R = UW.R, cy = UW.cy;
+  var c = CANPE[idx] || CANPE[0];
+
+  // paper edge
+  uchiwaBody(R, cy);
+  ctx.fillStyle = '#fff4fa';
+  ctx.fill();
+  ctx.lineWidth = 2.4;
+  ctx.strokeStyle = 'rgba(74,28,86,.5)';
+  ctx.stroke();
+
+  // lace frill
+  var n = 22, sr = 6.6;
+  ctx.beginPath();
+  for (var i = 0; i < n; i++){
+    var a = (i / n) * Math.PI * 2 - Math.PI / 2;
+    var px = Math.cos(a) * R * 0.995;
+    var py = cy + Math.sin(a) * R * 1.0;
+    ctx.moveTo(px + sr, py);
+    ctx.arc(px, py, sr, 0, Math.PI * 2);
+  }
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  ctx.lineWidth = 1.1;
+  ctx.strokeStyle = 'rgba(255,95,162,.55)';
+  ctx.stroke();
+
+  // dark body
+  uchiwaBody(R - 8.5, cy);
+  var bg = ctx.createRadialGradient(-R * 0.3, cy - R * 0.42, R * 0.08, 0, cy, R * 1.2);
+  bg.addColorStop(0, '#40246e');
+  bg.addColorStop(0.5, '#1d1133');
+  bg.addColorStop(1, '#0a0614');
+  ctx.fillStyle = bg;
+  ctx.fill();
+
+  // faint bones
+  ctx.save();
+  uchiwaBody(R - 9, cy);
+  ctx.clip();
+  ctx.strokeStyle = 'rgba(255,255,255,.07)';
+  ctx.lineWidth = 2.2;
+  for (var b = -3; b <= 3; b++){
+    var ang = -Math.PI / 2 + b * 0.30;
+    ctx.beginPath();
+    ctx.moveTo(0, cy + R * 0.82);
+    ctx.lineTo(Math.cos(ang) * R * 1.2, cy + Math.sin(ang) * R * 1.2);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // deco stickers
+  for (var d = 0; d < UW_DECO.length; d++){
+    var o = UW_DECO[d];
+    ctx.fillStyle = o.c;
+    if (o.t === 'heart'){
+      heartPath(o.x, o.y, o.s); ctx.fill();
+      ctx.lineWidth = 1.6; ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.stroke();
+    } else if (o.t === 'star'){
+      starPath(o.x, o.y, o.s, 0.34); ctx.fill();
+      ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.stroke();
+    } else {
+      circle(o.x, o.y, o.s); ctx.fill();
+    }
+  }
+
+  // neon bag-moji
+  neonUchiwaText(c.text, cy - 22, R * 1.5);
+
+  // emoji on a soft glow
+  ctx.save();
+  var eg = ctx.createRadialGradient(0, cy + 36, 2, 0, cy + 36, 30);
+  eg.addColorStop(0, 'rgba(255,255,255,.30)');
+  eg.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = eg;
+  circle(0, cy + 36, 30); ctx.fill();
+  ctx.shadowColor = 'rgba(255,255,255,.75)';
+  ctx.shadowBlur = 16;
+  ctx.font = '40px ' + FONT;
+  ctx.fillStyle = '#fff';
+  ctx.fillText(c.emoji, 0, cy + 36);
+  ctx.restore();
+
+  // thin label
+  ctx.fillStyle = 'rgba(255,255,255,.42)';
+  ctx.font = '800 9px ' + FONT;
+  ctx.fillText('確定ファンサ用', 0, cy + 66);
+
+  // shiny rim
+  uchiwaBody(R - 8, cy);
+  var ring = ctx.createLinearGradient(-R, cy - R, R, cy + R);
+  ring.addColorStop(0, 'rgba(255,255,255,.95)');
+  ring.addColorStop(0.4, 'rgba(255,215,106,.85)');
+  ring.addColorStop(0.72, 'rgba(255,140,205,.75)');
+  ring.addColorStop(1, 'rgba(255,255,255,.9)');
+  ctx.strokeStyle = ring;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // page shading while flipping
+  if (shade > 0){
+    ctx.save();
+    uchiwaBody(R, cy);
+    ctx.clip();
+    var sg = ctx.createLinearGradient(0, cy - R * 1.05, 0, cy + R * 0.55);
+    sg.addColorStop(0, 'rgba(0,0,0,' + (0.55 * shade).toFixed(3) + ')');
+    sg.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = sg;
+    ctx.fillRect(-R * 1.1, cy - R * 1.1, R * 2.2, R * 2.2);
+    ctx.restore();
+  }
+}
+
+function drawUchiwaRings(){
+  var R = UW.R, cy = UW.cy;
+  var top = cy - R * 1.03;
+
+  // binding tab
+  ctx.fillStyle = '#fffaf4';
+  rr(-30, top - 13, 60, 24, 8); ctx.fill();
+  ctx.strokeStyle = '#ff4f97';
+  ctx.lineWidth = 2;
+  rr(-30, top - 13, 60, 24, 8); ctx.stroke();
+  ctx.fillStyle = '#c0236a';
+  ctx.font = '900 9px ' + FONT;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('カンペ', 0, top - 1);
+
+  // two silver rings
+  for (var s = -1; s <= 1; s += 2){
+    var rx = 19 * s, ry = top - 6;
+    var mg = ctx.createLinearGradient(rx - 7, ry - 7, rx + 7, ry + 7);
+    mg.addColorStop(0, '#ffffff');
+    mg.addColorStop(0.45, '#cfd6e2');
+    mg.addColorStop(0.7, '#8f98a8');
+    mg.addColorStop(1, '#eef2f8');
+    circle(rx, ry, 7);
+    ctx.fillStyle = 'rgba(10,6,20,.55)';
+    ctx.fill();
+    ctx.strokeStyle = mg;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,.8)';
+    ctx.lineWidth = 1;
+    circle(rx, ry, 7);
+    ctx.stroke();
+  }
+}
+
 function drawUchiwa(r, t){
   if (r < 0.01) r = 0.01;
   var cx = W * 0.5;
-  var downY = H * 1.08;
-  var upY = H * 0.715;
+  var downY = H * 1.10;
+  var upY = H * 0.70;
   var y = lerp(downY, upY, r);
-  var sc = 0.60 + 0.42 * r;
-  var tilt = 0.22 * (1 - r) - 0.05 * r + Math.sin(t * 4.5) * 0.012 * r;
+  var sc = 0.58 + 0.44 * r;
+  var tilt = 0.20 * (1 - r) - 0.045 * r + Math.sin(t * 4.5) * 0.012 * r;
+  var R = UW.R, cy = UW.cy;
+  var headTop = cy - R * 1.03;
 
   ctx.save();
   ctx.translate(cx, y);
   ctx.rotate(tilt);
   ctx.scale(sc, sc);
 
-  // handle
-  ctx.fillStyle = '#f3e9ff';
-  rr(-7, 40, 14, 108, 7);
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(180,150,220,.6)';
-  ctx.lineWidth = 1.5;
-  rr(-7, 40, 14, 108, 7);
-  ctx.stroke();
-
-  // wrist/hand
-  ctx.fillStyle = '#ffe2d1';
-  circle(0, 140, 9);
-  ctx.fill();
-
-  // flip scale
-  var fx = 1;
-  if (S.flipAnim < 1){
-    var k = S.flipAnim;
-    fx = k < 0.5 ? 1 - k * 2 : (k - 0.5) * 2;
-    fx = Math.max(0.06, fx);
-  }
-
-  ctx.save();
-  ctx.translate(0, 0);
-  ctx.scale(fx, 1);
-
+  // glow when raised
   if (r > 0.25){
-    ctx.shadowColor = 'rgba(255,120,190,' + (0.85 * r).toFixed(3) + ')';
-    ctx.shadowBlur = 30 * r;
+    var gg = ctx.createRadialGradient(0, cy, R * 0.1, 0, cy, R * 1.7);
+    gg.addColorStop(0, 'rgba(255,120,190,' + (0.26 * r).toFixed(3) + ')');
+    gg.addColorStop(0.62, 'rgba(255,90,180,' + (0.10 * r).toFixed(3) + ')');
+    gg.addColorStop(1, 'rgba(255,90,180,0)');
+    ctx.fillStyle = gg;
+    ctx.fillRect(-R * 2, cy - R * 2, R * 4, R * 4);
   }
 
-  // board
-  var bg = ctx.createLinearGradient(0, -100, 0, 50);
-  bg.addColorStop(0, '#ffffff');
-  bg.addColorStop(1, '#ffe3f0');
-  ctx.fillStyle = bg;
-  rr(-78, -100, 156, 150, 16);
-  ctx.fill();
-  ctx.shadowBlur = 0;
+  uchiwaHandle();
 
-  ctx.strokeStyle = r > 0.6 ? '#ffd76a' : '#ff4f97';
-  ctx.lineWidth = 4.5;
-  rr(-78, -100, 156, 150, 16);
-  ctx.stroke();
+  // page turn (hinged at the top rings)
+  var k = S.flipAnim;
+  if (k < 1){
+    var half = k < 0.5;
+    var p = half ? k * 2 : (k - 0.5) * 2;
+    var sy = half ? Math.cos(p * Math.PI * 0.5) : Math.sin(p * Math.PI * 0.5);
+    if (sy < 0.04) sy = 0.04;
+    var idx = half ? S.canpePrev : S.canpe;
+    var shade = Math.max(0, (0.55 - sy) / 0.55);
 
-  // inner frame
-  ctx.strokeStyle = 'rgba(255,95,162,.25)';
-  ctx.lineWidth = 1.5;
-  rr(-70, -92, 140, 134, 12);
-  ctx.stroke();
+    ctx.save();
+    ctx.translate(0, headTop);
+    ctx.rotate((half ? 1 : -1) * 0.10 * Math.sin(p * Math.PI));
+    ctx.scale(1, sy);
+    ctx.translate(0, -headTop);
+    paintUchiwaFace(idx, half ? shade : shade * 0.5);
+    ctx.restore();
 
-  // tab
-  ctx.fillStyle = '#ff4f97';
-  rr(-31, -112, 62, 22, 8);
-  ctx.fill();
-  ctx.fillStyle = '#fff';
-  ctx.font = '800 11px ' + FONT;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('カンペ', 0, -100.5);
+    // paper edge glint at the fold
+    var ga = Math.sin(p * Math.PI);
+    if (ga > 0.02){
+      ctx.save();
+      ctx.globalAlpha = ga * 0.85;
+      ctx.fillStyle = '#fff8fd';
+      rr(-R * 0.92, headTop - 2, R * 1.84, 5, 2.5);
+      ctx.fill();
+      ctx.restore();
+    }
+  } else {
+    paintUchiwaFace(S.canpe, 0);
+  }
 
-  // text
-  ctx.fillStyle = '#c0236a';
-  ctx.font = '900 21px ' + FONT;
-  ctx.fillText(CANPE[S.canpe].text, 0, -44);
-  ctx.font = '34px ' + FONT;
-  ctx.fillText(CANPE[S.canpe].emoji, 0, 16);
+  drawUchiwaRings();
 
-  // small label
-  ctx.fillStyle = 'rgba(192,35,106,.55)';
-  ctx.font = '700 9px ' + FONT;
-  ctx.fillText('確定ファンサ用', 0, 42);
-
-  ctx.restore();
-
-  // raised sparkle
-  if (r > 0.75){
+  // sparkles along the frill when raised
+  if (r > 0.72){
     var sp = 0.5 + 0.5 * Math.sin(t * 5);
-    ctx.fillStyle = 'rgba(255,255,255,' + (0.65 * sp).toFixed(2) + ')';
-    starPath(-70, -92, 7, 0);
+    var sA = (r - 0.72) / 0.28;
+    ctx.fillStyle = 'rgba(255,255,255,' + (0.70 * sp * sA).toFixed(2) + ')';
+    starPath(-R * 0.86, cy - R * 0.52, 7, t * 0.8);
     ctx.fill();
-    starPath(68, -58, 5, 1);
+    starPath(R * 0.88, cy - R * 0.30, 5, 1 + t * 0.7);
+    ctx.fill();
+    starPath(R * 0.52, cy + R * 0.72, 4, 2 - t * 0.6);
     ctx.fill();
   }
 
