@@ -255,6 +255,7 @@
   /* ---------- result ---------- */
   #result{ background:radial-gradient(120% 70% at 50% 0%, rgba(255,107,157,.22), rgba(7,5,17,.94) 55%, rgba(7,5,17,.98)); z-index:25; }
   #resCard{
+    position:relative;
     width:100%; max-width:330px; border-radius:22px; padding:20px 18px 16px;
     background:linear-gradient(180deg, rgba(38,26,58,.96), rgba(18,12,30,.98));
     border:1px solid rgba(255,255,255,.14);
@@ -263,6 +264,28 @@
     animation:cardIn .45s cubic-bezier(.2,1.3,.4,1) both;
   }
   @keyframes cardIn{ from{ opacity:0; transform:translateY(18px) scale(.94) } to{ opacity:1; transform:none } }
+  #resGrade{
+    position:absolute; right:-10px; top:-16px; width:78px; height:78px;
+    border-radius:22px; transform:rotate(7deg);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    border:2px solid rgba(255,255,255,.6);
+    box-shadow:0 12px 30px rgba(0,0,0,.5), inset 0 -4px 0 rgba(0,0,0,.12);
+    background:linear-gradient(180deg,#fff3c4,#ffc94d); color:#3a2500;
+    animation:gradePop .5s cubic-bezier(.2,1.6,.4,1) .12s both;
+  }
+  @keyframes gradePop{
+    from{ opacity:0; transform:rotate(18deg) scale(.5) }
+    to{ opacity:1; transform:rotate(7deg) scale(1) }
+  }
+  #resGrade .g{ font-size:31px; font-weight:900; line-height:1; letter-spacing:-.03em; }
+  #resGrade .lbl{ font-size:8px; font-weight:900; letter-spacing:.2em; margin-top:3px; opacity:.7; }
+  #resGrade.ss{ background:linear-gradient(160deg,#fff8d6,#ffd166 45%,#ff9d5c); color:#4a2600;
+    box-shadow:0 0 0 3px rgba(255,209,102,.35), 0 12px 30px rgba(255,180,60,.5); }
+  #resGrade.s{ background:linear-gradient(160deg,#ffe9f2,#ff9ec2); color:#4a0d26; }
+  #resGrade.a{ background:linear-gradient(160deg,#e6dcff,#a98bff); color:#1e0f4a; }
+  #resGrade.b{ background:linear-gradient(160deg,#d6e6ff,#7aa7ff); color:#0b1c40; }
+  #resGrade.c{ background:linear-gradient(160deg,#e8e8ef,#a9a9bd); color:#20202e; }
+  #resGrade.d{ background:linear-gradient(160deg,#ff9aa8,#e01e40); color:#fff; }
   #resIcon{ font-size:42px; line-height:1; margin-bottom:2px; }
   #resKicker{ font-size:10px; font-weight:800; letter-spacing:.24em; color:#b6a4d4; }
   #resRank{
@@ -356,6 +379,7 @@
   <!-- RESULT -->
   <div id="result" class="screen hidden">
     <div id="resCard">
+      <div id="resGrade"><span class="g">S</span><span class="lbl">RANK</span></div>
       <div id="resIcon">🎉</div>
       <div id="resKicker">RESULT</div>
       <div id="resRank">名義守り抜き神</div>
@@ -670,6 +694,15 @@
     holding = false;
   }
 
+  function gradeFor(reason, used){
+    if (reason !== 'clear') return { g:'D', cls:'d' };
+    if (used <= 21) return { g:'SS', cls:'ss' };
+    if (used <= 23) return { g:'S', cls:'s' };
+    if (used <= 25.5) return { g:'A', cls:'a' };
+    if (used <= 28) return { g:'B', cls:'b' };
+    return { g:'C', cls:'c' };
+  }
+
   function buildResult(reason, used, prog){
     var r;
     if (reason === 'clear'){
@@ -692,6 +725,9 @@
     r.time = used;
     r.prog = Math.round(prog * 100);
     r.reason = reason;
+    var gr = gradeFor(reason, used);
+    r.grade = gr.g;
+    r.gradeCls = gr.cls;
     return r;
   }
 
@@ -709,6 +745,10 @@
     document.getElementById('resMsg').textContent = R.msg;
     document.getElementById('resTime').textContent = R.time.toFixed(1) + '秒';
     document.getElementById('resProg').textContent = R.prog + '%';
+    var gradeEl = document.getElementById('resGrade');
+    gradeEl.className = R.gradeCls || '';
+    gradeEl.innerHTML = '<span class="g">' + R.grade + '</span><span class="lbl">RANK</span>';
+    void gradeEl.offsetWidth;
     var shareEl = document.getElementById('shareBtn');
     if (shareEl) shareEl.href = shareUrl(R);
     resultEl.classList.remove('hidden');
@@ -719,7 +759,7 @@
     var head = R.reason === 'clear'
       ? '【QR赤線エラー！】黒服から逃げ切った！'
       : '【QR赤線エラー！】黒服につかまった…';
-    return head + '\n称号「' + R.rank + '」\nタイム ' + R.time.toFixed(1) + '秒・突破率 ' + R.prog + '%\n'
+    return head + '\nランク: ' + R.grade + '（称号「' + R.rank + '」）\nタイム ' + R.time.toFixed(1) + '秒・突破率 ' + R.prog + '%\n'
       + 'あなたは発券エラーから逃げ切れる？\n#チケ発エラー #黒服から逃げ切れ #推し活';
   }
 
@@ -731,16 +771,25 @@
     startError();
   });
 
+  function backToIntro(){
+    resultEl.classList.add('hidden');
+    hudEl.classList.add('hidden');
+    bannerEl.className = ''; bannerEl.textContent = '';
+    stage.classList.remove('err');
+    errBannerShown = false;
+    resetRound();
+    state = 'intro'; stateT = 0;
+    var scanBtn = document.getElementById('scanBtn');
+    scanBtn.style.display = '';
+    introEl.classList.remove('dim');
+    introEl.classList.remove('hidden');
+  }
+
   document.getElementById('retryBtn').addEventListener('click', function(e){
     e.stopPropagation();
     if (state !== 'result') return;
     Sound.ui();
-    resultEl.classList.add('hidden');
-    bannerEl.className = ''; bannerEl.textContent = '';
-    hudEl.classList.remove('hidden');
-    resetRound();
-    state = 'play'; stateT = 0;
-    hintEl.classList.remove('show'); void hintEl.offsetWidth; hintEl.classList.add('show');
+    backToIntro();
   });
 
   function shareUrl(R){
