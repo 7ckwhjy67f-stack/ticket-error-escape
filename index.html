@@ -383,12 +383,12 @@
   var W = 360;                    // logical world width
   var H = 640;                    // logical view height (recomputed)
   var CORR_L = 30, CORR_R = 330;  // corridor inner walls
-  var START_Y = 1720;
+  var START_Y = 1520;
   var GOAL_Y  = 100;
   var SPAN    = START_Y - GOAL_Y;
-  var RUN_SPEED = 152;
+  var RUN_SPEED = 175;
   var TIME_LIMIT = 30;
-  var CONE_LEN = 200;
+  var CONE_LEN = 150;
   var CONE_HALF = 26 * Math.PI / 180;
   var BODY_HIT = 23;              // physical contact distance
   var GRACE = 0.13;               // seconds of leeway before a catch
@@ -566,10 +566,9 @@
      level setup
   ========================================================= */
   var GUARD_DEFS = [
-    { top:1440, bot:1650, y:1620, dir:-1, speed:82 },
-    { top:1130, bot:1250, y:1190, dir: 1, speed:86 },
-    { top: 720, bot: 850, y: 790, dir:-1, speed:80 },
-    { top: 320, bot: 440, y: 370, dir: 1, speed:74 }
+    { top:1260, bot:1480, y:1470, dir:-1, speed:100 },
+    { top: 860, bot:1080, y: 870, dir: 1, speed:104 },
+    { top: 460, bot: 680, y: 650, dir:-1, speed: 98 }
   ];
 
   function resetRound(){
