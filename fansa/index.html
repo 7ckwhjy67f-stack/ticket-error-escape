@@ -838,7 +838,7 @@ function appeal(trigger){
   if (S.mode !== 'play') return;
   var w = currentLockWindow();
   if (!w || w.hit){
-    if (trigger === 'flip') showToast('今じゃない！👀 を待って！', 900);
+    if (trigger === 'flip' && !w) showToast('今じゃない！👀 を待って！', 900);
     return;
   }
   var reaction = S.t - w.start;
@@ -969,7 +969,9 @@ function buildResult(kind){
     sub = '推しのトロッコが目の前で緊急停止。5秒間のゼロ距離ロックオンで、確定ファンサを独占した。';
   } else if (kind === 'manner'){
     rank = 'D';
-    title = pick(['うちわ上げすぎ注意報', 'スタッフに秒で見つかった人', '後ろのオタクにファンサ吸われた']);
+    title = count >= 3
+      ? pick(['ファンサは全部もらったが、スタッフに確保された人', 'うちわ上げすぎ注意報（ファンサ' + count + '回）'])
+      : pick(['うちわ上げすぎ注意報', 'スタッフに秒で見つかった人', '後ろのオタクにファンサ吸われた']);
     sub = '「お客様、うちわは胸の高さでお願いします！」——スタッフの注意で強制終了。';
   } else if (count === 0){
     rank = 'D';
@@ -1127,7 +1129,7 @@ function updatePlay(dt){
     }
     if (!w.started && S.t >= w.start){
       w.started = true;
-      if (S.raised && !w.hit) appeal('raise');
+      Sound.cue();
     }
     if (!w.ended && S.t >= w.start + w.dur){
       w.ended = true;
