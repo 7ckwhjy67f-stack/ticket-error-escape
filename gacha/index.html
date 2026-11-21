@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#07030f" />
 <title>脳汁10連ガチャ！虹昇格RTA</title>
-<meta name="description" content="★5を引くまでやめられない10連ガチャRTA。青や金のカードが……ピキッ！と虹に昇格するあの脳汁演出を、ダイヤ無限でサクサク回してタイムと連数を競え！" />
+<meta name="description" content="手持ちダイヤが尽きる前に★5を引けるか！10連ガチャRTA。青や金のカードが……ピキッ！と虹に昇格、全部★3からの逆転カットインも!? 同じ★5を3枚集めてアルバム完凸をめざせ。" />
 <meta property="og:title" content="脳汁10連ガチャ！虹昇格RTA" />
-<meta property="og:description" content="★5引くまでやめられない10連RTA！青・金から一瞬止まって虹に昇格する脳汁演出を、ダイヤ無限で回しまくれ。" />
+<meta property="og:description" content="ランダムな手持ちダイヤ、尽きる前に★5を引けるか！青・金から虹に昇格する脳汁演出と、全部★3からの逆転カットイン。同じ★5を3枚集めて完凸アルバム！" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://7ckwhjy67f-stack.github.io/ticket-error-escape/gacha/" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="脳汁10連ガチャ！虹昇格RTA" />
-<meta name="twitter:description" content="★5引くまでやめられない10連RTA！青・金から一瞬止まって虹に昇格する脳汁演出を、ダイヤ無限で回しまくれ。" />
+<meta name="twitter:description" content="ランダムな手持ちダイヤ、尽きる前に★5を引けるか！青・金から虹に昇格する脳汁演出と、全部★3からの逆転カットイン。同じ★5を3枚集めて完凸アルバム！" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2307030f'/%3E%3Ctext x='32' y='31' font-size='22' text-anchor='middle' fill='%23ffd24a' font-family='sans-serif' font-weight='bold'%3E10%3C/text%3E%3Cpath d='M32 36l3.2 7 7.6 1-5.5 5.3 1.3 7.5-6.6-3.5-6.6 3.5 1.3-7.5-5.5-5.3 7.6-1z' fill='%23ff5fa2'/%3E%3C/svg%3E" />
 <style>
   :root{
@@ -194,7 +194,7 @@
   .card{ position:relative; aspect-ratio:.62; }
   .card .inner{
     position:absolute; inset:0; transform-style:preserve-3d;
-    transition:transform .17s cubic-bezier(.3,1.5,.55,1);
+    transition:transform .22s cubic-bezier(.3,1.5,.55,1);
   }
   .card.flip .inner{ transform:rotateY(180deg); }
   .face{ position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; border-radius:7px; overflow:hidden; }
@@ -369,6 +369,181 @@
   }
   .ghostbtn:active{ transform:scale(.99); background:rgba(255,255,255,.16); }
 
+  /* ================= DIAMONDS / ALBUM BUTTON ================= */
+  #diaInfo{ font-size:11px; color:#cfc2ee; text-align:center; line-height:1.35; }
+  #diaInfo b{ font-size:15px; color:#9fe0ff; font-variant-numeric:tabular-nums; }
+  #diaInfo em{ font-style:normal; font-weight:900; color:#7dffd0; }
+  .albumbtn{
+    width:100%; padding:10px; border-radius:12px; font-family:inherit; font-size:12.5px; font-weight:900;
+    color:#ffe9b0; background:rgba(255,210,90,.10); border:1px solid rgba(255,210,90,.45);
+    cursor:pointer; touch-action:manipulation;
+  }
+  .albumbtn:active{ transform:scale(.99); background:rgba(255,210,90,.2); }
+  .pullno span{ font-size:10px; color:#8fa0c8; font-weight:700; }
+  .chip.dia span{ font-size:8.5px; color:#7fa8c8; letter-spacing:0; }
+  .chip.dia b.warn{ color:#ff8a9c; }
+
+  /* ================= ALL-BLUE TEASE ================= */
+  #tease{
+    position:absolute; left:50%; top:36%; transform:translate(-50%,-50%) scale(.7); z-index:33;
+    font-size:clamp(19px,6.2vw,26px); font-weight:900; color:#d6ecff; letter-spacing:.06em; white-space:nowrap;
+    text-shadow:0 0 16px rgba(90,170,255,.9), 0 0 34px rgba(70,120,255,.6), 0 2px 0 #001028;
+    opacity:0; pointer-events:none;
+  }
+  #tease.on{ animation:teaseIn 1.45s ease-out forwards; }
+  @keyframes teaseIn{
+    0%{ opacity:0; transform:translate(-50%,-50%) scale(.72); }
+    16%{ opacity:1; transform:translate(-50%,-50%) scale(1.08); }
+    28%{ transform:translate(-50%,-50%) scale(1); }
+    76%{ opacity:1; }
+    100%{ opacity:0; transform:translate(-50%,-52%) scale(.98); }
+  }
+
+  /* ================= CUT-IN ================= */
+  #cutin{ position:absolute; inset:0; z-index:72; pointer-events:none; opacity:0; visibility:hidden; overflow:hidden; }
+  #cutin.on{ opacity:1; visibility:visible; }
+  #cutin .cdark{
+    position:absolute; inset:0; opacity:0;
+    background:radial-gradient(62% 52% at 50% 46%, rgba(24,5,46,.86), rgba(3,1,10,.97));
+  }
+  #cutin.on .cdark{ animation:cdarkIn .34s ease-out forwards; }
+  @keyframes cdarkIn{ to{ opacity:1; } }
+  #cutin .cspeed{
+    position:absolute; inset:-20%; opacity:0;
+    background:repeating-linear-gradient(105deg, rgba(255,255,255,.16) 0 2px, transparent 2px 24px);
+  }
+  #cutin.on .cspeed{ animation:cspeedIn .55s ease-out .08s forwards; }
+  @keyframes cspeedIn{ from{ opacity:0; transform:scale(1.35); } to{ opacity:.6; transform:scale(1); } }
+  #cutin .cband{
+    position:absolute; left:-60%; top:50%; width:230%; height:170px; margin-top:-85px;
+    transform:rotate(-14deg) translateX(-105%);
+    background:linear-gradient(90deg,transparent 0%,#ff5fa2 16%,#fff 30%,#fff 44%,#ffd24a 56%,#7dffd0 70%,#8ecbff 84%,transparent 100%);
+    box-shadow:0 0 60px rgba(255,150,240,.85);
+  }
+  #cutin.on .cband{ animation:cbandSweep .68s cubic-bezier(.2,.75,.25,1) .05s forwards; }
+  @keyframes cbandSweep{ to{ transform:rotate(-14deg) translateX(62%); } }
+  #cutin.lite .cdark, #cutin.lite .cbody, #cutin.lite .cspeed{ display:none; }
+  #cutin.lite .cband{ height:96px; margin-top:-48px; animation-duration:.5s; }
+  #cutin .cbody{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center; gap:10px; padding:0 16px;
+  }
+  #cutin .cport{
+    width:33%; max-width:140px; aspect-ratio:.8; border-radius:13px; overflow:hidden; flex:none;
+    border:2px solid #fff; box-shadow:0 0 0 3px rgba(255,95,162,.6), 0 0 42px rgba(255,180,240,.9);
+    opacity:0; transform:scale(.55) rotate(-10deg);
+  }
+  #cutin .cport svg{ width:100%; height:100%; display:block; }
+  #cutin.on .cport{ animation:cportIn .5s cubic-bezier(.2,1.7,.4,1) .18s forwards; }
+  @keyframes cportIn{ to{ opacity:1; transform:scale(1) rotate(-4deg); } }
+  #cutin .ctxt{ min-width:0; }
+  #cutin .ckicker{
+    font-size:10px; font-weight:900; letter-spacing:.16em; color:#8ecbff; opacity:0; transform:translateY(6px);
+    text-shadow:0 0 10px rgba(90,180,255,.8);
+  }
+  #cutin.on .ckicker{ animation:cwordIn .3s ease-out .2s forwards; }
+  #cutin .cword{
+    font-size:clamp(20px,6.6vw,28px); font-weight:900; line-height:1.05; letter-spacing:-.01em; margin-top:2px; white-space:nowrap;
+    background:linear-gradient(100deg,#fff,#ffd7ef 22%,#ffd24a 46%,#7dffd0 70%,#fff);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 0 16px rgba(255,120,200,.9)) drop-shadow(0 3px 0 #2a0a4a);
+    opacity:0; transform:scale(1.7) rotate(-4deg); transform-origin:left center;
+  }
+  #cutin.on .cword{ animation:cwordIn .42s cubic-bezier(.2,1.6,.4,1) .3s forwards; }
+  @keyframes cwordIn{ to{ opacity:1; transform:scale(1) translateY(0) rotate(0); } }
+  #cutin .cname{
+    font-size:clamp(13px,4vw,16px); font-weight:900; margin-top:8px; opacity:0;
+    color:#fff; text-shadow:0 0 12px rgba(255,150,230,.9);
+  }
+  #cutin.on .cname{ animation:cwordIn .32s ease-out .5s forwards; }
+  #cutin .crarity{
+    display:inline-block; margin-top:6px; font-size:10px; font-weight:900; letter-spacing:.04em;
+    color:#2a0016; padding:2px 9px; border-radius:999px;
+    background:linear-gradient(90deg,#ffd24a,#ff9ad5,#7dffd0); box-shadow:0 0 16px rgba(255,180,240,.8);
+    opacity:0;
+  }
+  #cutin.on .crarity{ animation:cwordIn .3s ease-out .62s forwards; }
+  #cutin .cflash{ position:absolute; inset:0; background:#fff; opacity:0; }
+  #cutin.on .cflash{ animation:cflashOut .4s ease-out .78s forwards; }
+  @keyframes cflashOut{ 0%{ opacity:0; } 18%{ opacity:.9; } 100%{ opacity:0; } }
+
+  /* ================= 完凸 / ALBUM ================= */
+  .hit.comp{ border-color:#ffd24a; box-shadow:0 0 0 2px rgba(255,210,74,.75), 0 0 48px rgba(255,190,60,.85); }
+  .hit.comp .hit-tag{ background:linear-gradient(90deg,#fff3b0,#ffd24a,#ff9f2e); }
+  .hit.comp .hit-name{ color:#ffe9a8; }
+
+  .rcard.comp{
+    background:linear-gradient(140deg,#fff3b0,#ffd24a,#ff8a3d,#ffd24a,#fff3b0);
+    box-shadow:0 0 28px rgba(255,215,100,.8);
+  }
+  .rcard .crown{
+    position:absolute; top:-10px; right:-6px; z-index:3; font-size:20px;
+    filter:drop-shadow(0 0 8px rgba(255,220,100,.95)); animation:tw 1.6s ease-in-out infinite;
+  }
+  .rcard .own{
+    position:absolute; left:-3px; bottom:-6px; z-index:3; font-size:9px; font-weight:900; white-space:nowrap;
+    padding:1px 6px; border-radius:999px; color:#ffe27a;
+    background:#0b0420; border:1px solid rgba(255,215,100,.7);
+  }
+  .r-none{
+    width:100%; display:flex; flex-direction:column; align-items:center; gap:5px;
+    font-size:11.5px; color:#9aabc8; padding:10px; margin-top:2px;
+    border-radius:12px; background:rgba(255,255,255,.04); border:1px dashed rgba(255,255,255,.16);
+  }
+  .r-none .big{ font-size:38px; filter:grayscale(.35); }
+
+  #album{
+    position:absolute; inset:0; z-index:88; display:none; flex-direction:column; overflow-y:auto;
+    -webkit-overflow-scrolling:touch; touch-action:pan-y;
+    padding:calc(env(safe-area-inset-top) + 14px) 14px calc(env(safe-area-inset-bottom) + 16px);
+    background:radial-gradient(120% 82% at 50% 0%, #241041 0%, #0b0419 55%, #03010a 100%);
+  }
+  #album.on{ display:flex; }
+  .al-head{ display:flex; align-items:center; gap:8px; }
+  .al-title{ font-size:15px; font-weight:900; letter-spacing:.06em; }
+  .al-close{
+    margin-left:auto; width:34px; height:34px; border-radius:50%; flex:none;
+    border:1px solid rgba(255,255,255,.28); background:rgba(255,255,255,.08); color:#fff;
+    font-family:inherit; font-size:15px; line-height:1; cursor:pointer;
+  }
+  .al-close:active{ transform:scale(.94); }
+  .al-rate{
+    margin-top:10px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+    border-radius:12px; padding:9px 11px; font-size:11px; color:#d9cff2;
+  }
+  .al-rate b{ font-size:16px; color:#ffe27a; font-variant-numeric:tabular-nums; }
+  .al-bar{ height:7px; border-radius:99px; background:rgba(255,255,255,.1); margin-top:7px; overflow:hidden; }
+  .al-bar i{
+    display:block; height:100%; width:0%; border-radius:99px;
+    background:linear-gradient(90deg,#ff5fa2,#ffd24a,#7dffd0,#8ecbff); transition:width .6s ease;
+  }
+  .al-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; }
+  .al-card{
+    position:relative; border-radius:12px; padding:3px;
+    background:linear-gradient(150deg,rgba(255,255,255,.24),rgba(255,255,255,.06));
+  }
+  .al-card.comp{
+    background:linear-gradient(150deg,#fff3b0,#ffd24a,#ff8a3d,#ffd24a,#fff3b0);
+    box-shadow:0 0 22px rgba(255,210,90,.55);
+  }
+  .al-card .in{ background:#0b0420; border-radius:9px; overflow:hidden; height:100%; display:flex; flex-direction:column; }
+  .al-card .art{ aspect-ratio:.78; }
+  .al-card .art svg{ width:100%; height:100%; display:block; }
+  .al-card.zero .art{ filter:grayscale(.9) brightness(.5); }
+  .al-meta{ padding:4px 3px 6px; text-align:center; }
+  .al-nm{ font-size:9.5px; font-weight:900; line-height:1.15; }
+  .al-ct{ font-size:11px; font-weight:900; color:#8ecbff; margin-top:2px; letter-spacing:.02em; }
+  .al-card.comp .al-ct{ color:#ffe27a; }
+  .al-card.zero .al-ct{ color:#7e93ad; }
+  .al-dots{ display:flex; gap:3px; justify-content:center; margin-top:4px; }
+  .al-dots i{ width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.16); }
+  .al-dots i.on{ background:#ffd24a; box-shadow:0 0 6px rgba(255,210,74,.9); }
+  .al-crown{
+    position:absolute; top:-9px; left:50%; transform:translateX(-50%); z-index:3; font-size:16px;
+    filter:drop-shadow(0 0 6px rgba(255,210,74,.95)); animation:tw 1.6s ease-in-out infinite;
+  }
+  .al-note{ margin-top:14px; font-size:10.5px; line-height:1.55; color:#cfc2ee; text-align:center; }
+  .al-note b{ color:#ffe27a; }
+
   @media (max-height:700px){
     .t-mid{ min-height:0; }
     .orb{ width:min(40vw,140px); }
@@ -377,6 +552,7 @@
     .r-note{ display:none; }
     .r-cards.one .rcard{ width:min(40%,140px); }
     .rcards .meta{ padding:2px; }
+    .al-card .art{ aspect-ratio:1; }
   }
 </style>
 </head>
@@ -391,7 +567,7 @@
         <div class="group">トゥインクル★ステラ</div>
         <h1 class="logo">脳汁<span class="small">10連ガチャ！</span></h1>
         <div class="sub">虹昇格RTA</div>
-        <div class="tagline">★5引くまでやめられない10連RTA！</div>
+        <div class="tagline">手持ちダイヤが尽きる前に、★5を引けるか！</div>
         <div id="roadHint">🌈 なんだか、虹の予感がする……！？</div>
       </div>
 
@@ -404,11 +580,12 @@
 
       <div class="t-bottom">
         <button id="btnStart" class="bigbtn">🎰 ガチャを引く！（10連スタート）</button>
-        <div class="cost">ダイヤ ∞ ／ 10連でダイヤ350消費</div>
+        <div id="diaInfo">💎 今回の手持ちダイヤ <b>2,100</b>個（6連分）</div>
+        <button id="btnAlbumTitle" class="albumbtn">📖 アルバムを見る（★5完凸コンプ）</button>
         <ul class="hints">
-          <li><b>SSS+</b>10連の中に★5が2枚…？</li>
-          <li><b>SSR</b>虹の気配がしたら、10連目が確定虹</li>
-          <li><b>D</b>100連スルーで天井・財布が消し飛ぶ</li>
+          <li><b>★5</b>ダイヤが尽きる前に引けるか！</li>
+          <li><b>SS</b>ダイヤを半分以上残して★5</li>
+          <li><b>D</b>枯渇したら…黒服バイトへ</li>
         </ul>
       </div>
     </section>
@@ -418,14 +595,15 @@
       <div class="p-head">
         <div class="chip time"><b id="tTime">0.00</b>秒</div>
         <div class="chip"><b id="tCount">0</b>連</div>
-        <div class="chip dia"><b id="tDia">0</b>ダイヤ</div>
+        <div class="chip dia"><b id="tDia">2,100</b>ダイヤ残<span id="tDiaMax">／2,100</span></div>
       </div>
 
       <div class="p-mid">
-      <div class="pullno"><b id="tTen">1</b>回目の10連</div>
+      <div class="pullno"><b id="tTen">1</b>回目の10連 <span id="tRest">（残り5回分）</span></div>
       <div id="gridwrap">
         <div id="grid"></div>
         <div id="piki">……ピキッ！</div>
+        <div id="tease">……ぜんぶ★3？</div>
         <div id="hit" class="hit">
           <div class="hit-tag" id="hitTag">★5 GET!!</div>
           <div class="hit-inner">
@@ -458,14 +636,47 @@
       <div class="r-cards one" id="rCards"></div>
       <div class="r-stats">
         <div><b id="rPulls">0</b><span>連</span></div>
-        <div><b id="rDia">0</b><span>ダイヤ</span></div>
+        <div><b id="rDia">0</b><span>ダイヤ残</span></div>
         <div><b id="rTime">0.00</b><span>秒</span></div>
       </div>
       <div class="r-btns">
         <a id="btnShare" class="sharebtn" href="#" target="_blank" rel="noopener noreferrer">𝕏 結果をXでシェア</a>
+        <a id="btnBlacksuits" class="sharebtn hide" href="https://7ckwhjy67f-stack.github.io/ticket-error-escape/" target="_blank" rel="noopener noreferrer">🕶️ 黒服バイトへ出勤する（別ゲームへ）</a>
+        <button id="btnAlbumRes" class="ghostbtn">📖 アルバムを見る</button>
         <button id="btnRetry" class="ghostbtn">もう一度挑戦</button>
       </div>
     </section>
+  </div>
+
+  <!-- ============ CUT-IN ============ -->
+  <div id="cutin" aria-hidden="true">
+    <div class="cdark"></div>
+    <div class="cspeed"></div>
+    <div class="cband"></div>
+    <div class="cbody">
+      <div class="cport" id="cPort"></div>
+      <div class="ctxt">
+        <div class="ckicker" id="cKicker">全部★3……からの逆転！</div>
+        <div class="cword">まだ終わらないよ！</div>
+        <div class="cname" id="cName">—</div>
+        <div class="crarity" id="cRarity">★★★ → ★★★★★ 逆転昇格</div>
+      </div>
+    </div>
+    <div class="cflash"></div>
+  </div>
+
+  <!-- ============ ALBUM ============ -->
+  <div id="album" aria-hidden="true">
+    <div class="al-head">
+      <div class="al-title">📖 ★5アルバム</div>
+      <button id="btnAlbumClose" class="al-close" aria-label="アルバムを閉じる">✕</button>
+    </div>
+    <div class="al-rate">
+      <div>👑 全キャラ完凸コンプ率 <b id="alRate">0%</b>（<span id="alCount">0/3</span>人）</div>
+      <div class="al-bar"><i id="alBar"></i></div>
+    </div>
+    <div class="al-grid" id="alGrid"></div>
+    <div class="al-note">同じ★5を<b>3枚</b>集めると「<b>👑 完凸（3/3）</b>」達成！<br>集めた枚数はこの端末に保存されます。</div>
   </div>
 
   <button id="mute" aria-label="サウンドのオン・オフ">🔊</button>
@@ -547,7 +758,13 @@
   const P3 = KEYS.filter(k=>CHARS[k].r===3);
 
   const COST = 350;
+  const DIA_MIN_TENS = 3;      // 手持ちダイヤは3〜10連分でランダム
+  const DIA_MAX_TENS = 10;
+  const ALL_BLUE_CUTIN = 0.28; // 全部★3から逆転カットインが起きる確率
+  const ALBUM_KEY = 'gacha_album_v1';
+  const ALBUM_MAX = 3;         // 同じ★5を3枚で完凸
   const PRICE_URL = 'https://7ckwhjy67f-stack.github.io/ticket-error-escape/gacha/';
+  const FIRST_GAME_URL = 'https://7ckwhjy67f-stack.github.io/ticket-error-escape/';
 
   /* =========================================================
      効果音（Web Audio API 合成）
@@ -623,6 +840,19 @@
     drum(){
       const n=[294,262,220]; n.forEach((f,i)=>this.tone(f,0.3,'triangle',0.12,i*0.16));
       this.noise(0.2,0.08,900,0,1);
+    },
+    cutin(){
+      // 逆転カットイン：逆再生風のライザー→ドン!
+      this.tone(120,0.62,'sawtooth',0.13,0,1800);
+      this.noise(0.6,0.16,900,0,1.1);
+      this.tone(90,0.5,'square',0.16,0.58,44);
+      this.noise(0.5,0.2,300,0.58,0.7);
+      [392,523,659,784].forEach((f,i)=>this.tone(f,0.3,'triangle',0.13,0.62+i*0.045));
+    },
+    complete(){
+      [784,988,1175,1568,2093].forEach((f,i)=>this.tone(f,0.55,'triangle',0.14,i*0.09));
+      [523,659,784].forEach((f,i)=>this.tone(f,0.7,'sine',0.09,0.05+i*0.09));
+      this.noise(0.8,0.09,5200,0.1,0.9);
     }
   };
 
@@ -631,13 +861,15 @@
      ========================================================= */
   const S = {
     phase:'title',
-    rainbowRoad:false, rainbowRoadHit:false, ceilHit:false, allGold:false,
+    rainbowRoad:false, rainbowRoadHit:false, allGold:false, cutinHit:false, cleared:false,
     t0:0, t1:0,
-    pulls:0, tens:0, dia:0,
-    hits:[], hitPulls:0, maxHits:0,
+    pulls:0, tens:0,
+    diaStart:2100, diaLeft:2100, diaUsed:0,
+    hits:[], hitPulls:0, maxHits:0, newComps:[],
     skip:false, busy:false,
-    forced:[], muted:false,
-    lastName:null
+    forced:[], forceCutin:false, forcePromo:false,
+    muted:false, lastName:null,
+    album:{}
   };
 
   /* =========================================================
@@ -659,6 +891,14 @@
   const btnSkip = $('#btnSkip');
   const btnRetry = $('#btnRetry');
   const btnShare = $('#btnShare');
+  const btnBlacksuits = $('#btnBlacksuits');
+  const btnAlbumTitle = $('#btnAlbumTitle');
+  const btnAlbumRes = $('#btnAlbumRes');
+  const btnAlbumClose = $('#btnAlbumClose');
+  const albumEl = $('#album');
+  const cutinEl = $('#cutin');
+  const teaseEl = $('#tease');
+  const diaInfoEl = $('#diaInfo');
 
   /* =========================================================
      小さなヘルパー
@@ -668,6 +908,73 @@
   const pick = arr => arr[Math.floor(Math.random()*arr.length)];
   const nf = n => n.toLocaleString('ja-JP');
   const secs = ms => (Math.max(0,ms)/1000).toFixed(2);
+
+  /* =========================================================
+     アルバム（★5の累計獲得枚数・完凸）
+     ========================================================= */
+  function loadAlbum(){
+    const o = {};
+    P5.forEach(k => o[k] = 0);
+    try{
+      const raw = localStorage.getItem(ALBUM_KEY);
+      if(raw){
+        const d = JSON.parse(raw) || {};
+        P5.forEach(k => {
+          const v = Math.floor(+d[k]);
+          if(v > 0) o[k] = Math.min(99, v);
+        });
+      }
+    }catch(e){}
+    return o;
+  }
+  function saveAlbum(){
+    try{ localStorage.setItem(ALBUM_KEY, JSON.stringify(S.album)); }catch(e){}
+  }
+  function ownedOf(key){ return S.album[key] || 0; }
+  function isComp(key){ return ownedOf(key) >= ALBUM_MAX; }
+  function compRate(){
+    const done = P5.filter(isComp).length;
+    return { done, total:P5.length, pct: Math.round(done / P5.length * 100) };
+  }
+  function addAlbum(key, n){
+    const before = ownedOf(key);
+    const after = Math.max(0, before + (n == null ? 1 : n));
+    S.album[key] = after;
+    saveAlbum();
+    return { before, after, completed: before < ALBUM_MAX && after >= ALBUM_MAX };
+  }
+  function renderAlbum(){
+    const r = compRate();
+    $('#alRate').textContent = r.pct + '%';
+    $('#alCount').textContent = r.done + '/' + r.total;
+    $('#alBar').style.width = r.pct + '%';
+    $('#alGrid').innerHTML = P5.map(k => {
+      const ch = CHARS[k];
+      const n = Math.min(ALBUM_MAX, ownedOf(k));
+      const comp = n >= ALBUM_MAX;
+      const dots = [0,1,2].map(i => `<i class="${i < n ? 'on' : ''}"></i>`).join('');
+      return `<div class="al-card ${comp ? 'comp' : ''} ${n === 0 ? 'zero' : ''}">
+        ${comp ? '<div class="al-crown">👑</div>' : ''}
+        <div class="in">
+          <div class="art">${charSvg(ch, 5)}</div>
+          <div class="al-meta">
+            <div class="al-nm">${ch.name}</div>
+            <div class="al-ct">${comp ? '👑 完凸!' : n + '/' + ALBUM_MAX}</div>
+            <div class="al-dots">${dots}</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  function openAlbum(){
+    renderAlbum();
+    albumEl.classList.add('on');
+    albumEl.setAttribute('aria-hidden', 'false');
+  }
+  function closeAlbum(){
+    albumEl.classList.remove('on');
+    albumEl.setAttribute('aria-hidden', 'true');
+  }
 
   function starPath(cx, cy, r){
     let p = '';
@@ -888,7 +1195,9 @@
   }
   function hud(){
     $('#tCount').textContent = S.pulls;
-    $('#tDia').textContent = nf(S.dia);
+    const diaEl = $('#tDia');
+    diaEl.textContent = nf(S.diaLeft);
+    diaEl.classList.toggle('warn', S.diaLeft <= COST);
     const t = S.t1 ? S.t1 : performance.now();
     $('#tTime').textContent = secs(t - S.t0);
   }
@@ -921,14 +1230,29 @@
     if(S.rainbowRoad && S.tens === 1 && !S.hits.length){
       cards[9] = { key: pick(P5), road:true };
     }
-    // 天井：100連目の最後で★5確定救済
-    if(!S.hits.length && S.pulls + 10 >= 100){
-      cards[9] = { key: pick(P5), ceil:true };
+
+    // ★3だけの回を検出（カットイン検証用に強制時は作り直す）
+    if(S.forceCutin && !cards.every(c => CHARS[c.key].r === 3)){
+      cards = [];
+      for(let i=0;i<10;i++) cards.push({ key: pick(P3) });
     }
-    // 昇格フラグ
+    const allBlue = cards.every(c => CHARS[c.key].r === 3);
+    if(S.forceCutin || (allBlue && Math.random() < ALL_BLUE_CUTIN)){
+      // 全部★3……からの逆転カットイン（まれに2枚昇格）
+      const n = Math.random() < 0.18 ? 2 : 1;
+      const pool = cards.map((_, i) => i);
+      for(let j=0;j<n;j++){
+        const at = pool.splice(Math.floor(Math.random()*pool.length), 1)[0];
+        cards[at] = { key: pick(P5), promo:true, from:3, cutin:true };
+      }
+    }
+    S.forceCutin = false;
+
+    // 昇格フラグ（通常の虹は金→虹が多め）
     cards.forEach(c => {
+      if(c.cutin) return;
       if(CHARS[c.key].r === 5){
-        c.promo = S.forcePromo ? true : (!!(c.road || c.ceil) || Math.random() < 0.55);
+        c.promo = S.forcePromo ? true : (!!c.road || Math.random() < 0.55);
         c.from = Math.random() < 0.3 ? 3 : 4;
       }else{
         c.promo = false;
@@ -965,46 +1289,35 @@
     await wait(110);
   }
 
-  function recordHit(ch, card, c){
-    if(!S.hits.length){
-      S.hitPulls = S.pulls;
-      S.t1 = performance.now();
-      if(c.road) S.rainbowRoadHit = true;
-      if(c.ceil) S.ceilHit = true;
-    }
-    S.hits.push(S.hits.some(h=>h.name===ch.name) ? Object.assign({}, ch) : ch);
-    S.lastName = ch.name;
-  }
-
-  function showHit(ch, tag, c){
-    $('#hitTag').textContent = tag;
-    $('#hitR').textContent = '★★★★★';
-    $('#hitName').textContent = ch.name;
-    $('#hitKana').textContent = ch.kana + ' ／ ' + ch.role;
-    $('#hitLine').textContent = '「' + ch.line + '」';
-    $('#hitArt').innerHTML = charSvg(ch, 5);
-    hitEl.classList.remove('on');
-    void hitEl.offsetWidth;
-    hitEl.classList.add('on');
-  }
-
-  async function rainbowReveal(card, ch, c, promoted){
+  async function rainbowReveal(card, ch, c, promoted, tagOverride){
     card.classList.remove('charging');
     card.classList.add('pop');
     const p = centerPos(card);
-    FX.burst(p.x, p.y, { n: promoted ? 46 : 32, speed: 4.4, life: 800, lift: 1.1 });
+    FX.burst(p.x, p.y, {
+      n: promoted ? 46 : 32, speed: 4.4, life: 800, lift: 1.1,
+      colors: c.cutin ? ['#fff','#ffd24a','#ff9ad5','#7dffd0','#8ecbff','#b44dff'] : undefined
+    });
     Sfx.rainbow();
-    ringAt(card, c.ceil ? '#ffe27a' : '#fff', promoted ? '.8s' : '.6s');
+    ringAt(card, c.cutin ? '#ffd24a' : '#fff', promoted ? '.8s' : '.6s');
     if(promoted) flash();
 
     const hitIndex = S.hits.length;
     recordHit(ch, card, c);
-    let tag = '★5 GET!!';
-    if(c.ceil) tag = '天井到達！★5確定救済';
-    else if(c.road) tag = '🌈 虹ロード確定演出！';
-    else if(hitIndex > 0) tag = '★5 二枚抜き!!';
-    else if(promoted) tag = '虹昇格!! ★5';
+
+    let tag = tagOverride || '★5 GET!!';
+    if(!tagOverride){
+      if(c.road) tag = '🌈 虹ロード確定演出！';
+      else if(hitIndex > 0) tag = '★5 二枚抜き!!';
+      else if(promoted) tag = '虹昇格!! ★5';
+    }
+    if(c.compNow) tag = '👑 完凸（3/3）達成！';
     showHit(ch, tag, c);
+
+    if(c.compNow){
+      Sfx.complete();
+      const pc = centerPos(card);
+      setTimeout(()=>FX.burst(pc.x, pc.y, { n: 54, speed: 5.2, life: 1000, lift: 1.5, colors:['#fff','#ffe27a','#ffd24a','#ff9f2e'] }), 220);
+    }
 
     if(!S.skip){
       shake();
@@ -1023,35 +1336,45 @@
   async function revealCard(i, c){
     const card = grid.children[i];
     const ch = CHARS[c.key];
-    const promo = c.promo;
-    const shownR = promo ? c.from : ch.r;
+    const promo = !!c.promo && !c.cutin;
+    const shownR = c.cutin ? 3 : (promo ? c.from : ch.r);
 
     card.querySelector('.front').innerHTML = frontHTML(ch, shownR);
     Sfx.flip();
     card.classList.add('flip');
 
+    // 全部★3からの逆転カード：ここでは青のまま、あとでカットイン
+    if(c.cutin){
+      await wait(400);
+      return;
+    }
+
     if(!promo){
       if(shownR === 5){
-        await wait(S.skip ? 20 : 130);
+        await wait(430);
         await rainbowReveal(card, ch, c, false);
+      }else if(shownR === 4){
+        Sfx.crack();
+        await wait(470);
       }else{
-        await wait(S.skip ? 8 : 52);
+        await wait(340 + Math.random()*80);
       }
       return;
     }
 
-    // ---- 昇格演出：一瞬止まる → ピキッ → 虹 ----
-    await wait(S.skip ? 12 : 170);
+    // ---- 通常の昇格演出：しっかりタメ → ピキッ → 虹 ----
+    await wait(520);
     if(!S.skip){
       card.classList.add('charging');
       showPiki(card);
       Sfx.piki();
       shake();
+      bandLite();
       const p = centerPos(card);
       FX.burst(p.x, p.y, { n: 14, speed: 2.6, life: 420, colors:['#fff','#ffd24a','#8ecbff'] });
-      await wait(120);
+      await wait(480);
       flash();
-      await wait(430);
+      await wait(180);
     }else{
       await wait(10);
     }
@@ -1059,8 +1382,99 @@
     await rainbowReveal(card, ch, c, true);
   }
 
+  /* =========================================================
+     全部★3からの逆転カットイン
+     ========================================================= */
+  let bandTimer = 0;
+  function bandLite(){
+    if(cutinEl.classList.contains('on')) return;
+    cutinEl.classList.add('lite');
+    cutinEl.classList.remove('on');
+    void cutinEl.offsetWidth;
+    cutinEl.classList.add('on');
+    clearTimeout(bandTimer);
+    bandTimer = setTimeout(()=>cutinEl.classList.remove('on','lite'), 640);
+  }
+
+  async function cutinSequence(cards){
+    const idxs = [];
+    cards.forEach((c, i) => { if(c.cutin) idxs.push(i); });
+    if(!idxs.length) return;
+
+    // 全部★3…の静寂
+    teaseEl.textContent = '……ぜんぶ★3？';
+    teaseEl.classList.remove('on');
+    void teaseEl.offsetWidth;
+    teaseEl.classList.add('on');
+    Sfx.drum();
+    await wait(1000);
+    teaseEl.classList.remove('on');
+
+    const firstCh = CHARS[cards[idxs[0]].key];
+    $('#cPort').innerHTML = charSvg(firstCh, 5);
+    $('#cName').textContent = firstCh.name + ' ／ ' + firstCh.role;
+    $('#cKicker').textContent = '全部★3……からの逆転！';
+    cutinEl.classList.remove('lite');
+    cutinEl.classList.remove('on');
+    void cutinEl.offsetWidth;
+    cutinEl.classList.add('on');
+    Sfx.cutin();
+    shake();
+    await wait(1260);
+    cutinEl.classList.remove('on');
+    await wait(80);
+    flash();
+    Sfx.boom();
+
+    for(let n=0;n<idxs.length;n++){
+      const i = idxs[n];
+      const c = cards[i];
+      const card = grid.children[i];
+      const ch = CHARS[c.key];
+      card.querySelector('.front').innerHTML = frontHTML(ch, 5);
+      card.classList.add('charging');
+      showPiki(card, '逆転昇格!!');
+      Sfx.piki();
+      ringAt(card, '#ffd24a', '.65s');
+      await wait(S.skip ? 10 : 320);
+      await rainbowReveal(card, ch, c, true, n === 0 ? '全部★3からの逆転カットイン!!' : 'カットインで★5 二枚抜き!!');
+      if(n < idxs.length - 1) await wait(S.skip ? 20 : 420);
+    }
+  }
+
+  function recordHit(ch, card, c){
+    if(!S.hits.length){
+      S.hitPulls = S.pulls;
+      S.t1 = performance.now();
+      if(c.road) S.rainbowRoadHit = true;
+    }
+    if(c.cutin) S.cutinHit = true;
+    const res = addAlbum(c.key, 1);
+    c.own = res.after;
+    c.compNow = res.completed;
+    c.compTotal = res.after >= ALBUM_MAX;
+    if(res.completed) S.newComps.push(ch.name);
+    S.hits.push(Object.assign({}, ch, { key: c.key }));
+    S.lastName = ch.name;
+    return c;
+  }
+
+  function showHit(ch, tag, c){
+    $('#hitTag').textContent = tag;
+    $('#hitR').textContent = '★★★★★';
+    $('#hitName').textContent = ch.name;
+    $('#hitKana').textContent = ch.kana + ' ／ ' + ch.role + ' ／ 所持 ' + Math.min(ALBUM_MAX, c.own || 0) + '/' + ALBUM_MAX;
+    $('#hitLine').textContent = '「' + ch.line + '」';
+    $('#hitArt').innerHTML = charSvg(ch, 5);
+    hitEl.classList.toggle('comp', !!c.compNow);
+    hitEl.classList.remove('on');
+    void hitEl.offsetWidth;
+    hitEl.classList.add('on');
+  }
+
   async function runPull(){
     if(S.busy) return;
+    if(S.diaLeft < COST) return;
     S.busy = true;
     S.phase = 'pull';
     S.skip = false;
@@ -1070,39 +1484,62 @@
     btnNext.classList.add('hide');
     btnSkip.classList.remove('hide');
     hitEl.classList.remove('on');
+    hitEl.classList.remove('comp');
     if(!S.t0) S.t0 = performance.now();
 
     S.tens++;
     S.pulls += 10;
-    S.dia += COST;
+    S.diaLeft -= COST;
+    S.diaUsed += COST;
     hud();
     startTimer();
 
     const cards = makePull();
     buildGrid();
     $('#tTen').textContent = S.tens;
+    $('#tRest').textContent = '（残り' + Math.floor(S.diaLeft / COST) + '回分）';
     $('#tSum').innerHTML = '';
-    $('#pHint').innerHTML = S.tens === 1 ? 'ダイヤ <b>350</b> 消費！ 10連スタート！' : '<b>' + S.tens + '回目</b>の10連！';
+    $('#pHint').innerHTML = S.tens === 1
+      ? '手持ちダイヤ <b>' + nf(S.diaStart) + '</b>から350消費！'
+      : '<b>' + S.tens + '回目</b>の10連！ 残りダイヤ <b>' + nf(S.diaLeft) + '</b>';
 
     await lightIntro();
 
-    let hitsHere = 0;
+    const cnt = { 3:0, 4:0, 5:0 };
     for(let i=0;i<10;i++){
-      await revealCard(i, cards[i]);
-      if(CHARS[cards[i].key].r === 5) hitsHere++;
+      const c = cards[i];
+      const shown = c.cutin ? 3 : (c.promo ? c.from : CHARS[c.key].r);
+      await revealCard(i, c);
+      cnt[shown]++;
+      $('#tSum').innerHTML = 'めくり中 ' + (i+1) + '/10　<i>★3×' + cnt[3] + '</i>　<em>★4×' + cnt[4] + '</em>' + (cnt[5] ? '　<s>★5×' + cnt[5] + '</s>' : '');
     }
 
+    // 全部★3からの逆転カットイン
+    const hasCutin = cards.some(c => c.cutin);
+    if(hasCutin){
+      await cutinSequence(cards);
+    }else if(cards.every(c => CHARS[c.key].r === 3)){
+      teaseEl.textContent = '……ぜんぶ★3。';
+      teaseEl.classList.remove('on');
+      void teaseEl.offsetWidth;
+      teaseEl.classList.add('on');
+      await wait(560);
+      teaseEl.classList.remove('on');
+    }
+
+    const finalCnt = { 3:0, 4:0, 5:0 };
+    cards.forEach(c => { finalCnt[CHARS[c.key].r]++; });
+    const hitsHere = finalCnt[5];
     if(cards.every(c => CHARS[c.key].r >= 4)) S.allGold = true;
     S.maxHits = Math.max(S.maxHits, hitsHere);
 
-    const c3 = cards.filter(c => CHARS[c.key].r === 3).length;
-    const c4 = cards.filter(c => CHARS[c.key].r === 4).length;
-    $('#tSum').innerHTML = '今回：<i>★3×' + c3 + '</i>　<em>★4×' + c4 + '</em>' + (hitsHere ? '　<s>★5×' + hitsHere + '</s>' : '');
+    $('#tSum').innerHTML = '今回：<i>★3×' + finalCnt[3] + '</i>　<em>★4×' + finalCnt[4] + '</em>' + (hitsHere ? '　<s>★5×' + hitsHere + '</s>' : '');
+    $('#tRest').textContent = '（残り' + Math.floor(S.diaLeft / COST) + '回分）';
 
     if(hitsHere > 0){
-      // ---- RTA ゴール ----
+      // ---- ★5ゲット：クリア ----
       btnSkip.classList.add('hide');
-      $('#pHint').innerHTML = S.hits.length >= 2 ? '<b>★5二枚抜き!!</b> これは自慢できる！' : '<b>★5 GET!!</b> タイム確定！';
+      $('#pHint').innerHTML = S.hits.length >= 2 ? '<b>★5二枚抜き!!</b> これは自慢できる！' : '<b>★5 GET!!</b> 残りダイヤ <b>' + nf(S.diaLeft) + '</b> で生還！';
       if(!S.skip){ Sfx.fanfare(); }
       await wait(S.skip ? 60 : 900);
       S.busy = false;
@@ -1110,16 +1547,26 @@
       return;
     }
 
-    // ---- ノーヒット：即もう10連 ----
+    // ---- ノーヒット ----
     S.busy = false;
     S.skip = false;
     btnSkip.classList.add('hide');
+
+    if(S.diaLeft < COST){
+      // 💎 ダイヤ枯渇 → 労働エンド
+      $('#pHint').innerHTML = '<b>💎 ダイヤ枯渇……</b>';
+      Sfx.boom();
+      shake();
+      await wait(900);
+      showResult();
+      return;
+    }
+
     btnNext.classList.remove('hide');
-    btnNext.textContent = S.pulls >= 90 ? '🎰 もう10連！（天井まであと' + (100 - S.pulls) + '連）' : '🎰 もう10連を引く！';
-    const rest = 10 - hitsHere;
-    $('#pHint').innerHTML = S.pulls >= 50
-      ? '★5なし…<b>' + S.pulls + '連</b>。ダイヤが溶けていく……'
-      : '★5なし…　でもダイヤは無限！';
+    btnNext.textContent = '🎰 もう10連を引く！（残り' + Math.floor(S.diaLeft / COST) + '回）';
+    $('#pHint').innerHTML = S.diaLeft <= COST * 2
+      ? '★5なし…<b>残りダイヤ' + nf(S.diaLeft) + '</b>。次がラストチャンス！'
+      : '★5なし… 残りダイヤ <b>' + nf(S.diaLeft) + '</b>';
     hud();
   }
 
@@ -1127,7 +1574,13 @@
      ランク判定
      ========================================================= */
   function calcRank(){
-    const pulls = S.hitPulls || S.pulls;
+    const total = S.diaStart || 1;
+    const left = Math.max(0, S.diaLeft);
+    const ratio = left / total;
+
+    if(S.cutinHit){
+      return { key:'SSS+', title:'全部★3からの逆転カットイン！', note:'ぜんぶ青……と思いきや、カットインでまさかの虹昇格。生涯自慢できるやつ。' };
+    }
     if(S.maxHits >= 2){
       return { key:'SSS+', title:'伝説の★5二枚抜き神引き！', note:'同じ10連で★5が2枚以上！ これはスクショして自慢していいやつ。' };
     }
@@ -1137,15 +1590,14 @@
     if(S.rainbowRoadHit){
       return { key:'SSR', title:'虹ロード確定演出！', note:'はじめから虹の気配…10連目が確定で虹だった。' };
     }
-    if(pulls <= 10) return { key:'SS', title:'豪運の10連一発ツモ！', note:'10連1回で★5。財布も心も無傷の神展開。' };
-    if(pulls <= 20) return { key:'S',  title:'神引きの入り口、たしかにあった', note:'20連以内の★5はかなり優秀。' };
-    if(pulls <= 30) return { key:'A',  title:'普通に強運！', note:'30連で★5。よくある、よくある…いや、じゅうぶん強い。' };
-    if(pulls <= 50) return { key:'B',  title:'ふつうの課金者', note:'財布が少しだけ痩せた。' };
-    if(pulls <= 70) return { key:'C',  title:'ちょっと沼った', note:'画面の前で「はよ」って言った回数、約' + Math.max(1, Math.floor(pulls/10)) + '回。' };
-    if(S.ceilHit){
-      return { key:'D', title:'財布が消し飛んだ爆死エンド', note:'100連天井で救済。★5は来たけど、財布はもう無い。' };
+    if(!S.hits.length){
+      return { key:'D', title:'🕶️ 労働エンド：黒服バイトへ', note:'💎 ダイヤ枯渇！ 課金代を稼ぐため、ライブ会場の「黒服バイト」へ出勤することになった……。' };
     }
-    return { key:'D', title:'財布が消し飛んだ爆死エンド', note:'★5が来るまで' + pulls + '連。ダイヤは無限でも、時間と心は有限。' };
+    if(ratio >= 0.6) return { key:'SS', title:'ダイヤ温存の神引き！', note:'手持ちの半分以上を残して★5。財布も心も無傷の神展開。' };
+    if(ratio >= 0.4) return { key:'S',  title:'余裕の★5、ダイヤまだ残ってる', note:'次の10連を引ける余力を残して★5確保。' };
+    if(ratio >= 0.2) return { key:'A',  title:'ギリギリの攻防、★5確保！', note:'ダイヤは減ったけど、ちゃんと★5を引いた。' };
+    if(ratio > 0)   return { key:'B',  title:'ほぼ全部つぎ込んで★5…危なかった', note:'残ったダイヤはわずか。でも勝ちは勝ち。' };
+    return { key:'C', title:'ラスト1回で奇跡の生還！', note:'ダイヤ0になる最後の10連で★5。紙一重の生還。' };
   }
 
   /* =========================================================
@@ -1154,9 +1606,11 @@
   let lastRank = null;
   function showResult(){
     S.phase = 'result';
+    S.cleared = S.hits.length > 0;
     btnNext.classList.add('hide');
     btnSkip.classList.add('hide');
     hitEl.classList.remove('on');
+    hitEl.classList.remove('comp');
 
     const rank = calcRank();
     lastRank = rank;
@@ -1171,33 +1625,59 @@
     const uniq = S.hits.filter(h => { if(seen[h.name]) return false; seen[h.name] = 1; return true; });
     const wrap = $('#rCards');
     wrap.className = 'r-cards ' + (uniq.length > 1 ? 'two' : 'one');
-    wrap.innerHTML = uniq.map(h => `
-      <div class="rcard">
-        <div class="in">
-          <div class="art">${charSvg(h, 5)}</div>
-          <div class="meta">
-            <div class="rr">★5 ／ ${h.role}</div>
-            <div class="nm">${h.name}</div>
-            <div class="ln">「${h.line}」</div>
+    if(uniq.length){
+      wrap.innerHTML = uniq.map(h => {
+        const n = Math.min(ALBUM_MAX, ownedOf(h.key));
+        const comp = n >= ALBUM_MAX;
+        return `
+        <div class="rcard ${comp ? 'comp' : ''}">
+          ${comp ? '<div class="crown">👑</div>' : ''}
+          <div class="in">
+            <div class="art">${charSvg(h, 5)}</div>
+            <div class="meta">
+              <div class="rr">★5 ／ ${h.role}</div>
+              <div class="nm">${h.name}</div>
+              <div class="ln">「${h.line}」</div>
+            </div>
           </div>
-        </div>
-      </div>`).join('');
+          <div class="own">${comp ? '👑 完凸 3/3' : '所持 ' + n + '/3'}</div>
+        </div>`;
+      }).join('');
+    }else{
+      wrap.innerHTML = `<div class="r-none">
+        <div class="big">💎</div>
+        <div>ダイヤが尽きるまで★5は出なかった…</div>
+        <div>課金代を稼ぐため、黒服バイトへ。</div>
+      </div>`;
+    }
 
-    $('#rPulls').textContent = S.hitPulls || S.pulls;
-    $('#rDia').textContent = nf(S.dia);
+    $('#rPulls').textContent = S.pulls;
+    $('#rDia').textContent = nf(S.diaLeft);
     $('#rTime').textContent = secs(t);
 
-    $('#rNote').textContent = rank.note + (S.hits.length > 1 ? ' ★5は' + S.hits.length + '枚！' : '');
+    if(S.hits.length){
+      $('#rNote').textContent = rank.note + ' 残りダイヤ ' + nf(S.diaLeft) + '/' + nf(S.diaStart) + '個。'
+        + (S.hits.length > 1 ? ' ★5は' + S.hits.length + '枚！' : '');
+      if(S.newComps.length){
+        $('#rNote').textContent += ' 👑 完凸：' + S.newComps.join('・');
+      }
+    }
 
-    const lines = uniq.map(h => '★5：' + h.name + '（' + h.role + '）').join('\n');
-    const text =
+    const resultLine = S.hits.length
+      ? '★5：' + uniq.map(h => h.name + '（' + h.role + '）').join(' / ') + ' ／ 残りダイヤ' + nf(S.diaLeft) + '/' + nf(S.diaStart)
+      : '★5なし…ダイヤ枯渇（0/' + nf(S.diaStart) + '）';
+    let text =
       '【脳汁10連ガチャ！虹昇格RTA】\n' +
       '結果：' + rank.key + '「' + rank.title + '」\n' +
-      lines + '\n' +
-      (S.hitPulls || S.pulls) + '連 ／ ダイヤ' + nf(S.dia) + '消費 ／ ' + secs(t) + '秒\n' +
-      '★5引くまでやめられない10連ガチャ👇\n' +
-      PRICE_URL + '\n#脳汁10連ガチャ';
+      resultLine + '\n' +
+      S.pulls + '連 ／ ダイヤ' + nf(S.diaUsed) + '消費 ／ ' + secs(t) + '秒\n';
+    if(rank.key === 'D'){
+      text += 'ダイヤが尽きて黒服バイトに出勤することになった…🕶\n';
+    }
+    text += '手持ちダイヤが尽きる前に★5を引けるか！👇\n' + PRICE_URL + '\n#脳汁10連ガチャ';
     btnShare.href = 'https://x.com/intent/post?text=' + encodeURIComponent(text);
+
+    btnBlacksuits.classList.toggle('hide', rank.key !== 'D');
 
     pullEl.classList.remove('show');
     resEl.classList.add('show');
@@ -1222,18 +1702,39 @@
     titleEl.classList.toggle('aura', S.rainbowRoad);
   }
 
+  function rollDiamonds(){
+    const tens = DIA_MIN_TENS + Math.floor(Math.random() * (DIA_MAX_TENS - DIA_MIN_TENS + 1));
+    S.diaStart = tens * COST;
+    S.diaLeft = S.diaStart;
+    S.diaUsed = 0;
+    renderDiaInfo();
+  }
+  function renderDiaInfo(){
+    const tens = Math.round(S.diaStart / COST);
+    diaInfoEl.innerHTML = '💎 今回の手持ちダイヤ <b>' + nf(S.diaStart) + '</b>個（<em>' + tens + '連分</em>）';
+    $('#tDiaMax').textContent = '／' + nf(S.diaStart);
+  }
+
   function resetGame(){
     S.phase = 'title';
-    S.rainbowRoadHit = false; S.ceilHit = false; S.allGold = false;
+    S.rainbowRoadHit = false; S.allGold = false; S.cutinHit = false; S.cleared = false;
     S.t0 = 0; S.t1 = 0;
-    S.pulls = 0; S.tens = 0; S.dia = 0;
-    S.hits = []; S.hitPulls = 0; S.maxHits = 0;
-    S.skip = false; S.busy = false;
+    S.pulls = 0; S.tens = 0;
+    S.hits = []; S.hitPulls = 0; S.maxHits = 0; S.newComps = [];
+    S.skip = false; S.busy = false; S.forceCutin = false; S.forcePromo = false;
     hitEl.classList.remove('on');
+    hitEl.classList.remove('comp');
     pullEl.classList.remove('show');
     resEl.classList.remove('show');
     titleEl.classList.add('show');
     grid.innerHTML = '';
+    $('#tSum').innerHTML = '';
+    $('#pHint').innerHTML = '★5が出るまで回せ！';
+    btnNext.classList.add('hide');
+    btnSkip.classList.remove('hide');
+    btnBlacksuits.classList.add('hide');
+    closeAlbum();
+    rollDiamonds();
     hud();
     rollRainbowRoad();
   }
@@ -1268,6 +1769,11 @@
 
   btnRetry.addEventListener('click', () => { Sfx.on(); resetGame(); });
 
+  btnAlbumTitle.addEventListener('click', () => { Sfx.on(); openAlbum(); });
+  btnAlbumRes.addEventListener('click', () => { Sfx.on(); openAlbum(); });
+  btnAlbumClose.addEventListener('click', () => { closeAlbum(); });
+  albumEl.addEventListener('click', e => { if(e.target === albumEl) closeAlbum(); });
+
   muteBtn.addEventListener('click', () => {
     Sfx.on();
     S.muted = !S.muted;
@@ -1299,12 +1805,20 @@
     speed(v){ SPEED = Math.max(0.2, +v || 1); },
     rainbow(v){ S.rainbowRoad = !!v; titleEl.classList.toggle('aura', !!v); },
     fast(on){ S.skip = !!on; },
-    start, reset: resetGame, calcRank
+    start, reset: resetGame, calcRank,
+    dia(tens){ S.diaStart = Math.max(1, Math.floor(+tens || 1)) * COST; S.diaLeft = S.diaStart; S.diaUsed = 0; renderDiaInfo(); hud(); },
+    cutin(){ S.forceCutin = true; },
+    album(){ return Object.assign({}, S.album); },
+    albumAdd(key, n){ if(!CHARS[key] || CHARS[key].r !== 5) return null; const r = addAlbum(key, n); renderAlbum(); return r; },
+    albumReset(){ P5.forEach(k => S.album[k] = 0); saveAlbum(); renderAlbum(); },
+    openAlbum, closeAlbum
   };
 
   /* ---- boot ---- */
   FX.init();
   buildGrid();
+  S.album = loadAlbum();
+  rollDiamonds();
   rollRainbowRoad();
   hud();
 })();
