@@ -908,12 +908,14 @@ function beginStop(){
   S.stop.p = trolleyProgress();
   S.stop.pumped = false;
   S.stop.given = false;
+  S.stop.fxT = 0;
+  S.stop.sparkT = 0;
   S.alert = Math.min(S.alert, 24);
   S.shake = 13;
   S.flash = 0.45;
   Sound.brake();
   Sound.crowdSwell();
-  showToast('🚨 トロッコが目の前で緊急停止！', 2200, 'warn');
+  showToast('🚨 トロッコが目の前で緊急停止！', 3600, 'warn');
   spawnStars(trolleyPose(S.stop.p).x, trolleyPose(S.stop.p).y - 20, 12, ['#ffd76a', '#fff']);
   el.gazePill.classList.remove('hidden');
   el.gazePill.textContent = '🚨 ゼロ距離ロックオン！';
@@ -1171,10 +1173,21 @@ function updateStop(dt){
   S.alert = clamp(S.alert - 14 * dt, 0, 100);
   if (S.raised && !S.stop.pumped) stopBoost();
 
+  var pose = trolleyPose(S.stop.p);
+  S.stop.sparkT -= dt;
+  if (S.stop.sparkT <= 0 && S.stop.t < 1.6){
+    S.stop.sparkT = 0.14;
+    spawnStars(pose.x + rand(-50, 50), pose.y + 8, 2, ['#ffe27a', '#fff', '#ffb3d1']);
+  }
+  S.stop.fxT -= dt;
+  if (S.stop.fxT <= 0){
+    S.stop.fxT = 0.55;
+    spawnHearts(pose.x + rand(-42, 42), pose.y - pose.s * (100 + rand(0, 30)), 2);
+  }
+
   if (!S.stop.given && S.stop.t >= 2.4){
     S.stop.given = true;
     S.score = Math.max(S.score, 999);
-    var pose = trolleyPose(S.stop.p);
     spawnHearts(pose.x, pose.y - pose.s * 140, 16);
     spawnStars(pose.x, pose.y - pose.s * 120, 16, ['#ffd76a', '#ff9ec8', '#fff']);
     addText(pose.x, pose.y - pose.s * 170, 'ゼロ距離確定ファンサ!!', '#ffe27a', 20);
@@ -1680,7 +1693,7 @@ function drawOshi(x, y, sc, gazing, t, pointing){
   ctx.translate(11, -45);
   var ang;
   if (pointing && gazing){
-    ang = -1.15 + Math.sin(t * 2.4) * 0.10;
+    ang = -1.9 + Math.sin(t * 2.4) * 0.06;
   } else if (gazing){
     ang = -2.25 + Math.sin(t * 7.5) * 0.30;
   } else {
@@ -1952,10 +1965,10 @@ function drawStaff(t){
 function drawUchiwa(r, t){
   if (r < 0.01) r = 0.01;
   var cx = W * 0.5;
-  var downY = H * 1.02;
+  var downY = H * 1.08;
   var upY = H * 0.715;
   var y = lerp(downY, upY, r);
-  var sc = 0.72 + 0.30 * r;
+  var sc = 0.60 + 0.42 * r;
   var tilt = 0.22 * (1 - r) - 0.05 * r + Math.sin(t * 4.5) * 0.012 * r;
 
   ctx.save();
