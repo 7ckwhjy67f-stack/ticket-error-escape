@@ -2528,7 +2528,8 @@ if (testMode){
     finish: function(kind){ finish(kind || 'normal'); },
     setTime: function(t){ S.t = t; },
     setFlip: function(k){ flipFreeze = true; S.canpePrev = S.canpe; S.canpe = 1 - S.canpe; S.flipAnim = k; },
-    freezeFlip: function(on){ flipFreeze = !!on; }
+    freezeFlip: function(on){ flipFreeze = !!on; },
+    setRaise: function(v){ S.raised = !!v; S.raiseAmt = v ? 1 : 0; }
   };
   var wm = /[?&]w=(\d{2,4})/.exec(location.search);
   var hm = /[?&]h=(\d{2,4})/.exec(location.search);
