@@ -250,10 +250,10 @@
   .errTag{
     position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) rotate(-9deg);
     font-size:21px; font-weight:900; color:#ff2d55; letter-spacing:.04em;
-    opacity:0; transition:opacity .2s; pointer-events:none;
+    opacity:0; visibility:hidden; transition:opacity .2s, visibility 0s .2s; pointer-events:none;
     text-shadow:0 0 12px rgba(255,45,85,.8);
   }
-  #stage.err .errTag{ opacity:1; }
+  #stage.err .errTag{ opacity:1; visibility:visible; transition:opacity .2s; }
   .errHead{ text-align:center; opacity:0; transform:translateY(8px); transition:all .3s ease; }
   .errHead.on{ opacity:1; transform:none; }
   .errHead b{ display:block; font-size:16px; font-weight:900; color:#ff5d7d; }
@@ -273,12 +273,12 @@
     position:absolute; left:50%; top:50%;
     transform:translate(-50%,-50%) rotate(-9deg) scale(.7);
     font-size:21px; font-weight:900; color:#0a7a56; letter-spacing:.04em;
-    opacity:0; pointer-events:none; white-space:nowrap;
+    opacity:0; visibility:hidden; pointer-events:none; white-space:nowrap;
     background:rgba(255,255,255,.9); border:3px solid #3ce6a5; border-radius:12px;
     padding:2px 10px; text-shadow:0 0 12px rgba(60,230,165,.8);
-    transition:opacity .2s, transform .35s cubic-bezier(.2,1.6,.4,1);
+    transition:opacity .2s, transform .35s cubic-bezier(.2,1.6,.4,1), visibility 0s .35s;
   }
-  #stage.ok .okTag{ opacity:1; transform:translate(-50%,-50%) rotate(-9deg) scale(1); }
+  #stage.ok .okTag{ opacity:1; visibility:visible; transform:translate(-50%,-50%) rotate(-9deg) scale(1); transition:opacity .2s, transform .35s cubic-bezier(.2,1.6,.4,1); }
 
   /* black suits sliding in on error */
   .suits{ position:absolute; inset:0; pointer-events:none; z-index:22; overflow:hidden; }
@@ -1251,6 +1251,7 @@ window.addEventListener('unhandledrejection', function(e){ window.__errors.push(
         showBanner('🎫 アリーナAブロック1列目！', 'gold');
       }
       if (stateT > 2.55){
+        introEl.classList.add('hidden');
         lastResult = buildResult('qr', 0, 1);
         showResult();
       }
