@@ -97,6 +97,7 @@
   }
   #banner.show{ animation:bannerPop 2.6s cubic-bezier(.2,1.4,.3,1) forwards; }
   #banner.green{ background:linear-gradient(180deg,#43f0b4,#12b981); color:#04241a; box-shadow:0 10px 34px rgba(60,230,165,.5); }
+  #banner.gold{ background:linear-gradient(180deg,#ffe9a3,#ffb03a); color:#3a2000; box-shadow:0 10px 34px rgba(255,176,58,.55); }
   @keyframes bannerPop{
     0%{opacity:0; transform:translate(-50%,-50%) scale(.7)}
     12%{opacity:1; transform:translate(-50%,-50%) scale(1.04)}
@@ -252,6 +253,23 @@
   #stage.err .suit.left{ left:6px; }
   #stage.err .suit.right{ right:6px; }
 
+  /* ---------- oshi hidden event ---------- */
+  .oshiBtn{
+    position:absolute; left:50%; bottom:calc(env(safe-area-inset-bottom) + 16px);
+    transform:translateX(-50%);
+    z-index:9; border:0; cursor:pointer; font-family:inherit; white-space:nowrap;
+    padding:15px 24px; border-radius:99px; font-size:16px; font-weight:900; letter-spacing:.02em;
+    color:#4a0d26;
+    background:linear-gradient(180deg,#ffe6f1,#ff8fbe 70%,#ff6ea9);
+    box-shadow:0 10px 30px rgba(255,105,170,.6), inset 0 0 0 2px rgba(255,255,255,.55);
+    animation:oshiPulse 1.05s ease-in-out infinite;
+  }
+  .oshiBtn.hidden{ display:none; }
+  @keyframes oshiPulse{
+    0%,100%{ transform:translateX(-50%) scale(1); box-shadow:0 10px 30px rgba(255,105,170,.5), inset 0 0 0 2px rgba(255,255,255,.55); }
+    50%{ transform:translateX(-50%) scale(1.07); box-shadow:0 14px 38px rgba(255,105,170,.85), inset 0 0 0 2px rgba(255,255,255,.9); }
+  }
+
   /* ---------- result ---------- */
   #result{ background:radial-gradient(120% 70% at 50% 0%, rgba(255,107,157,.22), rgba(7,5,17,.94) 55%, rgba(7,5,17,.98)); z-index:25; }
   #resCard{
@@ -286,6 +304,10 @@
   #resGrade.b{ background:linear-gradient(160deg,#d6e6ff,#7aa7ff); color:#0b1c40; }
   #resGrade.c{ background:linear-gradient(160deg,#e8e8ef,#a9a9bd); color:#20202e; }
   #resGrade.d{ background:linear-gradient(160deg,#ff9aa8,#e01e40); color:#fff; }
+  #resGrade.sss{ background:linear-gradient(160deg,#fff8d0,#ffd166 42%,#ff86c8 100%); color:#4a1b00;
+    box-shadow:0 0 0 3px rgba(255,255,255,.4), 0 0 28px rgba(255,209,102,.85), 0 12px 30px rgba(255,120,200,.5); }
+  #resGrade.oshi{ background:linear-gradient(160deg,#ffe9f2,#ff5f9e); color:#fff;
+    box-shadow:0 0 0 3px rgba(255,255,255,.35), 0 12px 30px rgba(255,95,158,.55); }
   #resIcon{ font-size:42px; line-height:1; margin-bottom:2px; }
   #resKicker{ font-size:10px; font-weight:800; letter-spacing:.24em; color:#b6a4d4; }
   #resRank{
@@ -334,6 +356,7 @@
   <div id="banner"></div>
   <div id="startHint">長押しでダッシュ！</div>
   <button id="mute" aria-label="音のオン・オフ">🔊</button>
+  <button id="oshiBtn" class="oshiBtn hidden">😍 推しに駆け寄る</button>
 
   <!-- INTRO -->
   <div id="intro" class="screen">
@@ -438,6 +461,13 @@
   var lastTickSec = 99;
 
   var player = { x: W/2, y: START_Y, moving:false, anim:0, hideT:0 };
+
+  /* hidden event: 推しが通りかかる */
+  var OSHI_PROB = 0.55;
+  var OSHI = {
+    willFire:false, fired:false, active:false, tempted:false, wipedBanner:false,
+    side:-1, x:0, y:0, t:0, life:6.5, hearts:[]
+  };
   var guards = [];
   var crowd  = [];
   var pops   = [];            // little particles (footprints, sparkles)
@@ -530,6 +560,20 @@
           tone({f0:f, dur:0.20, type:'triangle', gain:0.16, delay:i*0.09});
         });
         tone({f0:1318.5, dur:0.5, type:'sine', gain:0.12, delay:0.4});
+      },
+      oshi: function(){
+        [659.25, 783.99, 987.77, 1318.5, 1567.98].forEach(function(f,i){
+          tone({f0:f, dur:0.16, type:'triangle', gain:0.12, delay:i*0.07});
+        });
+        tone({f0:2093, dur:0.6, type:'sine', gain:0.07, delay:0.36});
+        noiseBurst(0.12, 0.05, 0.02, 2200);
+      },
+      tempt: function(){
+        tone({f0:900, f1:240, dur:0.45, type:'sawtooth', gain:0.16});
+        [523.25, 440, 349.23, 261.63].forEach(function(f,i){
+          tone({f0:f, dur:0.18, type:'square', gain:0.11, delay:0.16 + i*0.11});
+        });
+        noiseBurst(0.2, 0.12, 0.5, 700);
       }
     };
   })();
@@ -603,7 +647,7 @@
         x: W/2, y: d.y, dir: d.dir, speed: d.speed,
         top: d.top, bot: d.bot,
         mode: 'walk', timer: 0,
-        seed: i * 1.7, seeT: 0, bumpT: 0
+        seed: i * 1.7, seeT: 0, bumpT: 0, queue: i, shout: 0
       };
     });
     crowd = [];
@@ -624,6 +668,10 @@
     camY = player.y - H * 0.62;
     shake = 0;
     holding = false;
+    OSHI.willFire = Math.random() < OSHI_PROB;
+    OSHI.fired = false; OSHI.active = false; OSHI.tempted = false;
+    OSHI.t = 0; OSHI.hearts.length = 0; OSHI.wipedBanner = false;
+    hideOshiBtn();
   }
 
   /* =========================================================
@@ -642,6 +690,7 @@
     bannerEl.className = '';
     bannerEl.textContent = text;
     if (kind === 'green') bannerEl.classList.add('green');
+    if (kind === 'gold') bannerEl.classList.add('gold');
     void bannerEl.offsetWidth;
     bannerEl.classList.add('show');
   }
@@ -650,6 +699,68 @@
     void flashEl.offsetWidth;
     flashEl.style.background = 'radial-gradient(circle at 50% 45%, rgba(255,45,85,.85), rgba(255,45,85,.15) 70%)';
     flashEl.classList.add('on');
+  }
+
+  function showOshiBtn(){ var b = document.getElementById('oshiBtn'); if (b) b.classList.remove('hidden'); }
+  function hideOshiBtn(){ var b = document.getElementById('oshiBtn'); if (b) b.classList.add('hidden'); }
+
+  function triggerOshi(){
+    OSHI.fired = true; OSHI.active = true; OSHI.t = 0;
+    OSHI.side = Math.random() < 0.5 ? -1 : 1;
+    OSHI.x = OSHI.side < 0 ? CORR_L + 48 : CORR_R - 48;
+    OSHI.y = Math.max(GOAL_Y + 210, player.y - Math.min(320, H * 0.42));
+    for (var i = 0; i < guards.length; i++){
+      var g = guards[i];
+      g.mode = 'escort'; g.timer = 0; g.queue = i; g.shout = 0.35 + i * 0.22;
+      g.seeT = 0; g.bumpT = 0;
+    }
+    showBanner('🌟 推しが通りかかった！', 'gold');
+    Sound.oshi();
+    showOshiBtn();
+  }
+
+  function endOshi(){
+    if (!OSHI.active) return;
+    OSHI.active = false;
+    hideOshiBtn();
+    for (var i = 0; i < guards.length; i++){
+      var g = guards[i];
+      if (g.mode !== 'escort') continue;
+      g.mode = 'return';
+      g.homeY = Math.max(g.top, Math.min(g.bot, g.y));
+      g.dir = (g.homeY < g.y) ? -1 : 1;
+      g.seeT = 0; g.bumpT = 0;
+    }
+  }
+
+  function updateOshi(dt){
+    if (!OSHI.active) return;
+    OSHI.t += dt;
+    if (OSHI.t > OSHI.life){ endOshi(); return; }
+    if (Math.random() < dt * 3.2){
+      OSHI.hearts.push({ x: OSHI.x + (Math.random() * 34 - 17), y: OSHI.y - 14,
+                         t: 0, life: 1.3, vx: (Math.random() * 26 - 13) });
+    }
+    for (var i = OSHI.hearts.length - 1; i >= 0; i--){
+      var h = OSHI.hearts[i];
+      h.t += dt; h.y -= 36 * dt; h.x += h.vx * dt;
+      if (h.t > h.life) OSHI.hearts.splice(i, 1);
+    }
+  }
+
+  function temptOshi(){
+    if (state !== 'play' || !OSHI.active || OSHI.tempted) return;
+    OSHI.tempted = true;
+    holding = false;
+    hideOshiBtn();
+    state = 'wiped'; stateT = 0; OSHI.wipedBanner = false;
+    var used = Math.min(TIME_LIMIT, TIME_LIMIT - timeLeft);
+    var prog = Math.max(0, Math.min(1, (START_Y - player.y) / SPAN));
+    lastResult = buildResult('oshi', used, prog);
+    Sound.tempt();
+    doFlash();
+    showBanner('😍 推しに駆け寄った！');
+    if (navigator.vibrate) { try{ navigator.vibrate([40,60,40,60,140]); }catch(e){} }
   }
 
   function startError(){
@@ -679,11 +790,13 @@
     if (state !== 'play') return;
     var used = Math.min(TIME_LIMIT, TIME_LIMIT - timeLeft);
     var prog = Math.max(0, Math.min(1, (START_Y - player.y) / SPAN));
+    if (reason === 'clear' && OSHI.fired && !OSHI.tempted) reason = 'hidden';
+    if (OSHI.active) endOshi();
     lastResult = buildResult(reason, used, prog);
-    if (reason === 'clear'){
+    if (reason === 'clear' || reason === 'hidden'){
       state = 'cleared'; stateT = 0;
       Sound.clear();
-      showBanner('出口突破！🎉', 'green');
+      showBanner(reason === 'hidden' ? '🌟 推しを無視して出口突破！' : '出口突破！🎉', 'green');
     } else {
       state = 'caught'; stateT = 0;
       Sound.caught();
@@ -695,6 +808,8 @@
   }
 
   function gradeFor(reason, used){
+    if (reason === 'hidden') return { g:'SSS', cls:'sss' };
+    if (reason === 'oshi') return { g:'D', cls:'oshi' };
     if (reason !== 'clear') return { g:'D', cls:'d' };
     if (used <= 21) return { g:'SS', cls:'ss' };
     if (used <= 23) return { g:'S', cls:'s' };
@@ -705,7 +820,13 @@
 
   function buildResult(reason, used, prog){
     var r;
-    if (reason === 'clear'){
+    if (reason === 'hidden'){
+      r = { icon:'🧠', kicker:'隠しクリア', rank:'推しより名義！理性の神', cls:'gold',
+            msg:'推しが目の前に現れても、出口を見失わなかった…。あなたは伝説の理性の持ち主。' };
+    } else if (reason === 'oshi'){
+      r = { icon:'💘', kicker:'尊死エンド', rank:'推しに釣られて全滅', cls:'red',
+            msg:'推しを目の前にして理性が飛んだ。黑服「お客様、お気持ちはわかりますが…」→ 本人確認。' };
+    } else if (reason === 'clear'){
       if (used <= 13) r = { icon:'👑', kicker:'完全犯罪級', rank:'名義守り抜き神', cls:'gold',
         msg:'黒服の死角だけでここまで来た…！名義も席も守り抜いた、伝説の入場。' };
       else if (used <= 18) r = { icon:'🏃‍♀️', kicker:'ギリギリ生還', rank:'ギリギリ現場生還', cls:'',
@@ -756,11 +877,17 @@
   }
 
   function shareText(R){
-    var head = R.reason === 'clear'
-      ? '【QR赤線エラー！】黒服から逃げ切った！'
-      : '【QR赤線エラー！】黒服につかまった…';
-    return head + '\nランク: ' + R.grade + '（称号「' + R.rank + '」）\nタイム ' + R.time.toFixed(1) + '秒・突破率 ' + R.prog + '%\n'
-      + 'あなたは発券エラーから逃げ切れる？\n#チケ発エラー #黒服から逃げ切れ #推し活';
+    var head;
+    if (R.reason === 'hidden') head = '【QR赤線エラー！】🌟推しが通りかかったのに逃げ切った！';
+    else if (R.reason === 'oshi') head = '【QR赤線エラー！】🌟推しを目の前にして全滅した…';
+    else if (R.reason === 'clear') head = '【QR赤線エラー！】黒服から逃げ切った！';
+    else head = '【QR赤線エラー！】黒服につかまった…';
+    var rankLine = 'ランク: ' + R.grade + (R.reason === 'hidden' ? '（隠しクリア）' : '') + '（称号「' + R.rank + '」）';
+    var tail = R.reason === 'hidden'
+      ? '推しと名義、どっちを選ぶ？'
+      : (R.reason === 'oshi' ? '推しのためなら仕方ない…' : 'あなたは発券エラーから逃げ切れる？');
+    return head + '\n' + rankLine + '\nタイム ' + R.time.toFixed(1) + '秒・突破率 ' + R.prog + '%\n'
+      + tail + '\n#チケ発エラー #黒服から逃げ切れ #推し活';
   }
 
   document.getElementById('scanBtn').addEventListener('click', function(e){
@@ -803,6 +930,11 @@
 
   document.getElementById('shareBtn').addEventListener('click', function(){
     Sound.ui();
+  });
+
+  document.getElementById('oshiBtn').addEventListener('click', function(e){
+    e.stopPropagation();
+    temptOshi();
   });
 
   /* =========================================================
@@ -849,6 +981,26 @@
   function updateGuards(dt){
     for (var i=0;i<guards.length;i++){
       var g = guards[i];
+      if (g.mode === 'escort'){
+        var qx = OSHI.x + (OSHI.side < 0 ? 16 : -16);
+        var qy = OSHI.y + 34 + g.queue * 30;
+        var ddx = qx - g.x, ddy = qy - g.y;
+        var dd = Math.sqrt(ddx*ddx + ddy*ddy);
+        if (dd > 4){
+          var step = Math.min(dd, 165 * dt);
+          g.x += ddx / dd * step;
+          g.y += ddy / dd * step;
+        }
+        if (g.shout > 0) g.shout -= dt;
+        continue;
+      }
+      if (g.mode === 'return'){
+        var hdy = g.homeY - g.y;
+        if (Math.abs(hdy) < 5){ g.y = g.homeY; g.mode = 'walk'; g.timer = 0; }
+        else { g.y += (hdy > 0 ? 1 : -1) * 140 * dt; g.dir = hdy > 0 ? 1 : -1; }
+        g.x = W/2 + Math.sin(nowSec * 1.6 + g.seed) * 9;
+        continue;
+      }
       if (g.mode === 'walk'){
         g.y += g.dir * g.speed * dt;
         var hitTop = g.y <= g.top, hitBot = g.y >= g.bot;
@@ -904,11 +1056,16 @@
       }
       if (player.y <= GOAL_Y){ player.y = GOAL_Y; endRound('clear'); }
 
+      var prog = (START_Y - player.y) / SPAN;
+      if (!OSHI.fired && OSHI.willFire && prog > 0.28 && timeLeft > 7) triggerOshi();
+      updateOshi(dt);
+
       updateGuards(dt);
 
       // catch tests
       for (var i=0;i<guards.length;i++){
         var g = guards[i];
+        if (g.mode === 'escort') continue;
         if (inCone(g, player.x, player.y)){
           if (player.moving){
             g.seeT += dt;
@@ -932,6 +1089,28 @@
       var target = player.y - H * 0.62;
       camY += (target - camY) * Math.min(1, dt * 9);
       camY = Math.max(camY, GOAL_Y - 70);
+    }
+
+    if (state === 'wiped'){
+      shake = Math.max(0, shake - dt * 2.2);
+      var tw = OSHI.x + (player.x < OSHI.x ? 30 : -30);
+      player.x += (tw - player.x) * Math.min(1, dt * 4.5);
+      player.y += (OSHI.y + 4 - player.y) * Math.min(1, dt * 4.5);
+      player.anim += dt;
+      for (var qi = 0; qi < guards.length; qi++){
+        var gg = guards[qi];
+        var ax = player.x + Math.cos(qi * 2.1) * 44;
+        var ay = player.y + Math.sin(qi * 2.1) * 44;
+        gg.x += (ax - gg.x) * Math.min(1, dt * 3.5);
+        gg.y += (ay - gg.y) * Math.min(1, dt * 3.5);
+        gg.mode = 'escort';
+      }
+      if (stateT > 0.85 && !OSHI.wipedBanner){
+        OSHI.wipedBanner = true;
+        showBanner('推しに釣られて全滅！😍💥');
+      }
+      camY += (player.y - H * 0.55 - camY) * Math.min(1, dt * 5);
+      if (stateT > 1.6) showResult();
     }
 
     if (state === 'caught' || state === 'cleared'){
@@ -1109,6 +1288,143 @@
     ctx.setLineDash([]);
   }
 
+  /* ---------------- hidden event: 推し ---------------- */
+  function star(cx, cy, r){
+    ctx.beginPath();
+    for (var i = 0; i < 10; i++){
+      var rad = (i % 2 === 0) ? r : r * 0.44;
+      var a = -Math.PI / 2 + i * Math.PI / 5;
+      var px = cx + Math.cos(a) * rad, py = cy + Math.sin(a) * rad;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function drawOshi(){
+    if (!OSHI.active && !OSHI.tempted) return;
+    var x = OSHI.x, y = sy(OSHI.y);
+    if (y < -170 || y > H + 170) return;
+    var t = nowSec;
+
+    // spotlight
+    var lg = ctx.createLinearGradient(x, y - 160, x, y + 40);
+    lg.addColorStop(0, 'rgba(255,236,190,0)');
+    lg.addColorStop(0.5, 'rgba(255,232,180,.20)');
+    lg.addColorStop(1, 'rgba(255,170,215,.34)');
+    ctx.fillStyle = lg;
+    ctx.beginPath();
+    ctx.moveTo(x - 16, y - 160);
+    ctx.lineTo(x + 16, y - 160);
+    ctx.lineTo(x + 66, y + 34);
+    ctx.lineTo(x - 66, y + 34);
+    ctx.closePath();
+    ctx.fill();
+
+    // sparkles
+    for (var i = 0; i < 6; i++){
+      var a = t * 1.7 + i * 1.05;
+      var sxp = x + Math.cos(a) * (32 + i * 5);
+      var syp = y - 26 + Math.sin(a * 1.25) * (26 + i * 3.5);
+      ctx.globalAlpha = 0.35 + 0.55 * Math.abs(Math.sin(a));
+      ctx.fillStyle = i % 2 ? '#fff3b0' : '#ffd1e8';
+      star(sxp, syp, 2.2 + Math.abs(Math.sin(a * 1.6)) * 3.4);
+    }
+    ctx.globalAlpha = 1;
+
+    // hearts rising
+    for (var h = 0; h < OSHI.hearts.length; h++){
+      var hb = OSHI.hearts[h];
+      var k = 1 - hb.t / hb.life;
+      ctx.globalAlpha = 0.85 * k;
+      ctx.fillStyle = '#ff8fc0';
+      heart(hb.x, sy(hb.y), 4.5 * (0.6 + 0.4 * k));
+    }
+    ctx.globalAlpha = 1;
+
+    // figure
+    var bob = Math.sin(t * 3.2) * 2;
+    ctx.save();
+    ctx.translate(x, y + bob);
+
+    var gl = ctx.createRadialGradient(0, -4, 3, 0, -4, 44);
+    gl.addColorStop(0, 'rgba(255,225,245,.6)');
+    gl.addColorStop(1, 'rgba(255,200,235,0)');
+    ctx.fillStyle = gl;
+    ctx.beginPath(); ctx.arc(0, -4, 44, 0, 7); ctx.fill();
+
+    ctx.fillStyle = 'rgba(0,0,0,.35)';
+    ctx.beginPath(); ctx.ellipse(0, 19, 13, 4, 0, 0, 7); ctx.fill();
+
+    // dress
+    ctx.fillStyle = '#fff4fb';
+    ctx.beginPath();
+    ctx.moveTo(-9, -9); ctx.lineTo(9, -9); ctx.lineTo(15, 15); ctx.lineTo(-15, 15);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#ffd6ea';
+    ctx.beginPath();
+    ctx.moveTo(-9, -9); ctx.lineTo(9, -9); ctx.lineTo(11, 0); ctx.lineTo(-11, 0);
+    ctx.closePath(); ctx.fill();
+    // ribbon
+    ctx.fillStyle = '#ff6ea9';
+    ctx.beginPath(); ctx.arc(-6, -1, 3, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(6, -1, 3, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(0, -2, 2, 0, 7); ctx.fill();
+
+    // legs
+    ctx.strokeStyle = '#f6d9e8'; ctx.lineWidth = 4.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-4, 13); ctx.lineTo(-5, 19); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(4, 13); ctx.lineTo(5, 19); ctx.stroke();
+
+    // waving arm
+    ctx.strokeStyle = '#ffe2d3'; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(9, -6); ctx.lineTo(15, -18 + Math.sin(t * 7) * 3); ctx.stroke();
+    ctx.beginPath(); ctx.arc(15, -20 + Math.sin(t * 7) * 3, 3.4, 0, 7); ctx.fillStyle = '#ffe2d3'; ctx.fill();
+
+    // head
+    ctx.beginPath(); ctx.arc(0, -19, 9.5, 0, 7);
+    ctx.fillStyle = '#ffe2d3'; ctx.fill();
+    // hair + twin tails
+    ctx.fillStyle = '#f0a8d0';
+    ctx.beginPath(); ctx.arc(0, -20, 10, Math.PI * 1.02, Math.PI * 2.02); ctx.fill();
+    ctx.beginPath(); ctx.arc(-11, -18, 4.4, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(11, -18, 4.4, 0, 7); ctx.fill();
+    // eyes (sparkling)
+    ctx.fillStyle = '#3a1730';
+    ctx.beginPath(); ctx.arc(-3.6, -18, 1.7, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(3.6, -18, 1.7, 0, 7); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(-3, -18.6, 0.7, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(4.2, -18.6, 0.7, 0, 7); ctx.fill();
+    // smile
+    ctx.strokeStyle = '#c4537f'; ctx.lineWidth = 1.1;
+    ctx.beginPath(); ctx.arc(0, -15.4, 2.4, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+
+    // halo star
+    ctx.fillStyle = '#ffe27a';
+    star(0, -34 + Math.sin(t * 4) * 1.5, 5.5);
+    ctx.restore();
+
+    // nameplate
+    ctx.fillStyle = 'rgba(255,255,255,.94)';
+    rr(x - 30, y - 60, 60, 19, 9); ctx.fill();
+    ctx.fillStyle = '#c2185b';
+    ctx.font = '900 11px "Hiragino Sans","Noto Sans JP",sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('🌟 推し', x, y - 50);
+
+    // escort gaze lines from guards are drawn in drawGuard
+  }
+
+  function heart(cx, cy, r){
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + r * 0.9);
+    ctx.bezierCurveTo(cx - r * 1.6, cy - r * 0.5, cx - r * 0.6, cy - r * 1.5, cx, cy - r * 0.55);
+    ctx.bezierCurveTo(cx + r * 0.6, cy - r * 1.5, cx + r * 1.6, cy - r * 0.5, cx, cy + r * 0.9);
+    ctx.closePath();
+    ctx.fill();
+  }
+
   /* ---------------- cones ---------------- */
   function drawCone(g){
     var y = sy(g.y);
@@ -1155,7 +1471,11 @@
   function drawGuard(g){
     var y = sy(g.y);
     if (y < -120 || y > H + 120) return;
-    drawCone(g);
+    if (g.mode === 'escort'){
+      drawEscortMark(g, y);
+    } else {
+      drawCone(g);
+    }
 
     var bob = g.mode === 'walk' ? Math.sin(nowSec * 9 + g.seed) * 1.6 : 0;
     ctx.save();
@@ -1226,6 +1546,38 @@
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText('?', 0, 1);
       ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  function drawEscortMark(g, y){
+    var ox = OSHI.x, oy = sy(OSHI.y);
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,170,215,.45)';
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([4, 6]);
+    ctx.beginPath();
+    ctx.moveTo(g.x, y - 18);
+    ctx.lineTo(ox, oy - 18);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    if (g.shout > 0){
+      var txt = g.queue === 0 ? '護衛へ！' : (g.queue === 1 ? '通路を空けろ！' : '推しが通る！');
+      ctx.font = '900 10px "Hiragino Sans","Noto Sans JP",sans-serif';
+      var wdt = ctx.measureText(txt).width + 14;
+      ctx.fillStyle = 'rgba(255,255,255,.95)';
+      rr(g.x - wdt/2, y - 62, wdt, 18, 9); ctx.fill();
+      ctx.fillStyle = '#c2185b';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(txt, g.x, y - 53);
+    } else {
+      ctx.fillStyle = '#ff8fbe';
+      ctx.beginPath(); ctx.arc(g.x + 14, y - 44, 8.5, 0, 7); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.font = '900 11px "Hiragino Sans",sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('!', g.x + 14, y - 43);
     }
     ctx.restore();
   }
@@ -1392,6 +1744,7 @@
     drawCrowd();
     drawExit();
     drawPops();
+    drawOshi();
 
     var items = guards.map(function(g){ return { y: g.y, d: g }; });
     items.push({ y: player.y, d: 'player' });
