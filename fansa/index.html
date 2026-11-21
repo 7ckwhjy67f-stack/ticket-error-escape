@@ -937,7 +937,7 @@ function finish(kind){
   S.endedKind = kind;
   S.raised = false;
   syncUchiwaBtn();
-  Sound.stopCrowd();
+  Sound.crowdStop();
   buildResult(kind);
   var delay = kind === 'manner' ? 1500 : 700;
   if (kind === 'manner' || kind === 'none'){
@@ -2113,8 +2113,12 @@ function frame(ts){
   lastTs = ts;
   if (!isFinite(dt) || dt < 0) dt = 0;
   dt = Math.min(0.05, dt);
-  update(dt);
-  draw();
+  try {
+    update(dt);
+    draw();
+  } catch (err) {
+    if (errors.length < 30) errors.push('frame: ' + (err && err.message ? err.message : String(err)));
+  }
   requestAnimationFrame(frame);
 }
 
