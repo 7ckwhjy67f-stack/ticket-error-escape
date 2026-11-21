@@ -639,6 +639,41 @@
   }
   #churu.on .chsub{ animation:cwordIn .3s ease-out .48s forwards; }
 
+  /* ================= ALL-5 JACKPOT ================= */
+  #jackpot{
+    position:absolute; inset:0; z-index:77; pointer-events:none; opacity:0; visibility:hidden; overflow:hidden;
+    background:radial-gradient(62% 52% at 50% 48%, rgba(44,12,74,.94), rgba(3,1,10,.97));
+  }
+  #jackpot.on{ opacity:1; visibility:visible; }
+  #jackpot .jrays{
+    position:absolute; inset:-30%;
+    background:conic-gradient(from 0deg, transparent 0 5deg, rgba(255,255,255,.18) 5deg 11deg);
+    animation:spin 7s linear infinite;
+  }
+  #jackpot .jbody{
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:8px; padding:0 16px; text-align:center;
+  }
+  #jackpot .jword{
+    font-size:clamp(26px,8.8vw,38px); font-weight:900; letter-spacing:.01em; opacity:0; transform:scale(1.5);
+    background:linear-gradient(100deg,#fff,#ffd24a 24%,#ff9ad5 48%,#7dffd0 72%,#8ecbff 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 0 22px rgba(255,160,240,.95));
+  }
+  #jackpot.on .jword{ animation:cwordIn .45s cubic-bezier(.2,1.6,.4,1) .12s forwards; }
+  #jackpot .jsub{
+    font-size:clamp(20px,6.8vw,30px); font-weight:900; color:#fff; opacity:0; transform:scale(1.4);
+    text-shadow:0 0 18px #ffd24a, 0 0 40px rgba(255,120,220,.7), 0 3px 0 #3a0a20;
+  }
+  #jackpot.on .jsub{ animation:cwordIn .4s cubic-bezier(.2,1.6,.4,1) .36s forwards; }
+  #result.rk-GOD #rRank{
+    background:linear-gradient(100deg,#fff,#ffd24a 20%,#ff9ad5 40%,#7dffd0 60%,#8ecbff 80%,#fff);
+    background-size:220% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:flow 2.6s linear infinite;
+    filter:drop-shadow(0 0 26px rgba(255,200,120,.95));
+  }
+  #result.rk-GOD #rTitle{ color:#fff3b0; }
+
   /* ================= 完凸 / ALBUM ================= */
   .hit.comp{ border-color:#ffd24a; box-shadow:0 0 0 2px rgba(255,210,74,.75), 0 0 48px rgba(255,190,60,.85); }
   .hit.comp .hit-tag{ background:linear-gradient(90deg,#fff3b0,#ffd24a,#ff9f2e); }
@@ -857,6 +892,15 @@
     </div>
   </div>
 
+  <!-- ============ JACKPOT ============ -->
+  <div id="jackpot" aria-hidden="true">
+    <div class="jrays"></div>
+    <div class="jbody">
+      <div class="jword">🌈 奇跡発生！</div>
+      <div class="jsub">10枚すべて★5！！</div>
+    </div>
+  </div>
+
   <!-- ============ FEVER ============ -->
   <div id="fever" aria-hidden="true">
     <div class="frays"></div>
@@ -1006,6 +1050,7 @@
   const CHURU_RATE = 0.17;     // 黄金のちゅーる救済
   const CHURU_AMOUNT = 1050;   // 復活するダイヤ（30連分）
   const DOG_RATE = 0.02;       // 🐶 猫ガチャに犬が紛れ込む激レア
+  const JACKPOT_RATE = 0.01;   // 🌈 10枚すべて★5の奇跡
   const DOG_KEY = 'gacha_dog_v1';
   const ALBUM_KEY = 'gacha_album_v1';
   const ALBUM_MAX = 3;         // 同じ★5を3枚で完凸
@@ -1121,6 +1166,7 @@
     skip:false, busy:false,
     forced:[], forceCutin:false, forcePromo:false,
     fever:false, feverHit:false, secretHit:false, churu:false, churuUsed:false,
+    jackpot:false, jackpotHit:false, forceJackpot:false,
     forceFever:false, forceSecret:false, forceChuru:false, forceDog:false,
     dogHit:false, dogCount:0,
     muted:false, lastName:null,
@@ -1157,6 +1203,7 @@
   const feverEl = $('#fever');
   const churuEl = $('#churu');
   const dogEl = $('#dog');
+  const jackpotEl = $('#jackpot');
 
   /* =========================================================
      小さなヘルパー
@@ -1609,6 +1656,12 @@
     if(S.forced.length){
       const f = S.forced.shift();
       cards = f.map(k => ({ key: (CHARS[k] ? k : drawChar(rollRarity())) }));
+    }else if(S.forceJackpot || Math.random() < JACKPOT_RATE){
+      // 🌈 超激レア：10枚すべて★5の奇跡
+      S.jackpot = true;
+      S.jackpotHit = true;
+      cards = [];
+      for(let i=0;i<10;i++) cards.push({ key: pick(P5), jackpot:true, promo:false });
     }else if(S.forceDog || Math.random() < DOG_RATE){
       // 🐶 激レア：猫ガチャに犬が紛れ込む
       cards = [];
@@ -1631,8 +1684,9 @@
     }
     S.forceDog = false;
     S.forceFever = false;
+    S.forceJackpot = false;
 
-    if(!S.dogPull){
+    if(!S.dogPull && !S.jackpot){
       // 虹ロード：最初の10連の10枚目が確定虹
       if(S.rainbowRoad && S.tens === 1 && !S.hits.length){
         cards[9] = { key: pick(P5), road:true };
@@ -1663,7 +1717,7 @@
 
     // 昇格フラグ（通常の虹は金→虹が多め）
     cards.forEach(c => {
-      if(c.cutin || c.secret || c.dog) return;
+      if(c.cutin || c.secret || c.dog || c.jackpot) return;
       if(CHARS[c.key].r === 5){
         c.promo = S.forcePromo ? true : (!!c.road || Math.random() < 0.55);
         c.from = Math.random() < 0.3 ? 3 : 4;
@@ -1724,7 +1778,8 @@
 
     let tag = tagOverride || '★5にゃんこ GET!!';
     if(!tagOverride){
-      if(c.road) tag = '🌈 虹ロード確定演出にゃ！';
+      if(c.jackpot && hitIndex === 0) tag = '🌈 奇跡のオール★5！';
+      else if(c.road) tag = '🌈 虹ロード確定演出にゃ！';
       else if(hitIndex > 0) tag = '★5 二枚抜きにゃ!!';
       else if(promoted) tag = '虹昇格!! ★5にゃんこ';
     }
@@ -1740,7 +1795,7 @@
 
     if(!S.skip){
       shake();
-      await wait(promoted ? 760 : 520);
+      await wait(S.jackpot ? 240 : (promoted ? 760 : 520));
     }else{
       await wait(40);
     }
@@ -1882,6 +1937,17 @@
   /* =========================================================
      隠しイベント（フィーバー・黄金のちゅーる・犬）
      ========================================================= */
+  async function jackpotIntro(){
+    jackpotEl.classList.add('on');
+    Sfx.fanfare();
+    Sfx.complete();
+    shake();
+    FX.burst(FX.w/2, FX.h*0.42, { n:70, speed:6, life:1100, lift:1.6, grav:0.05 });
+    await wait(1650);
+    jackpotEl.classList.remove('on');
+    await wait(150);
+  }
+
   async function feverIntro(){
     feverEl.classList.add('on');
     Sfx.fanfare();
@@ -1931,6 +1997,7 @@
     if(c.cutin) S.cutinHit = true;
     if(c.secret) S.secretHit = true;
     if(c.fever) S.feverHit = true;
+    if(c.jackpot) S.jackpotHit = true;
     const res = addAlbum(c.key, 1);
     c.own = res.after;
     c.compNow = res.completed;
@@ -1988,6 +2055,7 @@
       ? '手持ちダイヤ <b>' + nf(S.diaStart) + '</b>から350消費にゃ！'
       : '<b>' + S.tens + '回目</b>の10連！ 残りダイヤ <b>' + nf(S.diaLeft) + '</b>にゃ';
 
+    if(S.jackpot) await jackpotIntro();
     if(S.fever) await feverIntro();
     await lightIntro();
 
@@ -2086,6 +2154,9 @@
     const left = Math.max(0, S.diaLeft);
     const ratio = left / total;
 
+    if(S.jackpotHit){
+      return { key:'GOD', title:'1%の奇跡！オール★5神引き', note:'10枚すべて★5にゃんこ！ 1%の奇跡をこの目で見たにゃ……。' };
+    }
     if(S.cutinHit){
       return { key:'SSS+', title:'全部★3からの逆転カットインにゃ！', note:'ぜんぶ青……と思いきや、カットインでまさかの虹昇格。生涯自慢できるにゃ。' };
     }
@@ -2182,6 +2253,7 @@
     if(S.churu) extras.push('🐟 黄金のちゅーるで復活');
     if(S.feverHit) extras.push('🐾 猫集会フィーバー');
     if(S.secretHit) extras.push('🕶️ シークレット降臨');
+    if(S.jackpotHit) extras.push('🌈 オール★5の奇跡');
     if(extras.length) $('#rNote').textContent += ' ' + extras.join('／') + 'にゃ！';
 
     const resultLine = S.hits.length
@@ -2197,6 +2269,7 @@
     }
     if(S.feverHit) text += '🐾 猫集会フィーバー発生！\n';
     if(S.secretHit) text += '🕶️ シークレット★5降臨！\n';
+    if(S.jackpotHit) text += '🌈 1%の奇跡！ 10枚すべて★5にゃんこ！！\n';
     if(S.churu) text += '🐟 黄金のちゅーるでダイヤ+1,050復活！\n';
     text += '手持ちダイヤが尽きる前に★5にゃんこを引けるか！👇\n' + PRICE_URL + '\n#にゃんこ10連ガチャ';
     btnShare.href = 'https://x.com/intent/post?text=' + encodeURIComponent(text);
@@ -2296,7 +2369,8 @@
     S.rainbowRoadHit = false; S.allGold = false; S.cutinHit = false; S.cleared = false;
     S.fever = false; S.feverHit = false; S.secretHit = false;
     S.churu = false; S.churuUsed = false; S.dogHit = false;
-    S.forceFever = false; S.forceSecret = false; S.forceChuru = false; S.forceDog = false;
+    S.jackpot = false; S.jackpotHit = false;
+    S.forceFever = false; S.forceSecret = false; S.forceChuru = false; S.forceDog = false; S.forceJackpot = false;
     S.t0 = 0; S.t1 = 0;
     S.pulls = 0; S.tens = 0;
     S.hits = []; S.hitPulls = 0; S.maxHits = 0; S.newComps = [];
@@ -2393,6 +2467,7 @@
     secret(){ S.forceSecret = true; },
     churu(){ S.forceChuru = true; },
     dog(){ S.forceDog = true; },
+    jackpot(){ S.forceJackpot = true; },
     album(){ return Object.assign({}, S.album); },
     albumAdd(key, n){ if(!CHARS[key] || CHARS[key].r !== 5) return null; const r = addAlbum(key, n); renderAlbum(); return r; },
     albumReset(){ ALBUM_KEYS.forEach(k => S.album[k] = 0); saveAlbum(); renderAlbum(); },
