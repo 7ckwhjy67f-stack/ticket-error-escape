@@ -543,6 +543,13 @@
   }
   .al-note{ margin-top:14px; font-size:10.5px; line-height:1.55; color:#cfc2ee; text-align:center; }
   .al-note b{ color:#ffe27a; }
+  .al-msg{ margin-top:16px; text-align:center; font-size:13px; font-weight:900; color:#ffe9b0; line-height:1.4; }
+  .al-tips{ margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+  .al-tips div{
+    font-size:10.5px; line-height:1.4; color:#cfc2ee;
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09);
+    border-radius:10px; padding:7px 10px;
+  }
 
   @media (max-height:700px){
     .t-mid{ min-height:0; }
@@ -567,7 +574,7 @@
         <div class="group">にゃんこ★パラダイス</div>
         <h1 class="logo">にゃんこ<span class="small">10連ガチャ！</span></h1>
         <div class="sub">ゴロゴロ確定演出</div>
-        <div class="tagline">ちゅーるを求めて三千里。手持ちダイヤが尽きる前に★5にゃんこを引けるか！</div>
+        <div class="tagline">ちゅーるを求めて三千里。<br>手持ちダイヤが尽きる前に★5にゃんこを引けるか！</div>
         <div id="roadHint">🌈 なんだか、虹の予感がする……！？</div>
       </div>
 
@@ -676,7 +683,12 @@
       <div class="al-bar"><i id="alBar"></i></div>
     </div>
     <div class="al-grid" id="alGrid"></div>
-    <div class="al-note">同じ★5にゃんこを<b>3枚</b>集めると「<b>👑 完凸（3/3）</b>」達成にゃ！<br>集めた枚数はこの端末に保存されます。</div>
+    <div class="al-msg" id="alMsg">まずは★5にゃんこを1匹集めてみるにゃ</div>
+    <div class="al-tips">
+      <div>🐾 ★5にゃんこは「ラグドール・スコティッシュ・ロシアンブルー」の全3種</div>
+      <div>💎 ダイヤが尽きる前に引くにゃ。集めた数はこの端末に保存されるにゃ</div>
+      <div>👑 同じ★5にゃんこを3枚集めると「完凸（3/3）」達成にゃ！</div>
+    </div>
   </div>
 
   <button id="mute" aria-label="サウンドのオン・オフ">🔊</button>
@@ -948,6 +960,9 @@
     $('#alRate').textContent = r.pct + '%';
     $('#alCount').textContent = r.done + '/' + r.total;
     $('#alBar').style.width = r.pct + '%';
+    $('#alMsg').textContent = r.done >= r.total
+      ? '👑 全キャラ完凸！ にゃんこ界の頂点にゃ！'
+      : '完凸まであと' + (r.total - r.done) + '匹にゃ！ ちゅーるで釣ってこよう';
     $('#alGrid').innerHTML = P5.map(k => {
       const ch = CHARS[k];
       const n = Math.min(ALBUM_MAX, ownedOf(k));
