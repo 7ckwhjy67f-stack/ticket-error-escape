@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#07030f" />
+<title>脳汁10連ガチャ！虹昇格RTA</title>
+<meta name="description" content="★5を引くまでやめられない10連ガチャRTA。青や金のカードが……ピキッ！と虹に昇格するあの脳汁演出を、ダイヤ無限でサクサク回してタイムと連数を競え！" />
+<meta property="og:title" content="脳汁10連ガチャ！虹昇格RTA" />
+<meta property="og:description" content="★5引くまでやめられない10連RTA！青・金から一瞬止まって虹に昇格する脳汁演出を、ダイヤ無限で回しまくれ。" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://7ckwhjy67f-stack.github.io/ticket-error-escape/gacha/" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="脳汁10連ガチャ！虹昇格RTA" />
+<meta name="twitter:description" content="★5引くまでやめられない10連RTA！青・金から一瞬止まって虹に昇格する脳汁演出を、ダイヤ無限で回しまくれ。" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2307030f'/%3E%3Ctext x='32' y='31' font-size='22' text-anchor='middle' fill='%23ffd24a' font-family='sans-serif' font-weight='bold'%3E10%3C/text%3E%3Cpath d='M32 36l3.2 7 7.6 1-5.5 5.3 1.3 7.5-6.6-3.5-6.6 3.5 1.3-7.5-5.5-5.3 7.6-1z' fill='%23ff5fa2'/%3E%3C/svg%3E" />
+<style>
+  :root{
+    --deep:#07030f;
+    --ink:#0d0620;
+    --pink:#ff5fa2;
+    --purple:#8b5cff;
+    --blue:#4ea8ff;
+    --gold:#ffd24a;
+    --green:#3ce6b0;
+    --red:#ff3b5c;
+    --txt:#fff;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{
+    margin:0; padding:0; height:100%; overflow:hidden;
+    background:#03010a; color:var(--txt);
+    font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP",system-ui,-apple-system,"Segoe UI",sans-serif;
+    -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
+    overscroll-behavior:none;
+  }
+  #stage{
+    position:fixed; left:50%; top:0; transform:translateX(-50%);
+    width:min(100vw, 480px); height:100vh; height:100dvh;
+    overflow:hidden; background:radial-gradient(120% 90% at 50% 0%, #1a0b33 0%, #0a0418 46%, #03010a 100%);
+    touch-action:none;
+  }
+  @media (min-width:520px){
+    #stage{ box-shadow:0 0 90px rgba(160,110,255,.22), 0 0 0 1px rgba(255,255,255,.06); }
+    body::before{
+      content:""; position:fixed; inset:0; z-index:-1;
+      background:
+        radial-gradient(900px 520px at 20% 8%, rgba(255,95,162,.12), transparent 62%),
+        radial-gradient(820px 520px at 80% 92%, rgba(139,92,255,.16), transparent 62%),
+        #03010a;
+    }
+  }
+  #fx{ position:absolute; inset:0; width:100%; height:100%; display:block; pointer-events:none; z-index:40; }
+
+  /* ---------- world (shake target) ---------- */
+  #world{ position:absolute; inset:0; z-index:10; }
+  #world.shk{ animation:shk .34s cubic-bezier(.36,.07,.19,.97) both; }
+  @keyframes shk{
+    0%{ transform:translate3d(0,0,0) rotate(0deg); }
+    15%{ transform:translate3d(-7px,3px,0) rotate(-.7deg); }
+    30%{ transform:translate3d(6px,-4px,0) rotate(.6deg); }
+    45%{ transform:translate3d(-5px,-2px,0) rotate(-.4deg); }
+    60%{ transform:translate3d(4px,3px,0) rotate(.3deg); }
+    80%{ transform:translate3d(-2px,1px,0) rotate(-.15deg); }
+    100%{ transform:translate3d(0,0,0) rotate(0deg); }
+  }
+
+  /* ---------- screens ---------- */
+  .screen{
+    position:absolute; inset:0; display:none; flex-direction:column; align-items:center;
+    padding:calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 14px);
+  }
+  .screen.show{ display:flex; }
+
+  /* ---------- mute ---------- */
+  #mute{
+    position:absolute; left:10px; top:calc(env(safe-area-inset-top) + 8px); z-index:60;
+    width:38px; height:38px; border-radius:50%;
+    border:1px solid rgba(255,255,255,.22); background:rgba(12,6,26,.72); color:#fff;
+    font-size:16px; line-height:1; display:grid; place-items:center; padding:0;
+    backdrop-filter:blur(6px); cursor:pointer;
+  }
+  #mute:active{ transform:scale(.94); }
+
+  /* ================= TITLE ================= */
+  #title{ justify-content:flex-start; overflow-y:auto; -webkit-overflow-scrolling:touch; touch-action:pan-y; }
+  #title.aura::before{
+    content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+    background:conic-gradient(from 0deg, #ff4d8d33, #ffd24a33, #4dffb833, #4dd2ff33, #b44dff33, #ff4d8d33);
+    animation:spin 9s linear infinite; filter:blur(26px); opacity:.9;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .t-head{ position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; width:100%; padding-top:22px; }
+  .group{
+    font-size:11px; letter-spacing:.32em; color:#d9c7ff; opacity:.85; margin-bottom:10px;
+    border:1px solid rgba(217,199,255,.35); border-radius:999px; padding:3px 10px 3px 12px;
+  }
+  .logo{
+    margin:0; font-size:clamp(34px, 10.4vw, 46px); line-height:.98; font-weight:900;
+    text-align:center; letter-spacing:.01em;
+    background:linear-gradient(100deg,#fff 0%,#ffd7ef 18%,#ffd24a 38%,#7dffd0 55%,#8ecbff 72%,#d6a6ff 88%,#fff 100%);
+    background-size:220% 100%;
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    -webkit-text-stroke:0;
+    filter:drop-shadow(0 0 18px rgba(255,120,200,.35)) drop-shadow(0 3px 0 rgba(0,0,0,.55));
+    animation:flow 6s linear infinite;
+  }
+  @keyframes flow{ to{ background-position:220% 0; } }
+  .logo .small{ display:block; font-size:.62em; }
+  .sub{
+    margin-top:8px; font-size:clamp(15px,4.6vw,19px); font-weight:800; letter-spacing:.16em;
+    color:#0a0318; background:linear-gradient(90deg,#ffd24a,#ff8ab8 40%,#7dffd0 72%,#8ecbff);
+    padding:3px 14px; border-radius:999px; box-shadow:0 0 22px rgba(255,180,120,.35);
+  }
+  .tagline{ margin-top:12px; font-size:13px; color:#efe6ff; opacity:.92; font-weight:700; text-align:center; line-height:1.5; }
+
+  .t-mid{ position:relative; z-index:2; flex:1; min-height:10px; width:100%; display:grid; place-items:center; }
+  .orb{
+    width:min(52vw,190px); aspect-ratio:1; border-radius:50%; position:relative; display:grid; place-items:center;
+    background:radial-gradient(circle at 50% 46%, rgba(255,255,255,.22), rgba(139,92,255,.18) 45%, transparent 68%);
+  }
+  .orb::after{
+    content:""; position:absolute; inset:16%; border-radius:50%;
+    border:1px solid rgba(255,255,255,.16); box-shadow:inset 0 0 40px rgba(180,140,255,.25);
+    animation:pulse 2.6s ease-in-out infinite;
+  }
+  @keyframes pulse{ 50%{ transform:scale(1.06); opacity:.55; } }
+  .orb .ten{
+    font-size:clamp(44px,13vw,60px); font-weight:900; line-height:1;
+    background:linear-gradient(180deg,#fff,#ffd24a 60%,#ff9ad5);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 0 14px rgba(255,200,80,.5));
+  }
+  .orb .ten small{ font-size:.42em; letter-spacing:.1em; }
+  .orb .star1,.orb .star2,.orb .star3{ position:absolute; font-size:14px; color:#fff; opacity:.8; animation:tw 2.2s ease-in-out infinite; }
+  .orb .star1{ left:6%; top:22%; }
+  .orb .star2{ right:4%; top:34%; font-size:10px; animation-delay:.6s; }
+  .orb .star3{ left:20%; bottom:8%; font-size:18px; animation-delay:1.1s; }
+  @keyframes tw{ 50%{ opacity:.25; transform:scale(.8) rotate(20deg); } }
+
+  .t-bottom{ position:relative; z-index:2; width:100%; display:flex; flex-direction:column; align-items:center; gap:8px; padding-bottom:2px; }
+  .bigbtn{
+    width:100%; border:0; border-radius:16px; padding:16px 12px; cursor:pointer;
+    font-family:inherit; font-size:clamp(15px,4.4vw,18px); font-weight:900; letter-spacing:.02em; color:#20040f;
+    background:linear-gradient(180deg,#fff1a8,#ffd24a 42%,#ff9f2e);
+    box-shadow:0 6px 0 #a35a06, 0 10px 26px rgba(255,180,60,.42), inset 0 1px 0 #fff;
+    touch-action:manipulation; position:relative; overflow:hidden;
+  }
+  .bigbtn::after{
+    content:""; position:absolute; top:0; left:-40%; width:30%; height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);
+    transform:skewX(-18deg); animation:sheen 2.8s ease-in-out infinite;
+  }
+  @keyframes sheen{ 0%,55%{ left:-45%; } 85%,100%{ left:120%; } }
+  .bigbtn:active{ transform:translateY(3px); box-shadow:0 3px 0 #a35a06, 0 4px 14px rgba(255,180,60,.35); }
+  .bigbtn:disabled{ filter:grayscale(.6) brightness(.75); cursor:default; }
+  .cost{ font-size:11px; color:#d8cdf2; opacity:.8; }
+  .hints{ list-style:none; margin:4px 0 0; padding:0; width:100%; display:flex; flex-direction:column; gap:4px; }
+  .hints li{
+    font-size:10.5px; line-height:1.35; color:#cfc2ee; display:flex; gap:6px; align-items:center;
+    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:9px; padding:4px 8px;
+  }
+  .hints b{ font-size:9.5px; padding:1px 5px; border-radius:6px; background:rgba(255,255,255,.12); color:#fff; flex:none; letter-spacing:.04em; }
+  #roadHint{ display:none; font-size:11px; font-weight:800; color:#fff; text-align:center; margin-top:2px;
+    text-shadow:0 0 12px rgba(255,120,220,.9); animation:tw 1.8s ease-in-out infinite; }
+  #title.aura #roadHint{ display:block; }
+
+  /* ================= PULL ================= */
+  #pull{ padding-top:calc(env(safe-area-inset-top) + 54px); }
+  .p-head{ width:100%; display:flex; gap:6px; justify-content:center; flex-wrap:nowrap; }
+  .chip{
+    flex:1 1 0; min-width:0; text-align:center; padding:5px 4px; border-radius:10px;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+    font-size:10px; color:#cfc4ea; line-height:1.15;
+  }
+  .chip b{ display:block; font-size:15px; font-weight:900; color:#fff; letter-spacing:.02em; font-variant-numeric:tabular-nums; }
+  .chip.time b{ color:#ffe27a; }
+  .chip.dia b{ color:#9fe0ff; }
+
+  #gridwrap{ position:relative; flex:1; width:100%; display:flex; align-items:center; justify-content:center; min-height:0; padding:8px 0; }
+  #grid{
+    display:grid; grid-template-columns:repeat(5,1fr); gap:6px; width:100%;
+    perspective:900px; position:relative; z-index:3;
+  }
+  .card{ position:relative; aspect-ratio:.70; }
+  .card .inner{
+    position:absolute; inset:0; transform-style:preserve-3d;
+    transition:transform .17s cubic-bezier(.3,1.5,.55,1);
+  }
+  .card.flip .inner{ transform:rotateY(180deg); }
+  .face{ position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; border-radius:7px; overflow:hidden; }
+  .back{
+    background:linear-gradient(165deg,#2b2260 0%,#1b1240 55%,#120b2c 100%);
+    border:1px solid rgba(200,180,255,.35);
+    box-shadow:inset 0 0 12px rgba(120,90,220,.35), 0 2px 8px rgba(0,0,0,.45);
+  }
+  .back::before{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,0) 55%);
+    clip-path:polygon(0 0, 50% 46%, 100% 0, 100% 100%, 0 100%);
+  }
+  .back::after{
+    content:"💎"; position:absolute; left:50%; top:56%; transform:translate(-50%,-50%);
+    font-size:13px; filter:drop-shadow(0 0 6px rgba(160,220,255,.9));
+  }
+  .front{ transform:rotateY(180deg); background:#12102a; }
+  .fr{ position:absolute; inset:0; display:block; }
+  .fr .ico{ position:absolute; inset:0; }
+  .fr .ico svg{ width:100%; height:100%; display:block; }
+  .fr .rv{
+    position:absolute; left:0; right:0; bottom:1px; text-align:center;
+    font-size:7px; line-height:1; letter-spacing:-.5px; color:#fff;
+    text-shadow:0 1px 2px rgba(0,0,0,.9);
+  }
+  .fr.r3{ background:linear-gradient(180deg,#2f6ad0,#10224e); box-shadow:inset 0 0 0 1.5px rgba(120,190,255,.75); }
+  .fr.r4{ background:linear-gradient(180deg,#ffd76a,#a8670d); box-shadow:inset 0 0 0 1.5px rgba(255,240,180,.9); }
+  .fr.r5{
+    background:linear-gradient(120deg,#ff4d8d,#ffd24a 22%,#7dffd0 45%,#4dd2ff 66%,#b44dff 86%,#ff4d8d);
+    background-size:260% 100%; animation:flow 3.2s linear infinite;
+    box-shadow:inset 0 0 0 2px #fff, 0 0 14px rgba(255,150,230,.85);
+  }
+  .fr.r5 .ico{ filter:drop-shadow(0 0 5px rgba(255,255,255,.8)); }
+  .card.charging{ z-index:9; animation:charge .19s ease-in-out infinite; }
+  @keyframes charge{
+    0%{ transform:scale(1); }
+    45%{ transform:scale(1.1) rotate(-1deg); }
+    100%{ transform:scale(1); }
+  }
+  .card.charging .front{ animation:chargeGlow .19s linear infinite; }
+  @keyframes chargeGlow{
+    0%{ filter:brightness(1.15) saturate(1.3); box-shadow:0 0 0 1px #fff, 0 0 12px 2px rgba(255,220,120,.8); }
+    50%{ filter:brightness(2) saturate(1.9); box-shadow:0 0 0 2px #fff, 0 0 26px 8px rgba(255,240,170,.95); }
+    100%{ filter:brightness(1.15) saturate(1.3); box-shadow:0 0 0 1px #fff, 0 0 12px 2px rgba(255,220,120,.8); }
+  }
+  .card.pop{ animation:pop .5s cubic-bezier(.2,1.6,.4,1) both; z-index:8; }
+  @keyframes pop{ 0%{ transform:scale(1);} 42%{ transform:scale(1.34);} 100%{ transform:scale(1.12);} }
+
+  #piki{
+    position:absolute; z-index:12; transform:translate(-50%,-100%) scale(.6);
+    font-size:15px; font-weight:900; color:#fff; letter-spacing:.04em; white-space:nowrap;
+    opacity:0; pointer-events:none;
+    text-shadow:0 0 8px #fff, 0 0 18px #7df, 0 2px 0 #2a0a4a;
+  }
+  #piki.on{ animation:pikiPop .85s ease-out forwards; }
+  @keyframes pikiPop{
+    0%{ opacity:0; transform:translate(-50%,-100%) scale(.5) rotate(-6deg); }
+    18%{ opacity:1; transform:translate(-50%,-108%) scale(1.18) rotate(3deg); }
+    32%{ transform:translate(-50%,-104%) scale(1) rotate(-2deg); }
+    72%{ opacity:1; transform:translate(-50%,-112%) scale(1.04); }
+    100%{ opacity:0; transform:translate(-50%,-124%) scale(.96); }
+  }
+  .ring{
+    position:absolute; z-index:11; width:20px; height:20px; margin:-10px 0 0 -10px; border-radius:50%;
+    border:3px solid #fff; pointer-events:none;
+    animation:ringOut .65s ease-out forwards;
+  }
+  @keyframes ringOut{ to{ transform:scale(7); opacity:0; border-width:1px; } }
+
+  #light{ position:absolute; inset:0; z-index:35; pointer-events:none; opacity:0;
+    background:radial-gradient(circle at 50% 42%, #fff 0%, rgba(255,225,180,.9) 18%, rgba(255,140,210,.5) 42%, transparent 72%);
+  }
+  #light.on{ animation:lightBurst .62s ease-out; }
+  @keyframes lightBurst{
+    0%{ opacity:0; transform:scale(.4); }
+    22%{ opacity:1; transform:scale(1); }
+    100%{ opacity:0; transform:scale(1.35); }
+  }
+  #flash{ position:absolute; inset:0; z-index:45; pointer-events:none; background:#fff; opacity:0; }
+  #flash.on{ animation:flashOut .22s ease-out; }
+  @keyframes flashOut{ 0%{ opacity:.85; } 100%{ opacity:0; } }
+
+  .hit{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) scale(.82);
+    z-index:14; width:min(74%, 260px); padding:10px; border-radius:16px; opacity:0; pointer-events:none;
+    background:linear-gradient(160deg, rgba(40,10,70,.92), rgba(10,4,26,.95));
+    border:1.5px solid rgba(255,255,255,.5);
+    box-shadow:0 0 0 2px rgba(255,180,240,.35), 0 0 40px rgba(220,120,255,.6);
+  }
+  .hit.on{ animation:hitIn .45s cubic-bezier(.2,1.5,.4,1) forwards; }
+  @keyframes hitIn{ to{ opacity:1; transform:translate(-50%,-50%) scale(1); } }
+  .hit-tag{
+    position:absolute; left:50%; top:-11px; transform:translateX(-50%); white-space:nowrap;
+    font-size:11px; font-weight:900; padding:2px 9px; border-radius:999px; color:#2a0016;
+    background:linear-gradient(90deg,#ffd24a,#ff9ad5,#7dffd0); box-shadow:0 0 14px rgba(255,180,240,.7);
+    letter-spacing:.04em;
+  }
+  .hit-inner{ display:flex; gap:8px; align-items:center; }
+  .hit-art{ width:86px; height:108px; border-radius:9px; overflow:hidden; flex:none; box-shadow:0 0 16px rgba(255,200,255,.5); }
+  .hit-art svg{ width:100%; height:100%; display:block; }
+  .hit-txt{ min-width:0; flex:1; }
+  .hit-r{ font-size:9px; font-weight:900; color:#ffd24a; letter-spacing:.14em; }
+  .hit-name{ font-size:15px; font-weight:900; line-height:1.15; margin-top:1px; }
+  .hit-kana{ font-size:9px; color:#cdbdf0; opacity:.85; }
+  .hit-line{ font-size:11px; line-height:1.35; margin-top:5px; color:#fff6c9; }
+
+  .p-foot{ width:100%; display:flex; flex-direction:column; align-items:center; gap:7px; }
+  .phint{ font-size:11px; color:#cfc2ee; height:14px; line-height:14px; text-align:center; }
+  .phint b{ color:#ffd24a; }
+  .skipbtn{
+    border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.08); color:#fff;
+    border-radius:11px; padding:8px 14px; font-family:inherit; font-size:12px; font-weight:800;
+    cursor:pointer; touch-action:manipulation; width:100%;
+  }
+  .skipbtn:active{ transform:scale(.98); }
+  .hide{ display:none !important; }
+
+  /* ================= RESULT ================= */
+  #result{ overflow-y:auto; -webkit-overflow-scrolling:touch; touch-action:pan-y; justify-content:center; gap:5px; }
+  #result > .r-kicker{ margin-top:auto; }
+  #result > .r-btns{ margin-bottom:auto; }
+  .r-kicker{ font-size:9px; letter-spacing:.34em; color:#b9a8e6; opacity:.8; }
+  #rRank{
+    font-size:clamp(52px,16vw,74px); font-weight:900; line-height:.92; letter-spacing:-.02em;
+    background:linear-gradient(180deg,#fff,#ffe28a 46%,#ff9ad5);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 0 18px rgba(255,190,120,.55));
+  }
+  #result.rk-D #rRank{ background:linear-gradient(180deg,#ffc0c8,#ff5a6e 55%,#8e1023); -webkit-background-clip:text; background-clip:text; }
+  #result.rk-B #rRank, #result.rk-C #rRank{ background:linear-gradient(180deg,#e8f4ff,#8ecbff 55%,#5a7fb8); -webkit-background-clip:text; background-clip:text; }
+  #result.rk-SSSp #rRank, #result.rk-SSR #rRank{
+    background:linear-gradient(100deg,#ff5fa2,#ffd24a 24%,#7dffd0 48%,#8ecbff 70%,#d6a6ff 88%,#ff5fa2);
+    background-size:220% 100%; -webkit-background-clip:text; background-clip:text;
+    animation:flow 3s linear infinite;
+    filter:drop-shadow(0 0 22px rgba(255,180,240,.8));
+  }
+  .r-title{ font-size:clamp(16px,4.8vw,19px); font-weight:900; text-align:center; line-height:1.3; padding:0 4px; }
+  .r-note{ font-size:11px; color:#cfc2ee; text-align:center; line-height:1.45; padding:0 8px; }
+  .r-cards{ display:flex; gap:8px; justify-content:center; width:100%; margin-top:2px; }
+  .rcard{
+    position:relative; border-radius:12px; padding:4px; background:linear-gradient(140deg,#ff4d8d,#ffd24a,#7dffd0,#b44dff);
+    box-shadow:0 0 20px rgba(255,160,230,.45);
+  }
+  .rcard .in{ background:#0d0620; border-radius:9px; overflow:hidden; display:flex; flex-direction:column; }
+  .r-cards.one .rcard{ width:min(46%,170px); }
+  .r-cards.two .rcard{ width:min(38%,150px); }
+  .rcard .art{ width:100%; aspect-ratio:.8; }
+  .rcard .art svg{ width:100%; height:100%; display:block; }
+  .rcard .meta{ padding:3px 4px 5px; text-align:center; }
+  .rcard .nm{ font-size:11px; font-weight:900; line-height:1.15; }
+  .rcard .ln{ font-size:8.5px; color:#ffe9a8; line-height:1.3; margin-top:2px; }
+  .rcard .rr{ font-size:8px; color:#ffd24a; letter-spacing:.1em; }
+  .r-stats{ display:flex; width:100%; gap:6px; margin-top:2px; }
+  .r-stats div{
+    flex:1; text-align:center; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+    border-radius:10px; padding:5px 2px;
+  }
+  .r-stats b{ display:block; font-size:16px; font-weight:900; font-variant-numeric:tabular-nums; }
+  .r-stats span{ font-size:9px; color:#c9bcea; }
+  .r-btns{ width:100%; display:flex; flex-direction:column; gap:6px; margin-top:4px; }
+  .sharebtn{
+    display:block; text-align:center; text-decoration:none; color:#fff; font-weight:900; font-size:14px;
+    padding:12px; border-radius:13px; background:linear-gradient(180deg,#2b2b33,#101014);
+    border:1px solid rgba(255,255,255,.28); box-shadow:0 3px 0 #000;
+  }
+  .sharebtn:active{ transform:translateY(2px); box-shadow:0 1px 0 #000; }
+  .ghostbtn{
+    width:100%; padding:11px; border-radius:13px; font-family:inherit; font-size:13px; font-weight:900;
+    color:#fff; background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.25); cursor:pointer;
+    touch-action:manipulation;
+  }
+  .ghostbtn:active{ transform:scale(.99); background:rgba(255,255,255,.16); }
+
+  @media (max-height:700px){
+    .t-mid{ min-height:0; }
+    .orb{ width:min(40vw,140px); }
+    .tagline{ margin-top:8px; font-size:12px; }
+    #rRank{ font-size:clamp(44px,13vw,60px); }
+    .r-note{ display:none; }
+    .r-cards.one .rcard{ width:min(40%,140px); }
+    .rcards .meta{ padding:2px; }
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="fx" aria-hidden="true"></canvas>
+
+  <div id="world">
+    <!-- ============ TITLE ============ -->
+    <section id="title" class="screen show">
+      <div class="t-head">
+        <div class="group">トゥインクル★ステラ</div>
+        <h1 class="logo">脳汁<span class="small">10連ガチャ！</span></h1>
+        <div class="sub">虹昇格RTA</div>
+        <div class="tagline">★5引くまでやめられない10連RTA！</div>
+        <div id="roadHint">🌈 なんだか、虹の予感がする……！？</div>
+      </div>
+
+      <div class="t-mid">
+        <div class="orb">
+          <div class="ten">10<small>連</small></div>
+          <span class="star1">✦</span><span class="star2">✦</span><span class="star3">✧</span>
+        </div>
+      </div>
+
+      <div class="t-bottom">
+        <button id="btnStart" class="bigbtn">🎰 ガチャを引く！（10連スタート）</button>
+        <div class="cost">ダイヤ ∞ ／ 10連でダイヤ350消費</div>
+        <ul class="hints">
+          <li><b>SSS+</b>10連の中に★5が2枚…？</li>
+          <li><b>SSR</b>虹の気配がしたら、10連目が確定虹</li>
+          <li><b>D</b>100連スルーで天井・財布が消し飛ぶ</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ PULL ============ -->
+    <section id="pull" class="screen">
+      <div class="p-head">
+        <div class="chip time"><b id="tTime">0.00</b>秒</div>
+        <div class="chip"><b id="tCount">0</b>連</div>
+        <div class="chip dia"><b id="tDia">0</b>ダイヤ</div>
+      </div>
+
+      <div id="gridwrap">
+        <div id="grid"></div>
+        <div id="piki">……ピキッ！</div>
+        <div id="hit" class="hit">
+          <div class="hit-tag" id="hitTag">★5 GET!!</div>
+          <div class="hit-inner">
+            <div class="hit-art" id="hitArt"></div>
+            <div class="hit-txt">
+              <div class="hit-r" id="hitR">★★★★★</div>
+              <div class="hit-name" id="hitName">—</div>
+              <div class="hit-kana" id="hitKana">—</div>
+              <div class="hit-line" id="hitLine">—</div>
+            </div>
+          </div>
+        </div>
+        <div id="light"></div>
+      </div>
+
+      <div class="p-foot">
+        <div class="phint" id="pHint">★5が出るまで回せ！</div>
+        <button id="btnSkip" class="skipbtn">⏩ 全めくり／スキップ</button>
+        <button id="btnNext" class="bigbtn hide">🎰 もう10連を引く！</button>
+      </div>
+    </section>
+
+    <!-- ============ RESULT ============ -->
+    <section id="result" class="screen">
+      <div class="r-kicker">RTA RESULT</div>
+      <div id="rRank">SS</div>
+      <div class="r-title" id="rTitle">—</div>
+      <div class="r-note" id="rNote">—</div>
+      <div class="r-cards one" id="rCards"></div>
+      <div class="r-stats">
+        <div><b id="rPulls">0</b><span>連</span></div>
+        <div><b id="rDia">0</b><span>ダイヤ</span></div>
+        <div><b id="rTime">0.00</b><span>秒</span></div>
+      </div>
+      <div class="r-btns">
+        <a id="btnShare" class="sharebtn" href="#" target="_blank" rel="noopener noreferrer">𝕏 結果をXでシェア</a>
+        <button id="btnRetry" class="ghostbtn">もう一度挑戦</button>
+      </div>
+    </section>
+  </div>
+
+  <button id="mute" aria-label="サウンドのオン・オフ">🔊</button>
+  <div id="flash"></div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* =========================================================
+     データ（すべてオリジナル）
+     ========================================================= */
+  const CHARS = {
+    rio:{
+      name:'煌星リオ', kana:'きらぼし リオ', r:5, role:'センター',
+      line:'君のハート、ぜんぶ星にしてあげる☆',
+      hair:'#ffe57a', hair2:'#ffab2e', eye:'#ff4d8d', skin:'#ffe3d0', skin2:'#f0c3a8',
+      outfit:'#2b1b55', outfit2:'#3f2a7d', accent:'#ff7ac8', bg1:'#5a2c86', bg2:'#170a33', style:'twin', bangs:'side'
+    },
+    minto:{
+      name:'白雪ミント', kana:'しらゆき ミント', r:5, role:'クール担当',
+      line:'この一瞬、永遠に焼きつけて',
+      hair:'#c9fff1', hair2:'#5fd8c4', eye:'#1fc9b6', skin:'#ffe6d8', skin2:'#f2c6b2',
+      outfit:'#0e2b3a', outfit2:'#17475c', accent:'#8dfff0', bg1:'#1b6a72', bg2:'#08202c', style:'long', bangs:'straight'
+    },
+    rei:{
+      name:'紫苑レイ', kana:'しおん レイ', r:5, role:'演出家肌',
+      line:'運命なんて、ステージの上で書きかえる',
+      hair:'#ddd0ff', hair2:'#8f6cff', eye:'#7a5cff', skin:'#ffe4d6', skin2:'#efc5b4',
+      outfit:'#1c1030', outfit2:'#3a1a4e', accent:'#c58bff', bg1:'#46308f', bg2:'#100823', style:'pony', bangs:'bangs'
+    },
+    hinata:{
+      name:'小鳥遊ひなた', kana:'たかなし ひなた', r:4, role:'元気担当',
+      line:'ひなたぼっこ、一緒にする？',
+      hair:'#ffc078', hair2:'#e8802c', eye:'#ff8a3d', skin:'#ffe7d6', skin2:'#f3cbb3',
+      outfit:'#3a2410', outfit2:'#5c3a1c', accent:'#ffd88a', bg1:'#8a5420', bg2:'#2a1707', style:'twin', bangs:'side'
+    },
+    kai:{
+      name:'青柳カイ', kana:'あおやぎ カイ', r:4, role:'ダンスリーダー',
+      line:'ついてこい、ぜんぶ最高にしてやる',
+      hair:'#7f9dff', hair2:'#3b57c4', eye:'#4ea8ff', skin:'#ffe0cf', skin2:'#e9bda6',
+      outfit:'#101a3a', outfit2:'#1d3260', accent:'#8ad4ff', bg1:'#26407e', bg2:'#0a1430', style:'short', bangs:'straight'
+    },
+    popuri:{
+      name:'星野ぽぷり', kana:'ほしの ぽぷり', r:4, role:'マスコット担当',
+      line:'ぽぷりの魔法、かけてあげる！',
+      hair:'#ffb3e0', hair2:'#ef6bb6', eye:'#ff6fb5', skin:'#ffe8de', skin2:'#f4ccbe',
+      outfit:'#3a1030', outfit2:'#5c1a4a', accent:'#ffd0ee', bg1:'#7a2c66', bg2:'#260a22', style:'bob', bangs:'bangs'
+    },
+    shizuku:{
+      name:'藤宮しずく', kana:'ふじみや しずく', r:4, role:'ピアノ担当',
+      line:'…この音、聴いててほしい',
+      hair:'#bfe2ff', hair2:'#5f9fe0', eye:'#5aa9ff', skin:'#ffe9de', skin2:'#f0cbba',
+      outfit:'#14203a', outfit2:'#22355c', accent:'#cfe9ff', bg1:'#2c4a7a', bg2:'#0a1526', style:'long', bangs:'side'
+    },
+    momoka:{
+      name:'桃井ももか', kana:'ももい ももか', r:3, role:'新人',
+      line:'ももか、ぜんぶ覚えたよ！',
+      hair:'#ffb9a8', hair2:'#e8795f', eye:'#ff7f6b', skin:'#ffe8dc', skin2:'#f3cbbd',
+      outfit:'#2a1620', outfit2:'#452434', accent:'#ffc2b3', bg1:'#5c2836', bg2:'#1c0a12', style:'twin', bangs:'straight'
+    },
+    noa:{
+      name:'若葉ノア', kana:'わかば ノア', r:3, role:'新人',
+      line:'レッスン、はりきってこ！',
+      hair:'#c6e88a', hair2:'#7fae3a', eye:'#7cc23c', skin:'#ffe7d4', skin2:'#f2cbb2',
+      outfit:'#1c2a14', outfit2:'#2f4422', accent:'#e2ffb0', bg1:'#3a5620', bg2:'#101c08', style:'short', bangs:'bangs'
+    },
+    tsumugi:{
+      name:'白鳥つむぎ', kana:'しらとり つむぎ', r:3, role:'書道担当',
+      line:'…見ててくれたら、うれしい',
+      hair:'#f1eaff', hair2:'#b9a6e6', eye:'#b48cff', skin:'#ffe9de', skin2:'#f1ccbe',
+      outfit:'#1e1830', outfit2:'#332a4c', accent:'#e6dcff', bg1:'#3d3560', bg2:'#120e22', style:'bob', bangs:'side'
+    }
+  };
+  const KEYS = Object.keys(CHARS);
+  const P5 = KEYS.filter(k=>CHARS[k].r===5);
+  const P4 = KEYS.filter(k=>CHARS[k].r===4);
+  const P3 = KEYS.filter(k=>CHARS[k].r===3);
+
+  const COST = 350;
+  const PRICE_URL = 'https://7ckwhjy67f-stack.github.io/ticket-error-escape/gacha/';
+
+  /* =========================================================
+     効果音（Web Audio API 合成）
+     ========================================================= */
+  const Sfx = {
+    ac:null, master:null, muted:false, noiseBuf:null,
+    init(){
+      if(this.ac) return this.ac;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return null;
+      try{
+        this.ac = new AC();
+        this.master = this.ac.createGain();
+        this.master.gain.value = this.muted ? 0 : 0.5;
+        this.master.connect(this.ac.destination);
+      }catch(e){ this.ac = null; }
+      return this.ac;
+    },
+    on(){ const ac = this.init(); if(ac && ac.state === 'suspended'){ try{ ac.resume(); }catch(e){} } },
+    setMuted(m){
+      this.muted = !!m;
+      if(this.master){ this.master.gain.setTargetAtTime(this.muted?0:0.5, this.ac.currentTime, 0.02); }
+    },
+    tone(freq, dur, type, vol, when, glideTo){
+      if(!this.ac || this.muted) return;
+      const t = this.ac.currentTime + (when||0);
+      const o = this.ac.createOscillator();
+      const g = this.ac.createGain();
+      o.type = type || 'sine';
+      o.frequency.setValueAtTime(freq, t);
+      if(glideTo) o.frequency.exponentialRampToValueAtTime(Math.max(20,glideTo), t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(Math.max(0.0002, vol||0.2), t + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(this.master);
+      o.start(t); o.stop(t + dur + 0.02);
+    },
+    noise(dur, vol, hz, when, q){
+      if(!this.ac || this.muted) return;
+      const t = this.ac.currentTime + (when||0);
+      if(!this.noiseBuf){
+        const len = Math.floor(this.ac.sampleRate * 0.5);
+        const buf = this.ac.createBuffer(1, len, this.ac.sampleRate);
+        const d = buf.getChannelData(0);
+        for(let i=0;i<len;i++) d[i] = Math.random()*2-1;
+        this.noiseBuf = buf;
+      }
+      const s = this.ac.createBufferSource(); s.buffer = this.noiseBuf;
+      const f = this.ac.createBiquadFilter(); f.type='bandpass'; f.frequency.value = hz||1800; f.Q.value = q||1.2;
+      const g = this.ac.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(Math.max(0.0002, vol||0.2), t+0.006);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+      s.connect(f); f.connect(g); g.connect(this.master);
+      s.start(t); s.stop(t+dur+0.02);
+    },
+    coin(){ this.tone(1180,0.07,'triangle',0.22,0); this.tone(1760,0.10,'triangle',0.18,0.05); },
+    flip(){ this.noise(0.05,0.13,2600,0,1.6); this.tone(680,0.04,'square',0.05,0); },
+    piki(){ this.tone(180,0.30,'sawtooth',0.16,0,1700); this.noise(0.26,0.14,3200,0,2.4); this.tone(2400,0.10,'square',0.08,0.16); },
+    crack(){ this.noise(0.12,0.10,4200,0,3); },
+    rainbow(){
+      const n=[523,659,784,1047]; n.forEach((f,i)=>this.tone(f,0.28,'triangle',0.17,i*0.055));
+      this.noise(0.5,0.10,5200,0.02,0.9);
+      this.tone(2093,0.5,'sine',0.10,0.16);
+    },
+    fanfare(){
+      const n=[784,784,988,1175,1568]; const d=[0,0.11,0.22,0.33,0.5];
+      n.forEach((f,i)=>this.tone(f, i===4?0.55:0.14, 'square', 0.11, d[i]));
+      n.forEach((f,i)=>this.tone(f*2, i===4?0.5:0.12, 'triangle', 0.07, d[i]));
+      this.noise(0.7,0.09,6000,0.5,0.8);
+    },
+    boom(){ this.tone(110,0.55,'sine',0.3,0,44); this.noise(0.42,0.16,320,0,0.8); },
+    drum(){
+      const n=[294,262,220]; n.forEach((f,i)=>this.tone(f,0.3,'triangle',0.12,i*0.16));
+      this.noise(0.2,0.08,900,0,1);
+    }
+  };
+
+  /* =========================================================
+     状態
+     ========================================================= */
+  const S = {
+    phase:'title',
+    rainbowRoad:false, rainbowRoadHit:false, ceilHit:false, allGold:false,
+    t0:0, t1:0,
+    pulls:0, tens:0, dia:0,
+    hits:[], hitPulls:0, maxHits:0,
+    skip:false, busy:false,
+    forced:[], muted:false,
+    lastName:null
+  };
+
+  /* =========================================================
+     DOM
+     ========================================================= */
+  const $ = s => document.querySelector(s);
+  const stage = $('#stage');
+  const world = $('#world');
+  const grid  = $('#grid');
+  const gridwrap = $('#gridwrap');
+  const titleEl = $('#title');
+  const pullEl = $('#pull');
+  const resEl = $('#result');
+  const hitEl = $('#hit');
+  const pikiEl = $('#piki');
+  const muteBtn = $('#mute');
+  const btnStart = $('#btnStart');
+  const btnNext = $('#btnNext');
+  const btnSkip = $('#btnSkip');
+  const btnRetry = $('#btnRetry');
+  const btnShare = $('#btnShare');
+
+  /* =========================================================
+     小さなヘルパー
+     ========================================================= */
+  const wait = ms => new Promise(res => setTimeout(res, S.skip ? Math.min(ms, 16) : ms));
+  const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+  const nf = n => n.toLocaleString('ja-JP');
+  const secs = ms => (Math.max(0,ms)/1000).toFixed(2);
+
+  function starPath(cx, cy, r){
+    let p = '';
+    for(let i=0;i<10;i++){
+      const a = -Math.PI/2 + i*Math.PI/5;
+      const rr = (i%2) ? r*0.44 : r;
+      p += (i?'L':'M') + (cx + Math.cos(a)*rr).toFixed(1) + ' ' + (cy + Math.sin(a)*rr).toFixed(1);
+    }
+    return p + 'Z';
+  }
+
+  /* =========================================================
+     キャラSVG（オリジナルのちびアイドル）
+     ========================================================= */
+  let uidSeq = 0;
+  function charSvg(c, rarity){
+    const uid = 'u' + (++uidSeq);
+    const withHalo = rarity >= 5;
+    const eye = cx => `
+      <ellipse cx="${cx}" cy="66" rx="6.6" ry="8" fill="#fff"/>
+      <ellipse cx="${cx}" cy="67" rx="4.7" ry="6.5" fill="${c.eye}"/>
+      <circle cx="${cx+1.7}" cy="63.2" r="2" fill="#fff"/>
+      <circle cx="${cx-1.7}" cy="70" r="1.05" fill="#fff" opacity=".8"/>
+      <path d="M${cx-6.5} 58.6 Q${cx} 55.2 ${cx+6.5} 58.6" stroke="#3a2030" stroke-width="1.5" fill="none" stroke-linecap="round"/>`;
+
+    const bangs = {
+      straight: `M32 60 Q32 29 60 28 Q88 29 88 60 Q82 44 71 48 Q67 36 60 47 Q53 36 49 48 Q38 44 32 60 Z`,
+      side:     `M31 61 Q31 28 60 27 Q89 28 89 61 Q83 42 69 45 Q75 32 60 32 Q45 32 51 45 Q37 42 31 61 Z`,
+      bangs:    `M32 58 Q33 28 60 28 Q87 28 88 58 Q85 50 79 47 Q75 53 69 48 Q64 55 58 47 Q52 54 46 48 Q40 53 35 47 Q33 51 32 58 Z`
+    }[c.bangs || 'straight'];
+
+    let hairBack = `<ellipse cx="60" cy="62" rx="33" ry="34" fill="url(#hr${uid})"/>`;
+    if(c.style === 'twin'){
+      hairBack += `<ellipse cx="26" cy="78" rx="10" ry="22" fill="${c.hair2}" transform="rotate(-9 26 78)"/>
+                   <ellipse cx="94" cy="78" rx="10" ry="22" fill="${c.hair2}" transform="rotate(9 94 78)"/>`;
+    }else if(c.style === 'pony'){
+      hairBack += `<ellipse cx="95" cy="66" rx="9" ry="25" fill="${c.hair2}" transform="rotate(13 95 66)"/>`;
+    }else if(c.style === 'long'){
+      hairBack += `<path d="M29 60 Q21 92 26 120 L41 116 Q34 88 36 62 Z" fill="${c.hair2}"/>
+                   <path d="M91 60 Q99 92 94 120 L79 116 Q86 88 84 62 Z" fill="${c.hair2}"/>`;
+    }else if(c.style === 'bob'){
+      hairBack += `<path d="M30 58 Q23 80 30 96 L43 93 Q36 75 38 60 Z" fill="${c.hair2}"/>
+                   <path d="M90 58 Q97 80 90 96 L77 93 Q84 75 82 60 Z" fill="${c.hair2}"/>`;
+    }
+
+    return `<svg viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+      <defs>
+        <radialGradient id="bg${uid}" cx="50%" cy="32%" r="78%">
+          <stop offset="0" stop-color="${c.bg1}"/><stop offset="1" stop-color="${c.bg2}"/>
+        </radialGradient>
+        <linearGradient id="hr${uid}" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="${c.hair}"/><stop offset="1" stop-color="${c.hair2}"/>
+        </linearGradient>
+      </defs>
+      <rect width="120" height="150" fill="url(#bg${uid})"/>
+      <circle cx="60" cy="118" r="44" fill="#fff" opacity=".06"/>
+      ${withHalo ? `<circle cx="60" cy="44" r="35" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="1.3" stroke-dasharray="3 5"/>` : ''}
+      <g opacity=".85">
+        <path d="${starPath(19,27,4)}" fill="#fff" opacity=".75"/>
+        <path d="${starPath(102,108,3)}" fill="#fff" opacity=".5"/>
+        <path d="${starPath(15,104,2.6)}" fill="#fff" opacity=".45"/>
+        ${withHalo ? `<path d="${starPath(104,32,4.4)}" fill="${c.accent}" opacity=".9"/>` : ''}
+      </g>
+      <path d="M60 100c-18 0-31 11-35 50h70c-4-39-17-50-35-50z" fill="${c.outfit}"/>
+      <path d="M60 100c-7 0-13 2-17 6l17 44 17-44c-4-4-10-6-17-6z" fill="${c.outfit2}"/>
+      <path d="M51 103l9 11 9-11-5-3-4 5-4-5z" fill="${c.accent}"/>
+      <rect x="53" y="87" width="14" height="17" rx="6" fill="${c.skin2}"/>
+      ${hairBack}
+      <ellipse cx="60" cy="60" rx="27" ry="29" fill="${c.skin}"/>
+      <path d="${bangs}" fill="${c.hair}"/>
+      <path d="M33 56 Q28 74 33 90 Q37 72 35 58 Z" fill="${c.hair2}" opacity=".95"/>
+      <path d="M87 56 Q92 74 87 90 Q83 72 85 58 Z" fill="${c.hair2}" opacity=".95"/>
+      ${eye(49)}${eye(71)}
+      <ellipse cx="40" cy="76" rx="6" ry="3.2" fill="#ff8fb8" opacity=".5"/>
+      <ellipse cx="80" cy="76" rx="6" ry="3.2" fill="#ff8fb8" opacity=".5"/>
+      <path d="M56 79.5 Q60 83.5 64 79.5" stroke="#c4506e" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="${starPath(84,38,5.4)}" fill="${c.accent}" opacity=".95"/>
+      ${withHalo ? `<path d="${starPath(36,32,4)}" fill="#fff" opacity=".8"/>` : ''}
+    </svg>`;
+  }
+
+  /* =========================================================
+     パーティクル
+     ========================================================= */
+  const FX = {
+    cv:null, ctx:null, w:0, h:0, parts:[], raf:0, dpr:1,
+    init(){
+      this.cv = $('#fx');
+      this.ctx = this.cv.getContext('2d');
+      this.resize();
+      window.addEventListener('resize', () => this.resize());
+    },
+    resize(){
+      const r = stage.getBoundingClientRect();
+      this.dpr = Math.min(2, window.devicePixelRatio || 1);
+      this.cv.width = Math.round(r.width * this.dpr);
+      this.cv.height = Math.round(r.height * this.dpr);
+      this.cv.style.width = r.width + 'px';
+      this.cv.style.height = r.height + 'px';
+      this.ctx.setTransform(this.dpr,0,0,this.dpr,0,0);
+      this.w = r.width; this.h = r.height;
+    },
+    burst(x, y, opts){
+      const o = opts || {};
+      const n = o.n || 26;
+      const colors = o.colors || ['#fff','#ffd24a','#ff9ad5','#7dffd0','#8ecbff'];
+      for(let i=0;i<n;i++){
+        const a = Math.random()*Math.PI*2;
+        const sp = (o.speed || 3.4) * (0.35 + Math.random());
+        this.parts.push({
+          x, y,
+          vx: Math.cos(a)*sp, vy: Math.sin(a)*sp - (o.lift || 0.6),
+          life: 0, max: (o.life || 620) * (0.6 + Math.random()*0.8),
+          col: colors[(Math.random()*colors.length)|0],
+          size: 1.4 + Math.random()*2.6,
+          grav: o.grav == null ? 0.045 : o.grav
+        });
+      }
+      this.run();
+    },
+    run(){
+      if(this.raf) return;
+      let last = performance.now();
+      const step = now => {
+        const dt = Math.min(48, now - last); last = now;
+        const k = dt / 16.67;
+        this.ctx.clearRect(0,0,this.w,this.h);
+        for(let i=this.parts.length-1;i>=0;i--){
+          const p = this.parts[i];
+          p.life += dt;
+          if(p.life >= p.max){ this.parts.splice(i,1); continue; }
+          p.x += p.vx*k; p.y += p.vy*k;
+          p.vy += p.grav*k; p.vx *= 0.985;
+          const t = 1 - p.life/p.max;
+          this.ctx.globalAlpha = Math.max(0, t);
+          this.ctx.fillStyle = p.col;
+          this.ctx.beginPath();
+          this.ctx.arc(p.x, p.y, p.size*(0.6+0.6*t), 0, Math.PI*2);
+          this.ctx.fill();
+        }
+        this.ctx.globalAlpha = 1;
+        if(this.parts.length){ this.raf = requestAnimationFrame(step); }
+        else { this.raf = 0; this.ctx.clearRect(0,0,this.w,this.h); }
+      };
+      this.raf = requestAnimationFrame(step);
+    }
+  };
+
+  function centerOf(el){
+    const r = el.getBoundingClientRect();
+    const s = stage.getBoundingClientRect();
+    return { x: r.left - s.left + r.width/2, y: r.top - s.top + r.height/2, r };
+  }
+
+  /* =========================================================
+     演出の小道具
+     ========================================================= */
+  function shake(){
+    world.classList.remove('shk');
+    void world.offsetWidth;
+    world.classList.add('shk');
+    setTimeout(()=>world.classList.remove('shk'), 360);
+  }
+  function flash(){
+    const f = $('#flash');
+    f.classList.remove('on');
+    void f.offsetWidth;
+    f.classList.add('on');
+    setTimeout(()=>f.classList.remove('on'), 240);
+  }
+  function ringAt(el, color, scale){
+    const c = centerOf(el);
+    const g = $('#gridwrap').getBoundingClientRect();
+    const d = document.createElement('div');
+    d.className = 'ring';
+    d.style.left = (c.x - (g.left - stage.getBoundingClientRect().left)) + 'px';
+    d.style.top  = (c.y - (g.top - stage.getBoundingClientRect().top)) + 'px';
+    d.style.borderColor = color || '#fff';
+    if(scale) d.style.animationDuration = scale;
+    gridwrap.appendChild(d);
+    setTimeout(()=>d.remove(), 800);
+  }
+  function showPiki(card){
+    const g = gridwrap.getBoundingClientRect();
+    const r = card.getBoundingClientRect();
+    pikiEl.style.left = (r.left - g.left + r.width/2) + 'px';
+    pikiEl.style.top  = (r.top - g.top + 6) + 'px';
+    pikiEl.classList.remove('on');
+    void pikiEl.offsetWidth;
+    pikiEl.classList.add('on');
+  }
+
+  function frontHTML(ch, rarity){
+    return `<div class="fr r${rarity}">
+      <div class="ico">${charSvg(ch, rarity)}</div>
+      <div class="rv">${'★'.repeat(rarity)}</div>
+    </div>`;
+  }
+
+  /* =========================================================
+     HUD / タイマー
+     ========================================================= */
+  let ticking = false;
+  function startTimer(){
+    if(ticking) return;
+    ticking = true;
+    let last = 0;
+    const loop = now => {
+      if(S.phase !== 'pull'){ ticking = false; return; }
+      if(now - last > 32){
+        last = now;
+        const t = S.t1 ? S.t1 : performance.now();
+        $('#tTime').textContent = secs(t - S.t0);
+      }
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  }
+  function hud(){
+    $('#tCount').textContent = S.pulls;
+    $('#tDia').textContent = nf(S.dia);
+    const t = S.t1 ? S.t1 : performance.now();
+    $('#tTime').textContent = secs(t - S.t0);
+  }
+
+  /* =========================================================
+     抽選
+     ========================================================= */
+  function rollRarity(){
+    const x = Math.random();
+    if(x < 0.02) return 5;
+    if(x < 0.20) return 4;
+    return 3;
+  }
+  function drawChar(r){
+    return r === 5 ? pick(P5) : r === 4 ? pick(P4) : pick(P3);
+  }
+  function makePull(){
+    let cards;
+    if(S.forced.length){
+      const f = S.forced.shift();
+      cards = f.map(k => ({ key: (CHARS[k] ? k : drawChar(rollRarity())) }));
+    }else{
+      cards = [];
+      for(let i=0;i<10;i++){
+        const r = rollRarity();
+        cards.push({ key: drawChar(r) });
+      }
+    }
+    // 虹ロード：最初の10連の10枚目が確定虹
+    if(S.rainbowRoad && S.tens === 1 && !S.hits.length){
+      cards[9] = { key: pick(P5), road:true };
+    }
+    // 天井：100連目の最後で★5確定救済
+    if(!S.hits.length && S.pulls + 10 >= 100){
+      cards[9] = { key: pick(P5), ceil:true };
+    }
+    // 昇格フラグ
+    cards.forEach(c => {
+      if(CHARS[c.key].r === 5){
+        c.promo = !!(c.road || c.ceil) || Math.random() < 0.55;
+        c.from = Math.random() < 0.3 ? 3 : 4;
+      }else{
+        c.promo = false;
+      }
+    });
+    return cards;
+  }
+
+  /* =========================================================
+     10連の実行
+     ========================================================= */
+  function buildGrid(){
+    grid.innerHTML = '';
+    for(let i=0;i<10;i++){
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `<div class="inner">
+        <div class="face back"></div>
+        <div class="face front"></div>
+      </div>`;
+      grid.appendChild(card);
+    }
+  }
+
+  async function lightIntro(){
+    const l = $('#light');
+    l.classList.remove('on');
+    void l.offsetWidth;
+    l.classList.add('on');
+    Sfx.coin();
+    await wait(430);
+    l.classList.remove('on');
+    await wait(110);
+  }
+
+  function recordHit(ch, card, c){
+    if(!S.hits.length){
+      S.hitPulls = S.pulls;
+      S.t1 = performance.now();
+      if(c.road) S.rainbowRoadHit = true;
+      if(c.ceil) S.ceilHit = true;
+    }
+    S.hits.push(S.hits.some(h=>h.name===ch.name) ? Object.assign({}, ch) : ch);
+    S.lastName = ch.name;
+  }
+
+  function showHit(ch, tag, c){
+    $('#hitTag').textContent = tag;
+    $('#hitR').textContent = '★★★★★';
+    $('#hitName').textContent = ch.name;
+    $('#hitKana').textContent = ch.kana + ' ／ ' + ch.role;
+    $('#hitLine').textContent = '「' + ch.line + '」';
+    $('#hitArt').innerHTML = charSvg(ch, 5);
+    hitEl.classList.remove('on');
+    void hitEl.offsetWidth;
+    hitEl.classList.add('on');
+  }
+
+  async function rainbowReveal(card, ch, c, promoted){
+    card.classList.remove('charging');
+    card.classList.add('pop');
+    const p = centerPos(card);
+    FX.burst(p.x, p.y, { n: promoted ? 46 : 32, speed: 4.4, life: 800, lift: 1.1 });
+    Sfx.rainbow();
+    ringAt(card, c.ceil ? '#ffe27a' : '#fff', promoted ? '.8s' : '.6s');
+    if(promoted) flash();
+
+    const hitIndex = S.hits.length;
+    recordHit(ch, card, c);
+    let tag = '★5 GET!!';
+    if(c.ceil) tag = '天井到達！★5確定救済';
+    else if(c.road) tag = '🌈 虹ロード確定演出！';
+    else if(hitIndex > 0) tag = '★5 二枚抜き!!';
+    else if(promoted) tag = '虹昇格!! ★5';
+    showHit(ch, tag, c);
+
+    if(!S.skip){
+      shake();
+      await wait(promoted ? 760 : 520);
+    }else{
+      await wait(40);
+    }
+  }
+
+  function centerPos(el){
+    const r = el.getBoundingClientRect();
+    const s = stage.getBoundingClientRect();
+    return { x: r.left - s.left + r.width/2, y: r.top - s.top + r.height/2 };
+  }
+
+  async function revealCard(i, c){
+    const card = grid.children[i];
+    const ch = CHARS[c.key];
+    const promo = c.promo;
+    const shownR = promo ? c.from : ch.r;
+
+    card.querySelector('.front').innerHTML = frontHTML(ch, shownR);
+    Sfx.flip();
+    card.classList.add('flip');
+
+    if(!promo){
+      if(shownR === 5){
+        await wait(S.skip ? 20 : 130);
+        await rainbowReveal(card, ch, c, false);
+      }else{
+        await wait(S.skip ? 8 : 52);
+      }
+      return;
+    }
+
+    // ---- 昇格演出：一瞬止まる → ピキッ → 虹 ----
+    await wait(S.skip ? 12 : 170);
+    if(!S.skip){
+      card.classList.add('charging');
+      showPiki(card);
+      Sfx.piki();
+      shake();
+      const p = centerPos(card);
+      FX.burst(p.x, p.y, { n: 14, speed: 2.6, life: 420, colors:['#fff','#ffd24a','#8ecbff'] });
+      await wait(120);
+      flash();
+      await wait(430);
+    }else{
+      await wait(10);
+    }
+    card.querySelector('.front').innerHTML = frontHTML(ch, 5);
+    await rainbowReveal(card, ch, c, true);
+  }
+
+  async function runPull(){
+    if(S.busy) return;
+    S.busy = true;
+    S.phase = 'pull';
+    S.skip = false;
+    pullEl.classList.add('show');
+    titleEl.classList.remove('show');
+    resEl.classList.remove('show');
+    btnNext.classList.add('hide');
+    btnSkip.classList.remove('hide');
+    hitEl.classList.remove('on');
+    if(!S.t0) S.t0 = performance.now();
+
+    S.tens++;
+    S.pulls += 10;
+    S.dia += COST;
+    hud();
+    startTimer();
+
+    const cards = makePull();
+    buildGrid();
+    $('#pHint').innerHTML = S.tens === 1 ? 'ダイヤ <b>350</b> 消費！ 10連スタート！' : '<b>' + S.tens + '回目</b>の10連！';
+
+    await lightIntro();
+
+    let hitsHere = 0;
+    for(let i=0;i<10;i++){
+      await revealCard(i, cards[i]);
+      if(CHARS[cards[i].key].r === 5) hitsHere++;
+    }
+
+    if(cards.every(c => CHARS[c.key].r >= 4)) S.allGold = true;
+    S.maxHits = Math.max(S.maxHits, hitsHere);
+
+    if(hitsHere > 0){
+      // ---- RTA ゴール ----
+      btnSkip.classList.add('hide');
+      $('#pHint').innerHTML = S.hits.length >= 2 ? '<b>★5二枚抜き!!</b> これは自慢できる！' : '<b>★5 GET!!</b> タイム確定！';
+      if(!S.skip){ Sfx.fanfare(); }
+      await wait(S.skip ? 60 : 900);
+      S.busy = false;
+      showResult();
+      return;
+    }
+
+    // ---- ノーヒット：即もう10連 ----
+    S.busy = false;
+    S.skip = false;
+    btnSkip.classList.add('hide');
+    btnNext.classList.remove('hide');
+    btnNext.textContent = S.pulls >= 90 ? '🎰 もう10連！（天井まであと' + (100 - S.pulls) + '連）' : '🎰 もう10連を引く！';
+    const rest = 10 - hitsHere;
+    $('#pHint').innerHTML = S.pulls >= 50
+      ? '★5なし…<b>' + S.pulls + '連</b>。ダイヤが溶けていく……'
+      : '★5なし…　でもダイヤは無限！';
+    hud();
+  }
+
+  /* =========================================================
+     ランク判定
+     ========================================================= */
+  function calcRank(){
+    const pulls = S.hitPulls || S.pulls;
+    if(S.maxHits >= 2){
+      return { key:'SSS+', title:'伝説の★5二枚抜き神引き！', note:'同じ10連で★5が2枚以上！ これはスクショして自慢していいやつ。' };
+    }
+    if(S.allGold){
+      return { key:'SSS+', title:'全枠金以上の神引き！', note:'10枚すべて★4以上。もうガチャの神に愛されてる。' };
+    }
+    if(S.rainbowRoadHit){
+      return { key:'SSR', title:'虹ロード確定演出！', note:'はじめから虹の気配…10連目が確定で虹だった。' };
+    }
+    if(pulls <= 10) return { key:'SS', title:'豪運の10連一発ツモ！', note:'10連1回で★5。財布も心も無傷の神展開。' };
+    if(pulls <= 20) return { key:'S',  title:'神引きの入り口、たしかにあった', note:'20連以内の★5はかなり優秀。' };
+    if(pulls <= 30) return { key:'A',  title:'普通に強運！', note:'30連で★5。よくある、よくある…いや、じゅうぶん強い。' };
+    if(pulls <= 50) return { key:'B',  title:'ふつうの課金者', note:'財布が少しだけ痩せた。' };
+    if(pulls <= 70) return { key:'C',  title:'ちょっと沼った', note:'画面の前で「はよ」って言った回数、約' + Math.max(1, Math.floor(pulls/10)) + '回。' };
+    if(S.ceilHit){
+      return { key:'D', title:'財布が消し飛んだ爆死エンド', note:'100連天井で救済。★5は来たけど、財布はもう無い。' };
+    }
+    return { key:'D', title:'財布が消し飛んだ爆死エンド', note:'★5が来るまで' + pulls + '連。ダイヤは無限でも、時間と心は有限。' };
+  }
+
+  /* =========================================================
+     リザルト
+     ========================================================= */
+  let lastRank = null;
+  function showResult(){
+    S.phase = 'result';
+    btnNext.classList.add('hide');
+    btnSkip.classList.add('hide');
+    hitEl.classList.remove('on');
+
+    const rank = calcRank();
+    lastRank = rank;
+    const t = (S.t1 || performance.now()) - S.t0;
+
+    resEl.className = 'screen show rk-' + rank.key.replace('+','p');
+    $('#rRank').textContent = rank.key;
+    $('#rTitle').textContent = rank.title;
+    $('#rNote').textContent = rank.note;
+
+    const seen = {};
+    const uniq = S.hits.filter(h => { if(seen[h.name]) return false; seen[h.name] = 1; return true; });
+    const wrap = $('#rCards');
+    wrap.className = 'r-cards ' + (uniq.length > 1 ? 'two' : 'one');
+    wrap.innerHTML = uniq.map(h => `
+      <div class="rcard">
+        <div class="in">
+          <div class="art">${charSvg(h, 5)}</div>
+          <div class="meta">
+            <div class="rr">★5 ／ ${h.role}</div>
+            <div class="nm">${h.name}</div>
+            <div class="ln">「${h.line}」</div>
+          </div>
+        </div>
+      </div>`).join('');
+
+    $('#rPulls').textContent = S.hitPulls || S.pulls;
+    $('#rDia').textContent = nf(S.dia);
+    $('#rTime').textContent = secs(t);
+
+    $('#rNote').textContent = rank.note + (S.hits.length > 1 ? ' ★5は' + S.hits.length + '枚！' : '');
+
+    const lines = uniq.map(h => '★5：' + h.name + '（' + h.role + '）').join('\n');
+    const text =
+      '【脳汁10連ガチャ！虹昇格RTA】\n' +
+      '結果：' + rank.key + '「' + rank.title + '」\n' +
+      lines + '\n' +
+      (S.hitPulls || S.pulls) + '連 ／ ダイヤ' + nf(S.dia) + '消費 ／ ' + secs(t) + '秒\n' +
+      '★5引くまでやめられない10連ガチャ👇\n' +
+      PRICE_URL + '\n#脳汁10連ガチャ';
+    btnShare.href = 'https://x.com/intent/post?text=' + encodeURIComponent(text);
+
+    pullEl.classList.remove('show');
+    resEl.classList.add('show');
+
+    if(rank.key === 'D'){ Sfx.boom(); }
+    else if(rank.key === 'SSS+' || rank.key === 'SSR'){ Sfx.fanfare(); setTimeout(()=>Sfx.fanfare(), 420); }
+    else { Sfx.fanfare(); }
+
+    // 紙吹雪
+    const p = { x: FX.w/2, y: FX.h*0.42 };
+    setTimeout(()=>{
+      if(rank.key === 'D') return;
+      FX.burst(p.x, p.y, { n: 40, speed: 5, life: 1100, lift: 1.6, grav: 0.09 });
+    }, 120);
+  }
+
+  /* =========================================================
+     画面遷移・初期化
+     ========================================================= */
+  function rollRainbowRoad(){
+    S.rainbowRoad = Math.random() < 0.04;
+    titleEl.classList.toggle('aura', S.rainbowRoad);
+  }
+
+  function resetGame(){
+    S.phase = 'title';
+    S.rainbowRoadHit = false; S.ceilHit = false; S.allGold = false;
+    S.t0 = 0; S.t1 = 0;
+    S.pulls = 0; S.tens = 0; S.dia = 0;
+    S.hits = []; S.hitPulls = 0; S.maxHits = 0;
+    S.skip = false; S.busy = false;
+    hitEl.classList.remove('on');
+    pullEl.classList.remove('show');
+    resEl.classList.remove('show');
+    titleEl.classList.add('show');
+    grid.innerHTML = '';
+    hud();
+    rollRainbowRoad();
+  }
+
+  function start(){
+    Sfx.on();
+    if(S.phase !== 'title') return;
+    S.phase = 'pull';
+    S.t0 = performance.now();
+    S.t1 = 0;
+    titleEl.classList.remove('show');
+    runPull().catch(()=>{ S.busy = false; });
+  }
+
+  /* =========================================================
+     イベント
+     ========================================================= */
+  btnStart.addEventListener('click', start);
+
+  btnNext.addEventListener('click', () => {
+    Sfx.on();
+    if(S.busy || S.phase !== 'pull') return;
+    runPull().catch(()=>{ S.busy = false; });
+  });
+
+  btnSkip.addEventListener('click', () => {
+    Sfx.on();
+    S.skip = true;
+    btnSkip.classList.add('hide');
+    $('#pHint').innerHTML = '<b>全めくり！</b>';
+  });
+
+  btnRetry.addEventListener('click', () => { Sfx.on(); resetGame(); });
+
+  muteBtn.addEventListener('click', () => {
+    Sfx.on();
+    S.muted = !S.muted;
+    Sfx.setMuted(S.muted);
+    muteBtn.textContent = S.muted ? '🔇' : '🔊';
+    muteBtn.setAttribute('aria-label', S.muted ? 'サウンドをオンにする' : 'サウンドをオフにする');
+    try{ localStorage.setItem('gacha_muted', S.muted ? '1' : '0'); }catch(e){}
+  });
+
+  // 起動時のミュート設定復元
+  try{
+    if(localStorage.getItem('gacha_muted') === '1'){
+      S.muted = true; Sfx.muted = true;
+      muteBtn.textContent = '🔇';
+    }
+  }catch(e){}
+
+  document.addEventListener('visibilitychange', () => {
+    if(document.hidden && Sfx.ac && Sfx.ac.state === 'running'){ try{ Sfx.ac.suspend(); }catch(e){} }
+  });
+
+  /* =========================================================
+     デバッグ用フック（検証専用。UIには出ません）
+     ========================================================= */
+  window.__gacha = {
+    state: S,
+    force(list){ S.forced = list.map(a => a.slice()); },
+    rainbow(v){ S.rainbowRoad = !!v; titleEl.classList.toggle('aura', !!v); },
+    fast(on){ S.skip = !!on; },
+    start, reset: resetGame, calcRank
+  };
+
+  /* ---- boot ---- */
+  FX.init();
+  buildGrid();
+  rollRainbowRoad();
+  hud();
+})();
+</script>
+</body>
+</html>
