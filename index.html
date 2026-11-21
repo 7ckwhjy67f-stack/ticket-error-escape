@@ -140,7 +140,7 @@
     padding:calc(env(safe-area-inset-top) + 16px) 18px calc(env(safe-area-inset-bottom) + 16px);
     gap:12px; opacity:1; transition:opacity .3s ease;
   }
-  .screen.hidden{ opacity:0; pointer-events:none; }
+  .screen.hidden{ opacity:0; visibility:hidden; pointer-events:none; transition:opacity .3s ease, visibility 0s .3s; }
   .screen.dim{ background:radial-gradient(120% 80% at 50% 0%, rgba(255,107,157,.16), transparent 55%), rgba(7,5,17,.86); }
 
   /* ---------- intro ---------- */
@@ -295,7 +295,7 @@
 </head>
 <body>
 <div id="stage">
-  <canvas id="game"></canvas>
+  <canvas id="game" role="img" aria-label="ゲーム画面：長押しで走り、指を離すと立ち止まります"></canvas>
 
   <!-- HUD -->
   <div id="hud" class="hidden">
@@ -383,15 +383,16 @@
   var W = 360;                    // logical world width
   var H = 640;                    // logical view height (recomputed)
   var CORR_L = 30, CORR_R = 330;  // corridor inner walls
-  var START_Y = 2000;
-  var GOAL_Y  = 120;
+  var START_Y = 1720;
+  var GOAL_Y  = 100;
   var SPAN    = START_Y - GOAL_Y;
   var RUN_SPEED = 152;
   var TIME_LIMIT = 30;
   var CONE_LEN = 200;
   var CONE_HALF = 26 * Math.PI / 180;
-  var BODY_HIT = 26;              // physical contact distance
+  var BODY_HIT = 23;              // physical contact distance
   var GRACE = 0.13;               // seconds of leeway before a catch
+  var BUMP_GRACE = 0.12;
 
   var stage = document.getElementById('stage');
   var cvs   = document.getElementById('game');
@@ -565,10 +566,10 @@
      level setup
   ========================================================= */
   var GUARD_DEFS = [
-    { top:1660, bot:1870, y:1810, dir:-1, speed:58 },
-    { top:1240, bot:1440, y:1300, dir: 1, speed:62 },
-    { top: 820, bot:1010, y: 950, dir:-1, speed:66 },
-    { top: 370, bot: 560, y: 420, dir: 1, speed:56 }
+    { top:1440, bot:1650, y:1620, dir:-1, speed:82 },
+    { top:1130, bot:1250, y:1190, dir: 1, speed:86 },
+    { top: 720, bot: 850, y: 790, dir:-1, speed:80 },
+    { top: 320, bot: 440, y: 370, dir: 1, speed:74 }
   ];
 
   function resetRound(){
@@ -579,7 +580,7 @@
         x: W/2, y: d.y, dir: d.dir, speed: d.speed,
         top: d.top, bot: d.bot,
         mode: 'walk', timer: 0,
-        seed: i * 1.7, seeT: 0
+        seed: i * 1.7, seeT: 0, bumpT: 0
       };
     });
     crowd = [];
@@ -822,7 +823,7 @@
         errBannerShown = true;
         showBanner('🔴 発券エラー発生！本人確認窓口へ');
       }
-      if (stateT > 2.4) beginPlay();
+      if (stateT > 3.0) beginPlay();
       return;
     }
 
@@ -865,7 +866,12 @@
           g.seeT = Math.max(0, g.seeT - dt * 2);
         }
         var dx = player.x - g.x, dy = player.y - g.y;
-        if (player.moving && Math.abs(dx) < BODY_HIT && Math.abs(dy) < BODY_HIT){ endRound('bump'); break; }
+        if (Math.abs(dx) < BODY_HIT && Math.abs(dy) < BODY_HIT){
+          if (player.moving){
+            g.bumpT += dt;
+            if (g.bumpT > BUMP_GRACE){ endRound('bump'); break; }
+          } else g.bumpT = 0;
+        } else g.bumpT = 0;
       }
 
       // camera
