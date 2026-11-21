@@ -84,11 +84,13 @@
 
   /* ================= TITLE ================= */
   #title{ justify-content:flex-start; overflow-y:auto; -webkit-overflow-scrolling:touch; touch-action:pan-y; }
+  @property --aura-a{ syntax:'<angle>'; inherits:false; initial-value:0deg; }
   #title.aura::before{
     content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
-    background:conic-gradient(from 0deg, #ff4d8d33, #ffd24a33, #4dffb833, #4dd2ff33, #b44dff33, #ff4d8d33);
-    animation:spin 9s linear infinite; filter:blur(26px); opacity:.9;
+    background:conic-gradient(from var(--aura-a, 0deg), #ff4d8d33, #ffd24a33, #4dffb833, #4dd2ff33, #b44dff33, #ff4d8d33);
+    animation:auraSpin 9s linear infinite; filter:blur(26px); opacity:.9;
   }
+  @keyframes auraSpin{ to{ --aura-a:360deg; } }
   @keyframes spin{ to{ transform:rotate(360deg); } }
   .t-head{ position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; width:100%; padding-top:22px; }
   .group{
@@ -136,7 +138,7 @@
   .orb .star1{ left:6%; top:22%; }
   .orb .star2{ right:4%; top:34%; font-size:10px; animation-delay:.6s; }
   .orb .star3{ left:20%; bottom:8%; font-size:18px; animation-delay:1.1s; }
-  @keyframes tw{ 50%{ opacity:.25; transform:scale(.8) rotate(20deg); } }
+  @keyframes tw{ 50%{ opacity:.62; transform:scale(.97) rotate(1deg); } }
 
   .t-bottom{ position:relative; z-index:2; width:100%; display:flex; flex-direction:column; align-items:center; gap:8px; padding-bottom:2px; }
   .bigbtn{
@@ -161,8 +163,10 @@
     background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:9px; padding:4px 8px;
   }
   .hints b{ font-size:9.5px; padding:1px 5px; border-radius:6px; background:rgba(255,255,255,.12); color:#fff; flex:none; letter-spacing:.04em; }
-  #roadHint{ display:none; font-size:11px; font-weight:800; color:#fff; text-align:center; margin-top:2px;
-    text-shadow:0 0 12px rgba(255,120,220,.9); animation:tw 1.8s ease-in-out infinite; }
+  #roadHint{ display:none; font-size:11px; font-weight:800; color:#fff; text-align:center; margin-top:8px;
+    padding:3px 11px; border-radius:999px; background:rgba(255,255,255,.16);
+    border:1px solid rgba(255,255,255,.4);
+    text-shadow:0 0 10px rgba(255,120,220,.9); animation:tw 1.8s ease-in-out infinite; }
   #title.aura #roadHint{ display:block; }
 
   /* ================= PULL ================= */
