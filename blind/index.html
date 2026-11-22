@@ -1976,8 +1976,10 @@ function armBulk(){
 
 function doBulk(n){
   var pulls = [], itaHit = false, oshiGain = 0;
+  var divine = !!S.__forceDivine || Math.random() < 0.02;   // 🌟 神配列（全部推し）
+  S.__forceDivine = false;
   for (var i=0;i<n;i++){
-    var p = drawOne(false, true);
+    var p = divine ? { type:'target' } : drawOne(false, true);
     if (p.type === 'target'){
       addOshi(1);
       oshiGain++;
@@ -1997,13 +1999,20 @@ function doBulk(n){
   renderDups();
   sfxCoin();
   if (oshiGain) sfxSecret();
+  if (divine) toast('🌟 神配列!! ' + n + '袋全部が推しだった!!', 3200);
 
   var cnt = {};
   pulls.forEach(function(p){ if (p.type !== 'target') cnt[p.char.id] = (cnt[p.char.id] || 0) + 1; });
   var ids = Object.keys(cnt);
   var topId = ids.sort(function(a,b){ return cnt[b] - cnt[a]; })[0];
   var note;
-  if (itaHit){
+  if (divine && itaHit){
+    note = '🌟 神配列!! ' + n + '袋全部が推し！ しかも' + S.target.name + 'が30個そろって推し痛バ1面 完成！！';
+    sfxRainbow(); confetti(60);
+  } else if (divine){
+    note = '🌟 神配列!! ' + n + '袋全部が推しだった!! ' + S.target.name + ' +' + oshiGain + '（' + S.oshi + '/30）';
+    sfxRainbow(); confetti(54);
+  } else if (itaHit){
     note = '🎯 ' + S.target.name + 'が30個そろった！ 推し痛バ1面 完成！！';
     sfxIta(); confetti(50);
   } else if (oshiGain > 0){
@@ -2018,7 +2027,7 @@ function doBulk(n){
   }
 
   showMulti(pulls, {
-    title: '📦 ' + pulls.length + (pulls.length > 1 ? '袋まとめて開封！' : '袋開封！'),
+    title: (divine ? '🌟 神配列!! ' : '📦 ') + pulls.length + (pulls.length > 1 ? '袋まとめて開封！' : '袋開封！'),
     note: note,
     ita: itaHit,
     onNext: itaHit ? function(){ finishOshiIta(); } : null
@@ -2888,7 +2897,8 @@ if (/(\?|&)dev=1/.test(location.search)){
     openTrade: openTrade,
     post: postTrade,
     oyasan: showOyasanChance,
-    mini: showMini
+    mini: showMini,
+    bulkDivine: function(n){ S.__forceDivine = true; doBulk(n); }
   };
 }
 
