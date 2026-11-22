@@ -376,6 +376,20 @@
   .btn2:active{ transform:translateY(1px) scale(.995); filter:brightness(.96); }
   .btn2.primary{ color:#2b0a1a; background:linear-gradient(180deg,#ffd9e5,#ff9fbe); box-shadow:0 8px 22px rgba(255,107,157,.35); }
   .btn2.ghost{ color:#e9dcff; background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.18); }
+  .btn2.next{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    text-decoration:none; color:#3a2000; margin-bottom:11px;
+    background:linear-gradient(180deg,#fff4c0,#ffce57 58%,#ffa53a);
+    box-shadow:0 10px 26px rgba(255,176,58,.45), inset 0 0 0 2px rgba(255,255,255,.55);
+    animation:nextPulse 1.5s ease-in-out infinite;
+  }
+  .btn2.next .t{ font-size:16px; font-weight:900; letter-spacing:.02em; }
+  .btn2.next .s{ font-size:10px; font-weight:800; letter-spacing:.03em; opacity:.72; }
+  .btn2.next.hidden{ display:none; }
+  @keyframes nextPulse{
+    0%,100%{ transform:scale(1); box-shadow:0 10px 26px rgba(255,176,58,.4), inset 0 0 0 2px rgba(255,255,255,.55); }
+    50%{ transform:scale(1.028); box-shadow:0 14px 34px rgba(255,176,58,.7), inset 0 0 0 2px rgba(255,255,255,.85); }
+  }
   .btnX{ display:flex; align-items:center; justify-content:center; gap:8px; text-decoration:none; }
   .btnX b{ font-size:16px; }
   .tiny{ font-size:10px; color:#8e7fa8; margin-top:10px; letter-spacing:.04em; }
@@ -457,6 +471,10 @@
         <div class="stat"><span>TIME</span><b id="resTime">0.0秒</b></div>
         <div class="stat"><span>突破率</span><b id="resProg">0%</b></div>
       </div>
+      <a id="nextBtn" class="btn2 next hidden" href="./fansa/">
+        <span class="t">🎤 さぁライブ開演.ᐟ</span>
+        <span class="s">カンペうちわでファンサを奪え！</span>
+      </a>
       <div class="btnRow">
         <button id="retryBtn" class="btn2 primary">もう一度挑戦</button>
         <a id="shareBtn" class="btn2 ghost btnX" href="https://twitter.com/intent/tweet" target="_blank" rel="noopener"><b>𝕏</b> 結果をXでシェア</a>
@@ -1066,6 +1084,12 @@ window.addEventListener('unhandledrejection', function(e){ window.__errors.push(
     void gradeEl.offsetWidth;
     var shareEl = document.getElementById('shareBtn');
     if (shareEl) shareEl.href = shareUrl(R);
+    var nextEl = document.getElementById('nextBtn');
+    if (nextEl){
+      var success = (R.reason === 'clear' || R.reason === 'hidden' ||
+                     R.reason === 'reveal' || R.reason === 'qr' || R.reason === 'ally');
+      nextEl.classList.toggle('hidden', !success);
+    }
     resultEl.classList.remove('hidden');
     void resultEl.offsetWidth;
   }
