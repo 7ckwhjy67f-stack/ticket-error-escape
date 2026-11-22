@@ -1976,8 +1976,7 @@ function armBulk(){
 
 function doBulk(n){
   var pulls = [], itaHit = false, oshiGain = 0;
-  var divine = !!S.__forceDivine || Math.random() < 0.02;   // 🌟 神配列（全部推し）
-  S.__forceDivine = false;
+  var divine = Math.random() < 0.02;   // 🌟 神配列（全部推し）
   for (var i=0;i<n;i++){
     var p = divine ? { type:'target' } : drawOne(false, true);
     if (p.type === 'target'){
@@ -2881,26 +2880,6 @@ document.addEventListener('visibilitychange', function(){
   if (document.hidden){ pauseTimer(); }
   else if (playing && !revealOpen && !busy){ resumeTimer(); }
 });
-
-/* ===== TEMP DEV HOOK (removed before release) ===== */
-if (/(\?|&)dev=1/.test(location.search)){
-  window.__blind = {
-    S: function(){ return S; },
-    addOshi: addOshi,
-    finish: finishOshiIta,
-    set: function(o){
-      for (var k in o){ if (Object.prototype.hasOwnProperty.call(o,k)) S[k] = o[k]; }
-      updateOshi(); renderDups(); updateHUD(); updateAtmBtn(); updateGl();
-    },
-    peel: function(p){ setPeel(p); },
-    armBulk: armBulk,
-    openTrade: openTrade,
-    post: postTrade,
-    oyasan: showOyasanChance,
-    mini: showMini,
-    bulkDivine: function(n){ S.__forceDivine = true; doBulk(n); }
-  };
-}
 
 })();
 </script>
