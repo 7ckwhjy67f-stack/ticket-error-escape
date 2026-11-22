@@ -779,6 +779,11 @@
   .post{ width:100%; margin-top:10px; background:linear-gradient(100deg,#7cc4ff,#b07bff); color:#0a0620; }
   .post:disabled{ opacity:.5; }
 
+  .rp-wait{
+    margin-top:10px; padding:14px 10px; border:1px dashed rgba(255,255,255,.18); border-radius:13px;
+    text-align:center; font-size:11px; line-height:1.7; color:#b9aecf;
+  }
+  .rp-wait span{ font-size:10px; color:#8f84a8; }
   .rp-head{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin:4px 0 2px; font-size:11px; color:#95a2b0; }
   .rp-head b{ font-size:12px; color:#f2eaff; }
   .rp{
@@ -1069,6 +1074,29 @@ var SECRET_DOG = {id:'samoyed', name:'王冠サモエド', breed:'サモエド',
 function dogById(id){
   for (var i=0;i<DOGS.length;i++){ if (DOGS[i].id === id) return DOGS[i]; }
   return SECRET_DOG;
+}
+
+/* ============================================================
+   裏設定：キャラ別レート（低=1 / 中=2 / 高=3 / 超高=5）
+   ※画面には一切出さない。交換のつきやすさ・交渉の強気さ・
+     現地お姉さんの反応にだけ、静かに効かせる。
+   ============================================================ */
+var RATE = {
+  corgi:1, fren:1,
+  shiba:2, chihu:2,
+  pome:3, poodle:3,
+  samoyed:5
+};
+function rateOf(id){ return RATE[id] || 2; }
+function oshiRate(){ return S ? rateOf(S.targetId) : 2; }
+function topRateOf(list){
+  var m = 0, arr = list || [];
+  for (var i=0;i<arr.length;i++){ var r = rateOf(arr[i].id); if (r > m) m = r; }
+  return m;
+}
+function offeredList(){
+  if (!S || !trade || !trade.offer) return [];
+  return tradeableDogs().filter(function(d){ return trade.offer[d.id] && (S.counts[d.id] || 0) > 0; });
 }
 
 /* ============================================================
@@ -2182,7 +2210,7 @@ function afterReveal(){
   }
   if (S.pendingNego){ showNego(); return; }
   if (Math.floor(S.funds / PRICE) === 1) toast('残り1袋…！ ここで推しが出るか、バッグの望み', 2400);
-  if (S.opens >= 3 && !oyasanOpenNow && Math.random() < 0.10 && tradeableDogs().length){
+  if (S.opens >= 3 && !oyasanOpenNow && Math.random() < oyasanChance() && tradeableDogs().length){
     setTimeout(showOyasanChance, 700);
   }
 }
@@ -2309,15 +2337,49 @@ function renderComposer(){
   postBtn.textContent = give.length ? 'ポストして募集する' : '譲れるダブりがない…';
 }
 
-function pickReplyType(used){
-  var weights = [['god',16],['equal',28],['ratio2',26],['ratio3',12],['bundle',10],['no',8]];
-  var pool = weights.filter(function(w){ return used.indexOf(w[0]) < 0; });
-  if (!pool.length) pool = weights;
-  var total = 0;
-  for (var i=0;i<pool.length;i++){ total += pool[i][1]; }
+function pickReplyType(used, oR, mR){
+  oR = oR || oshiRate();
+  mR = mR || 0;
+  var d = oR - mR;                    // 推しが、出すダブりよりどれだけ格上か
+
+  /* レート差なし＝現行と同じ配分 */
+  var w = { god:16, equal:28, ratio2:26, ratio3:12, bundle:10, no:8, empty:4 };
+
+  if (d >= 3){                        // 超高レートの推し × 低レートのダブり
+    w = { god:3,  equal:6,  ratio2:38, ratio3:26, bundle:8, no:8, empty:16 };
+  } else if (d === 2){
+    w = { god:6,  equal:12, ratio2:36, ratio3:20, bundle:9, no:8, empty:11 };
+  } else if (d === 1){
+    w = { god:10, equal:20, ratio2:32, ratio3:15, bundle:10, no:8, empty:6 };
+  } else if (d <= -1){                // ダブりの方が格上 → 好条件が集まる
+    w = { god:24, equal:34, ratio2:14, ratio3:5, bundle:6, no:5, empty:2 };
+  }
+
+  if (oR <= 1){                       // 誰でも持ってる推し → 等価1:1で即決まり
+    w.equal += 22;
+    w.ratio2 = Math.round(w.ratio2 * 0.5);
+    w.ratio3 = Math.round(w.ratio3 * 0.4);
+    w.empty = Math.max(1, w.empty - 3);
+  }
+  if (mR >= 3){                       // 人気のダブりを譲りに出す → 食いつきがいい
+    w.god += 14 * (mR - 2);
+    w.equal += 14;
+    w.ratio2 = Math.round(w.ratio2 * 0.6);
+    w.no = Math.max(2, Math.round(w.no * 0.5));
+  }
+
+  var keys = ['god','equal','ratio2','ratio3','bundle','no','empty'];
+  var avail = keys.filter(function(k){ return (used || []).indexOf(k) < 0; });
+  if (!avail.length) avail = keys.slice();
+  var total = 0, i;
+  for (i=0;i<avail.length;i++){ total += Math.max(0, w[avail[i]] || 0); }
+  if (!total) return 'equal';
   var x = Math.random() * total;
-  for (var j=0;j<pool.length;j++){ x -= pool[j][1]; if (x <= 0) return pool[j][0]; }
-  return pool[0][0];
+  for (i=0;i<avail.length;i++){
+    x -= Math.max(0, w[avail[i]] || 0);
+    if (x <= 0) return avail[i];
+  }
+  return avail[avail.length - 1];
 }
 
 function makeReply(offered, used, usedUsers){
@@ -2326,7 +2388,7 @@ function makeReply(offered, used, usedUsers){
   var u = pool[rand(pool.length)];
   var d = offered[rand(offered.length)];
   var T = S.target.name;
-  var type = pickReplyType(used || []);
+  var type = pickReplyType(used || [], oshiRate(), topRateOf(offered));
   var cost = {}, gain = 1, text = '', tag = '';
   if (type === 'god'){
     cost[d.id] = 1; gain = 2; tag = '神交換';
@@ -2346,6 +2408,14 @@ function makeReply(offered, used, usedUsers){
     if (other.id === S.targetId) other = DOGS[(DOGS.indexOf(other) + 1) % DOGS.length];
     cost[other.id] = 2;
     text = '抱き合わせで【' + other.name + '】×2もつけてもらえますか？ その代わり【' + T + '】をお渡しします！';
+  } else if (type === 'empty'){
+    gain = 0; tag = '空リプ';
+    var empties = [
+      'それめっちゃわかります〜！ 私もずっと探してるんですけど全然出ないんですよね…お互いがんばりましょう🙏',
+      '遠征おつかれさまです！ いい出会いがありますように✨ 私は今回見送りで…',
+      'プロカ読ませてもらいました！ すごい量集めてますね、応援してます！'
+    ];
+    text = empties[rand(empties.length)];
   } else {
     type = 'no'; gain = 0; tag = '見送り';
     text = 'FF外から失礼します！プロカ読ませていただきましたが、当方同担拒否のため今回は見送らせてください🙏';
@@ -2361,20 +2431,27 @@ function dealText(r){
 }
 
 function renderReplies(){
+  if (!trade.replies.length){
+    repliesEl.innerHTML = '<div class="rp-wait">…しばらく待っても、リプライは来ない。<br>'
+      + '<span>このダブりじゃ反応が薄いみたい。出す子を変えて募集し直してみる？</span></div>';
+    postAgainBtn.style.display = '';
+    return;
+  }
   repliesEl.innerHTML = trade.replies.map(function(r, i){
     var dis = !canPay(r.cost);
-    var tagCls = r.type === 'god' ? ' god' : (r.type === 'no' || r.type === 'bundle' ? ' bad' : '');
+    var quiet = (r.type === 'no' || r.type === 'empty');
+    var tagCls = r.type === 'god' ? ' god' : (quiet || r.type === 'bundle' ? ' bad' : '');
     return '<div class="rp' + (r.done ? ' done' : '') + '" style="animation-delay:' + (i*0.12) + 's">'
       + '<div class="rp-h"><span class="rp-av">' + r.u.av + '</span><b>' + r.u.n + '</b>'
       +   '<em>' + r.u.h + ' · たった今</em>'
       +   (r.tag ? '<span class="rp-tag' + tagCls + '">' + r.tag + '</span>' : '')
       + '</div>'
       + '<div class="rp-t">' + r.text + '</div>'
-      + (r.type !== 'no' ? '<div class="rp-deal">' + dealText(r) + '</div>' : '')
+      + (r.type !== 'no' && r.type !== 'empty' ? '<div class="rp-deal">' + dealText(r) + '</div>' : '')
       + (r.done
           ? '<div class="rp-res ' + (r.res === 'ok' ? 'ok' : 'no') + '">'
             + (r.res === 'ok' ? '🤝 交換成立！' : 'お断りしました') + '</div>'
-          : (r.type === 'no'
+          : (quiet
               ? '<div class="rp-btns"><button class="no" data-i="' + i + '" data-act="no">閉じる</button></div>'
               : '<div class="rp-btns">'
                 + '<button class="ok" data-i="' + i + '" data-act="ok"' + (dis ? ' disabled' : '') + '>受ける</button>'
@@ -2386,15 +2463,33 @@ function renderReplies(){
   postAgainBtn.style.display = allDone ? '' : 'none';
 }
 
+/* 裏レート：推しと出すダブりの格差で、そもそも何件リプライが来るかが変わる */
+function replyCountFor(offered){
+  var oR = oshiRate();
+  var mR = topRateOf(offered);
+  var d = oR - mR;
+  var base = 2.0;                       // 1回の募集で来るリプライの期待件数
+  if (d >= 3) base -= 1.25;             // 推しが超高レート × ダブりが低レート → ほぼスルー
+  else if (d === 2) base -= 0.75;
+  else if (d === 1) base -= 0.3;
+  else if (d <= -1) base += 0.6;        // ダブりが格上 → すぐに人が集まる
+  if (mR >= 3) base += 0.35;
+  if (base < 0.2) base = 0.2;
+  var p = Math.min(0.95, base / 3);
+  var n = 0;
+  for (var i=0;i<3;i++){ if (Math.random() < p) n++; }
+  return n;
+}
+
 function postTrade(){
   if (!S || !playing) return;
-  var offered = tradeableDogs().filter(function(d){ return trade.offer[d.id]; });
+  var offered = offeredList();
   if (!offered.length) return;
   S.posts++;
   composerEl.style.display = 'none';
   replyWrap.style.display = '';
   trade.replies = [];
-  var n = 1 + rand(3);
+  var n = replyCountFor(offered);
   var used = [], usedUsers = [];
   for (var i=0;i<n;i++){
     var r = makeReply(offered, used, usedUsers);
@@ -2404,8 +2499,13 @@ function postTrade(){
   }
   renderReplies();
   ensureAC(); beep(880, 0.06, 'sine', 0.07); beep(1174, 0.08, 'sine', 0.05, 0.08);
-  rpHead.textContent = 'リプライ ' + n + '件';
-  setTimeout(function(){ toast('🐦 リプライが' + n + '件届いた！', 2200); }, 350);
+  if (n){
+    rpHead.textContent = 'リプライ ' + n + '件';
+    setTimeout(function(){ toast('🐦 リプライが' + n + '件届いた！', 2200); }, 350);
+  } else {
+    rpHead.textContent = 'リプライ 0件';
+    setTimeout(function(){ toast('🐦 投稿したけど、リプライはまだ来ない…', 2600); }, 350);
+  }
 }
 
 function acceptReply(i){
@@ -2480,19 +2580,35 @@ function closeMini(){
 /* ============================================================
    現地交換お姉さんチャンス
    ============================================================ */
-var oyasanOpenNow = false, oyTarget = null, oyGain = 1;
+var oyasanOpenNow = false, oyTarget = null, oyGain = 1, oyCost = 1;
+
+/* 裏レート：推しが低レートなほど現地に在庫があり、
+   人気のダブりを持っているほど声をかけられやすい */
+function oyasanChance(){
+  var oR = oshiRate();
+  var p = oR <= 1 ? 0.15 : (oR === 2 ? 0.12 : (oR === 3 ? 0.085 : 0.05));
+  if (topRateOf(tradeableDogs().slice(0, 3)) >= 3) p += 0.05;
+  return p;
+}
 
 function showOyasanChance(){
   if (!playing || !S || revealOpen || tradeOpen || oyasanOpenNow) return;
   var list = tradeableDogs();
   if (!list.length) return;
   oyTarget = list[rand(Math.min(3, list.length))];
-  oyGain = Math.random() < 0.28 ? 2 : 1;
+  var tR = rateOf(oyTarget.id);
+  oyCost = 1; oyGain = 1;
+  if (tR >= 3 && (S.counts[oyTarget.id] || 0) >= 2 && Math.random() < (tR >= 5 ? 0.55 : 0.38)){
+    oyCost = 2;                          // 人気の子だから「2個出して」と強気に来る
+  } else if (Math.random() < (tR <= 1 ? 0.34 : 0.22)){
+    oyGain = 2;                          // 逆に気前よく2個くれる
+  }
   oyArt.innerHTML = '<i>' + dogSVG({ id:'oyasan2', fur:'#ffd9b8', ear:'#f0b98b', muzzle:'#fff6ea', inner:'#ffd0b0', earType:'floppy' }) + '</i>';
   oyMsg.innerHTML = '物販会場のお姉さん「すみません！ そちらの <b style=\"color:#ffe58a\">' + oyTarget.name
     + '</b> と、こちらの <b style=\"color:#ffe58a\">' + S.target.name + '</b> 交換しませんか？」'
+    + (oyCost > 1 ? '<br><span style=\"color:#ffb0c0\">「その子いま人気なんですよ。2個あったら交換できます！」</span>' : '')
     + (oyGain > 1 ? '<br><span style=\"color:#7dffd0\">「なんと2個あげるよ！」</span>' : '');
-  oyDeal.textContent = 'あなた: ' + oyTarget.name + '×1  →  推し ' + S.target.name + '×' + oyGain;
+  oyDeal.textContent = 'あなた: ' + oyTarget.name + '×' + oyCost + '  →  推し ' + S.target.name + '×' + oyGain;
   oyasanOpenNow = true;
   oyasanEl.classList.add('show');
   pauseTimer();
@@ -2509,9 +2625,9 @@ function closeOyasan(){
 }
 function oyAccept(){
   if (!S || !oyTarget) return;
-  var t = oyTarget, g = oyGain;
-  if ((S.counts[t.id] || 0) < 1){ toast('そのダブりが足りない…', 1500); closeOyasan(); return; }
-  S.counts[t.id]--;
+  var t = oyTarget, g = oyGain, need = oyCost || 1;
+  if ((S.counts[t.id] || 0) < need){ toast('そのダブりが足りない…', 1500); closeOyasan(); return; }
+  S.counts[t.id] -= need;
   S.trades++;
   addOshi(g);
   renderDups(); updateHUD();
