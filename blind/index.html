@@ -498,7 +498,7 @@
   /* ================= RESULT ================= */
   #result{ justify-content:flex-start; overflow-y:auto; -webkit-overflow-scrolling:touch; touch-action:pan-y; }
   .res-inner{ width:100%; display:flex; flex-direction:column; align-items:center; margin:auto 0; }
-  #result.ita .res-inner{ padding-bottom:96px; }
+  #result.ita .res-inner{ padding-bottom:226px; }
   .rtag{
     font-size:10px; font-weight:900; letter-spacing:.16em; color:#ffe6f6;
     border:1px solid rgba(255,230,246,.4); border-radius:999px; padding:3px 12px;
@@ -530,7 +530,6 @@
     grid-column:span 2; background:rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.11);
     border-radius:11px; padding:5px 4px 6px; text-align:center; min-width:0;
   }
-  .sc:nth-child(4), .sc:nth-child(5){ grid-column:span 3; }
   .sc span{ display:block; font-size:9px; color:#c0aedb; letter-spacing:.05em; }
   .sc b{ display:block; font-size:14px; font-weight:900; margin-top:1px; font-variant-numeric:tabular-nums;
          white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -600,6 +599,161 @@
   .acts .btn{ margin-top:8px; }
   .acts .btn:first-child{ margin-top:0; }
 
+  /* ---- 推しの収集プログレス ---- */
+  .oshi{
+    width:100%; margin-top:6px; padding:5px 9px 6px; border-radius:13px;
+    background:linear-gradient(100deg, rgba(255,210,74,.13), rgba(255,111,176,.10));
+    border:1px solid rgba(255,210,74,.32);
+  }
+  .oshi-row{ display:flex; align-items:center; justify-content:space-between; gap:6px; }
+  .oshi-lab{ display:flex; align-items:center; gap:4px; font-size:10.5px; font-weight:900; color:#ffe9b0; letter-spacing:.02em; white-space:nowrap; }
+  .oshi-lab i{
+    width:19px; height:19px; border-radius:50%; overflow:hidden; display:grid; place-items:center;
+    background:linear-gradient(150deg,var(--c1,#fff),var(--c2,#ddd)); font-style:normal; flex:0 0 auto;
+    box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.8);
+  }
+  .oshi-lab i svg{ width:124%; height:124%; }
+  .oshi-lab b{ color:#fff; font-size:11.5px; }
+  .oshi-num{ font-size:11px; font-weight:900; color:#d9c8f2; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .oshi-num b{ font-size:17px; color:#ffe58a; }
+  .oshi-bar{
+    margin-top:4px; height:7px; border-radius:999px; background:rgba(0,0,0,.45);
+    overflow:hidden; box-shadow:inset 0 1px 2px rgba(0,0,0,.55);
+  }
+  .oshi-bar i{
+    display:block; height:100%; width:0%; border-radius:999px;
+    background:linear-gradient(90deg,#ffd24a,#ff9ecb 62%,#c8a2ff);
+    box-shadow:0 0 10px rgba(255,180,220,.7);
+    transition:width .4s cubic-bezier(.2,1.2,.4,1);
+  }
+  .oshi-sub{ margin-top:3px; font-size:9.5px; color:#e6d6ff; letter-spacing:.02em; text-align:right; }
+  .oshi.hot{ animation:oshiHot 1.2s ease-in-out infinite; }
+  @keyframes oshiHot{ 0%,100%{ box-shadow:0 0 0 rgba(255,210,74,0); } 50%{ box-shadow:0 0 18px rgba(255,210,74,.55); } }
+
+  .brow{ display:flex; gap:6px; }
+  .brow .mini{ flex:1 1 0; min-width:0; }
+  .mini.trade{ color:#062033; background:linear-gradient(100deg,#a8e6ff,#7cc4ff); }
+  .mini.giveup{
+    color:#e2d8f2; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.2);
+    box-shadow:none; font-size:11.5px;
+  }
+
+  .albumbtn{ margin-top:8px; font-size:12.5px; padding:10px;
+    background:rgba(255,255,255,.07); color:#f2eaff; border:1px solid rgba(255,255,255,.22); box-shadow:none; }
+  .albumbtn::after{ display:none; }
+
+  .alb-top{ display:flex; align-items:baseline; justify-content:space-between; gap:8px;
+    padding:2px 2px 9px; border-bottom:1px dashed rgba(255,255,255,.14); margin-bottom:9px; }
+  .alb-top b{ font-size:13px; color:#ffe9b0; }
+  .alb-top span{ font-size:10.5px; color:#c9b9e4; }
+  .alb-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+  .alb{ position:relative; border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:8px 4px 7px;
+    text-align:center; background:rgba(255,255,255,.04); min-width:0; }
+  .alb-art{ position:relative; width:56px; height:56px; margin:0 auto; border-radius:50%; overflow:hidden;
+    display:grid; place-items:center; background:linear-gradient(150deg,var(--c1,#fff),var(--c2,#ddd));
+    box-shadow:inset 0 0 0 2px rgba(255,255,255,.75); }
+  .alb-art svg{ width:118%; height:118%; }
+  .alb-name{ font-size:10px; font-weight:900; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .alb-meta{ font-size:8.8px; color:#a99cbe; line-height:1.45; margin-top:1px; }
+  .alb.done{ border-color:#ffd24a; background:linear-gradient(160deg,rgba(255,210,74,.16),rgba(255,111,176,.10));
+    box-shadow:0 0 16px rgba(255,210,74,.35); }
+  .alb.done .alb-name{ color:#ffe58a; }
+  .alb.done .alb-meta{ color:#e6d6ff; }
+  .alb.lock .alb-art{ filter:brightness(.12) saturate(0); box-shadow:inset 0 0 0 2px rgba(255,255,255,.18); }
+  .alb.lock .alb-name{ color:#8f84a6; }
+  .alb .alb-lock{ position:absolute; top:6px; right:6px; font-size:11px; opacity:.85; }
+  .alb .alb-spark{ position:absolute; top:-2px; left:-2px; font-size:11px; }
+
+  .btn.live{
+    display:flex; flex-direction:column; gap:1px; align-items:center; justify-content:center;
+    background:linear-gradient(100deg,#7dffd0,#8ecbff 55%,#c8a2ff); color:#06202a;
+    box-shadow:0 10px 28px rgba(125,255,208,.35), inset 0 -3px 0 rgba(0,0,0,.14);
+    text-decoration:none;
+  }
+  .btn.live .lv-t{ font-size:16px; font-weight:900; }
+  .btn.live .lv-s{ font-size:9.5px; font-weight:900; opacity:.75; letter-spacing:.02em; }
+  .btn.live::after{ animation:btnSheen 2.2s ease-in-out infinite; }
+
+  /* ---- X交換募集モーダル ---- */
+  .modal{ position:absolute; inset:0; z-index:48; display:none; }
+  .modal.show{ display:block; }
+  .modal .back{ position:absolute; inset:0; background:rgba(4,2,9,.74); backdrop-filter:blur(3px); }
+  .tcard{
+    position:absolute; left:50%; bottom:0; transform:translateX(-50%);
+    width:100%; max-width:430px; max-height:90%; display:flex; flex-direction:column;
+    background:linear-gradient(180deg,#1b1226,#0f0a18);
+    border-top-left-radius:20px; border-top-right-radius:20px;
+    border:1px solid rgba(255,255,255,.14); border-bottom:0;
+    box-shadow:0 -18px 50px rgba(0,0,0,.65);
+    animation:sheetUp .26s cubic-bezier(.2,1,.3,1);
+  }
+  @keyframes sheetUp{ from{ transform:translate(-50%,100%); } to{ transform:translate(-50%,0); } }
+  .thead{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.1);
+    font-size:12.5px; font-weight:900; color:#f2eaff; letter-spacing:.02em;
+  }
+  .thead button{ background:none; border:0; color:#c9b9e4; font-size:17px; padding:0 6px; line-height:1; cursor:pointer; }
+  .tbody{ overflow-y:auto; -webkit-overflow-scrolling:touch; padding:10px 12px 16px; touch-action:pan-y; }
+
+  .tw{ border:1px solid rgba(255,255,255,.16); border-radius:14px; padding:9px 10px; background:#000; }
+  .tw-h{ display:flex; align-items:center; gap:7px; font-size:10.5px; color:#8b98a5; }
+  .tw-h b{ color:#e7ecf2; font-size:11.5px; }
+  .tw-h em{ font-style:normal; }
+  .tw-av{
+    width:30px; height:30px; border-radius:50%; display:grid; place-items:center; font-size:14px;
+    background:linear-gradient(140deg,#b07bff,#ff6fb0); flex:0 0 auto;
+  }
+  .tw-t{ margin-top:7px; font-size:11.5px; line-height:1.6; color:#e7ecf2; white-space:pre-wrap; word-break:break-word; }
+  .tw-f{
+    margin-top:8px; padding-top:6px; border-top:1px solid rgba(255,255,255,.1);
+    display:flex; gap:14px; font-size:10px; color:#7f8b99;
+  }
+  .tw-note{ margin-top:8px; font-size:9.5px; color:#9a8fb2; text-align:center; line-height:1.4; }
+
+  .offer-lab{ margin:10px 0 5px; font-size:10.5px; font-weight:900; color:#e6d6ff; }
+  .offer-pick{ display:flex; flex-wrap:wrap; gap:5px; }
+  .ofc{
+    display:flex; align-items:center; gap:4px; border:1.5px solid rgba(255,255,255,.16);
+    border-radius:999px; padding:2px 9px 2px 3px; background:rgba(255,255,255,.04);
+    font-family:inherit; font-size:10.5px; font-weight:900; color:#e8dcff; cursor:pointer;
+  }
+  .ofc i{ width:21px; height:21px; border-radius:50%; overflow:hidden; display:grid; place-items:center;
+          background:linear-gradient(150deg,var(--c1,#fff),var(--c2,#ddd)); font-style:normal; }
+  .ofc i svg{ width:124%; height:124%; }
+  .ofc.on{ border-color:#7dffd0; background:rgba(125,255,208,.14); }
+  .post{ width:100%; margin-top:10px; background:linear-gradient(100deg,#7cc4ff,#b07bff); color:#0a0620; }
+  .post:disabled{ opacity:.5; }
+
+  .rp-head{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin:4px 0 2px; font-size:11px; color:#95a2b0; }
+  .rp-head b{ font-size:12px; color:#f2eaff; }
+  .rp{
+    margin-top:8px; border:1px solid rgba(255,255,255,.13); border-radius:13px; padding:8px 10px;
+    background:rgba(255,255,255,.045); animation:rpIn .3s cubic-bezier(.2,1.3,.4,1) both;
+  }
+  @keyframes rpIn{ from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:none; } }
+  .rp-h{ display:flex; align-items:center; gap:6px; font-size:10.5px; color:#95a2b0; }
+  .rp-av{ width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-size:13px; background:#2a2038; flex:0 0 auto; }
+  .rp-h b{ color:#eef3f8; font-size:11.5px; }
+  .rp-t{ margin-top:5px; font-size:11.5px; line-height:1.55; color:#e3e9f0; }
+  .rp-deal{
+    margin-top:6px; font-size:10.5px; font-weight:900; color:#ffe58a; text-align:center;
+    background:rgba(255,210,74,.12); border:1px dashed rgba(255,210,74,.42); border-radius:9px; padding:4px 8px;
+  }
+  .rp-btns{ display:flex; gap:6px; margin-top:7px; }
+  .rp-btns button{ flex:1; border:0; border-radius:10px; padding:9px 6px; font-family:inherit; font-size:11.5px; font-weight:900; cursor:pointer; }
+  .rp-btns .ok{ background:linear-gradient(100deg,#7dffd0,#8ecbff); color:#062a22; }
+  .rp-btns .no{ background:rgba(255,255,255,.08); color:#c9b9e4; border:1px solid rgba(255,255,255,.18); }
+  .rp-btns button:disabled{ opacity:.45; }
+  .rp.done{ opacity:.5; }
+  .rp.done .rp-btns{ display:none; }
+  .rp-res{ margin-top:6px; font-size:10.5px; font-weight:900; text-align:center; }
+  .rp-res.ok{ color:#7dffd0; }
+  .rp-res.no{ color:#a99cbe; }
+  .rp-tag{ font-size:9px; font-weight:900; border-radius:999px; padding:1px 7px; }
+  .rp-tag.god{ color:#4a0a2a; background:linear-gradient(100deg,#ffe98a,#ffb0d8); }
+  .rp-tag.bad{ color:#cfd6e2; background:rgba(200,210,230,.16); }
+
   #fx{ position:absolute; inset:0; z-index:70; pointer-events:none; }
 </style>
 </head>
@@ -637,10 +791,12 @@
     <button class="btn" id="startBtn">しばおを狙って開封スタート</button>
 
     <ul class="rules">
-      <li>狙いの子（約2%）が出たら🎯推し確保クリア！</li>
-      <li>同じ柄30個で👜痛バ完成エンド（実質勝利）</li>
-      <li>なぞってペリペリ開封／偽引き・神交換・BOX買いも</li>
+      <li>狙いの子（約12%）を30個集めて推し痛バ1面を目指す！</li>
+      <li>ダブりはX交換募集で推しと交換できる</li>
+      <li>なぞってペリペリ開封／軍資金切れはバイトで補充</li>
     </ul>
+
+    <button class="btn ghost albumbtn" id="albumBtn">📖 痛バアルバム（図鑑）</button>
   </section>
 
   <!-- ============ PLAY ============ -->
@@ -651,14 +807,19 @@
       <div class="cell time"><span class="lab">タイム</span><span class="val" id="hTime">0:00</span></div>
     </div>
 
+    <div class="oshi" id="oshiBox">
+      <div class="oshi-row">
+        <span class="oshi-lab"><i id="oshiArt"></i>🎯 推し <b id="oshiName">しばお</b></span>
+        <span class="oshi-num"><b id="oshiNum">0</b> / 30</span>
+      </div>
+      <div class="oshi-bar"><i id="oshiFill"></i></div>
+      <div class="oshi-sub" id="oshiSub">あと30個で推し痛バ1面完成！</div>
+    </div>
+
     <div class="dups">
       <div class="dups-head"><span>🗻 ダブり山 <b id="dupTotal">0体</b></span><span id="dupMax">最大 -</span></div>
       <div class="dup-strip" id="dupStrip"><span class="dup-empty">まだ0体… これから増える予定</span></div>
     </div>
-
-    <div class="itabanner" id="itaBanner">👜 あと<b id="itaLeft">10</b>個で痛バ1面完成！</div>
-
-    <div class="targetbar" id="targetBar"><i id="tbArt"></i><span>🎯 狙い：<b id="tbName">しばお</b> <em id="tbBreed">（柴犬）</em></span></div>
 
     <div class="bagwrap" id="bagWrap">
       <div class="bagglow"></div>
@@ -674,8 +835,12 @@
     </div>
 
     <div class="bottom">
-      <button id="atmBtn" class="mini atm hidden">💳 ATMダッシュ（軍資金 +¥10,000）</button>
-      <button id="bulkBtn" class="mini bulk">📦 5袋まとめて開ける <em>¥2,000</em></button>
+      <div class="brow">
+        <button id="tradeBtn" class="mini trade">🐦 Xで交換募集</button>
+        <button id="bulkBtn" class="mini bulk">📦 5袋 <em>¥2,000</em></button>
+      </div>
+      <button id="atmBtn" class="mini atm hidden">💼 バイトして +¥4,000</button>
+      <button id="giveUpBtn" class="mini giveup hidden">🛑 諦める（破産エンド）</button>
       <div class="foot" id="bagCount">残り 0袋分</div>
     </div>
 
@@ -693,6 +858,7 @@
       <div id="itaWrap"></div>
       <div class="sgrid">
         <div class="sc"><span>開封数</span><b id="scOpens">0</b></div>
+        <div class="sc"><span>交換</span><b id="scTrades">0回</b></div>
         <div class="sc"><span>使った金額</span><b id="scSpent">¥0</b></div>
         <div class="sc"><span>残り軍資金</span><b id="scFunds">¥0</b></div>
         <div class="sc"><span>タイム</span><b id="scTime">0:00</b></div>
@@ -701,11 +867,53 @@
       <div class="board" id="board" style="display:none"></div>
       <div class="coll" id="resColl"></div>
       <div class="acts">
+        <a class="btn live" id="liveBtn" href="../"><span class="lv-t">🏃‍♀️ 現場に行く！</span><span class="lv-s">完成した痛バを持ってライブへ</span></a>
         <button class="btn" id="againBtn">もう一度挑戦</button>
         <a class="btn ghost" id="shareBtn" href="#" target="_blank" rel="noopener">𝕏 で結果をシェア</a>
+        <button class="btn ghost" id="albumBtn2">📖 痛バアルバム</button>
       </div>
     </div>
   </section>
+
+  <!-- ============ 痛バアルバム ============ -->
+  <div id="album" class="modal">
+    <div class="back" id="albumBack"></div>
+    <div class="tcard">
+      <div class="thead"><span>📖 痛バアルバム（図鑑）</span><button id="albumClose" aria-label="閉じる">✕</button></div>
+      <div class="tbody">
+        <div class="alb-top"><b id="albCount">0 / 7 犬種コンプ</b><span id="albTotal">痛バ完成 0回</span></div>
+        <div class="alb-grid" id="albGrid"></div>
+        <button class="mini post" id="albumCloseBtn">閉じる</button>
+        <div class="tw-note">完成した痛バはこの端末に保存されます。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ X交換募集モーダル ============ -->
+  <div id="trade" class="modal">
+    <div class="back" id="tradeBack"></div>
+    <div class="tcard">
+      <div class="thead"><span>🐦 Xで交換募集を出す</span><button id="tradeClose" aria-label="閉じる">✕</button></div>
+      <div class="tbody">
+        <div id="composer">
+          <div class="tw">
+            <div class="tw-h"><span class="tw-av">💜</span><span><b>ゆめ</b> @yume_oshi <em>· たった今</em></span></div>
+            <div class="tw-t" id="twText"></div>
+            <div class="tw-f"><span>💬 返信できます</span><span>🔁 0</span><span>♡ 0</span></div>
+          </div>
+          <div class="offer-lab">譲るダブりを選ぶ（タップでON/OFF）</div>
+          <div class="offer-pick" id="offerPick"></div>
+          <button class="mini post" id="postBtn">ポストして募集する</button>
+          <div class="tw-note">※この画面はゲーム内の演出です。実際のXには投稿されません。</div>
+        </div>
+        <div id="replyWrap" style="display:none">
+          <div class="rp-head"><b id="rpHead">リプライ</b><span>検索から届いた交換希望</span></div>
+          <div class="replies" id="replies"></div>
+          <button class="mini post" id="postAgainBtn">もう一度募集する</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ============ REVEAL ============ -->
   <div id="reveal">
@@ -739,6 +947,7 @@
    ============================================================ */
 var PRICE = 400;
 var ATM_AMOUNT = 10000;
+var BAITO_AMOUNT = 4000;
 var BULK = 5;
 var SHARE_URL = 'https://7ckwhjy67f-stack.github.io/ticket-error-escape/blind/';
 var TAGS = '#ランダム開封地獄 #推し活 #無料ブラウザゲーム';
@@ -993,8 +1202,7 @@ var screens = { title:$('title'), play:$('play'), result:$('result') };
 var bag = $('bag'), bagWrap = $('bagWrap'), shreds = $('shreds'), tapHint = $('tapHint');
 var hFunds = $('hFunds'), hOpens = $('hOpens'), hTime = $('hTime');
 var dupStrip = $('dupStrip'), dupTotal = $('dupTotal'), dupMax = $('dupMax');
-var itaBanner = $('itaBanner'), itaLeft = $('itaLeft');
-var toastEl = $('toast'), nego = $('nego');
+var itaBanner = null, itaLeft = null;var toastEl = $('toast'), nego = $('nego');
 var atmBtn = $('atmBtn'), bulkBtn = $('bulkBtn'), bagCount = $('bagCount');
 var reveal = $('reveal'), goldFlash = $('goldFlash'), rGlow = $('rGlow'), rcard = $('rcard');
 var rBand = $('rBand'), rPic = $('rPic'), rArt = $('rArt');
@@ -1002,6 +1210,7 @@ var rName = $('rName'), rKind = $('rKind'), rNote = $('rNote'), rQuip = $('rQuip
 var multi = $('multi'), mTitle = $('mTitle'), mGrid = $('mGrid'), mNote = $('mNote');
 var resTag = $('resTag'), resRank = $('resRank'), resTitle = $('resTitle'), resDesc = $('resDesc');
 var scOpens = $('scOpens'), scSpent = $('scSpent'), scFunds = $('scFunds'), scTime = $('scTime'), scDup = $('scDup');
+var scTrades = $('scTrades');
 var board = $('board'), resColl = $('resColl'), itaWrap = $('itaWrap');
 var shareBtn = $('shareBtn'), startBtn = $('startBtn'), againBtn = $('againBtn'), muteBtn = $('mute');
 var cvs = $('fx');
@@ -1014,7 +1223,9 @@ $('peelB').innerHTML = peelSVG();
 var ALLD = DOGS.concat([SECRET_DOG]);
 var chosenId = DOGS[0].id;
 var pickGrid = $('pickGrid'), pickName = $('pickName'), pickBreed = $('pickBreed');
-var tbArt = $('tbArt'), tbName = $('tbName'), tbBreed = $('tbBreed');
+var oshiArt = $('oshiArt'), oshiName = $('oshiName');
+var oshiBox = $('oshiBox'), oshiNum = $('oshiNum'), oshiFill = $('oshiFill'), oshiSub = $('oshiSub');
+var tradeBtn = $('tradeBtn'), giveUpBtn = $('giveUpBtn');
 var dragCue = $('dragCue');
 
 function buildPicker(){
@@ -1164,12 +1375,13 @@ function clearFx(){ P = []; if (raf){ cancelAnimationFrame(raf); raf = 0; } fxSi
    状態
    ============================================================ */
 var S = null;
-var playing = false, busy = false, revealOpen = false, revealReady = false;
+var playing = false, busy = false, revealOpen = false, revealReady = false, tradeOpen = false;
 var after = null, segStart = 0, tickId = null, toastTimer = null;
 
-var TARGET_P = 0.02;   // 狙いの子が出る確率（物欲センサーで出にくい）
+var TARGET_P = 0.14;   // 狙いの子が出る確率（1袋あたり）
 var DUP_W = 0.55;      // 選ばなかった中の1種だけに偏る枠
-var ITA_NEED = 30;      // 痛バ1面に必要な枚数
+var OSHI_NEED = 30;    // 推し痛バ1面に必要な枚数
+var ITA_NEED = 30;     // 別の子の痛バ（おまけ演出）
 var PEEL_GOAL = 0.76;   // 何割なぞったら開くか
 
 function fmtYen(n){ return '¥' + Math.round(n).toLocaleString('ja-JP'); }
@@ -1203,8 +1415,26 @@ function updateHUD(){
   updateAtmBtn();
 }
 function updateAtmBtn(){
-  var vis = !!(S && playing && !revealOpen && S.atmLeft > 0 && S.funds < PRICE * 5);
-  atmBtn.classList.toggle('hidden', !vis);
+  if (!S){ atmBtn.classList.add('hidden'); giveUpBtn.classList.add('hidden'); return; }
+  var out = S.funds < PRICE;
+  var show = !!(playing && !revealOpen && !tradeOpen);
+  atmBtn.classList.toggle('hidden', !(show && (out || S.funds < PRICE * 4)));
+  giveUpBtn.classList.toggle('hidden', !(show && out));
+}
+
+function updateOshi(){
+  if (!S) return;
+  oshiNum.textContent = String(S.oshi);
+  oshiFill.style.width = (Math.min(1, S.oshi / OSHI_NEED) * 100) + '%';
+  var left = OSHI_NEED - S.oshi;
+  oshiSub.textContent = left > 0 ? ('あと' + left + '個で推し痛バ1面完成！') : '推し痛バ1面 完成！！';
+  oshiBox.classList.toggle('hot', left > 0 && left <= 5);
+}
+function addOshi(n){
+  if (!S) return;
+  S.oshi = Math.min(OSHI_NEED, S.oshi + n);
+  if (S.oshi > 0) S.targetGot = true;
+  updateOshi();
 }
 
 function renderDups(){
@@ -1234,18 +1464,6 @@ function renderDups(){
   }
   dupTotal.textContent = total + '体';
   dupMax.textContent = (S.maxDupId && S.maxDup >= 2) ? ('最大 ' + nameOf(S.maxDupId) + '×' + S.maxDup) : '最大 -';
-  updateItaBanner();
-}
-
-function updateItaBanner(){
-  if (!S){ itaBanner.classList.remove('show'); return; }
-  var n = S.maxDup || 0;
-  if (n >= 15 && n < ITA_NEED){
-    itaBanner.classList.add('show');
-    itaLeft.textContent = String(ITA_NEED - n);
-  } else {
-    itaBanner.classList.remove('show');
-  }
 }
 
 function toast(msg, ms){
@@ -1346,10 +1564,10 @@ function sfxPeel(){
 }
 
 function beginPeel(e){
-  if (!playing || busy || revealOpen || !S) return;
+  if (!playing || busy || revealOpen || tradeOpen || !S) return;
   if (S.funds < PRICE){
-    if (S.atmLeft > 0){ updateAtmBtn(); toast('💳 軍資金が尽きた…ATMダッシュで +¥10,000', 2600); }
-    else { toBankrupt(); }
+    updateAtmBtn();
+    toast('💼 軍資金が尽きた！ バイトで +¥4,000 か、Xで交換を集めよう', 2800);
     return;
   }
   if (peel.raf){ cancelAnimationFrame(peel.raf); peel.raf = 0; }
@@ -1421,7 +1639,7 @@ function completePeel(){
    ============================================================ */
 function startGame(){
   ensureAC();
-  var bags = 15 + rand(36);              // 15〜50袋（¥6,000〜¥20,000）
+  var bags = 20 + rand(36);              // 20〜55袋（¥8,000〜¥22,000）
   var target = dogById(chosenId);
   var pool = DOGS.filter(function(d){ return d.id !== chosenId; });
   var dupes = pool[rand(pool.length)];
@@ -1441,11 +1659,14 @@ function startGame(){
     target: target,
     dupmaster: dupes,
     others: pool.filter(function(d){ return d.id !== dupes.id; }),
-    atmLeft: 1,
+    atmLeft: 0,
     negoTried: 0,
     pendingNego: null,
     targetGot: false,
-    gotKind: null
+    oshi: 0,
+    trades: 0,
+    posts: 0,
+    baito: 0
   };
   DOGS.forEach(function(c){ S.counts[c.id] = 0; });
 
@@ -1461,14 +1682,14 @@ function startGame(){
   dupStrip.innerHTML = '<span class="dup-empty">まだ0体… これから増える予定</span>';
   dupTotal.textContent = '0体';
   dupMax.textContent = '最大 -';
-  itaBanner.classList.remove('show');
   resetPeel();
 
-  tbArt.innerHTML = dogSVG(target);
-  tbArt.style.setProperty('--c1', target.c1);
-  tbArt.style.setProperty('--c2', target.c2);
-  tbName.textContent = target.name;
-  tbBreed.textContent = '（' + target.breed + '）';
+  oshiArt.innerHTML = dogSVG(target);
+  oshiArt.style.setProperty('--c1', target.c1);
+  oshiArt.style.setProperty('--c2', target.c2);
+  oshiName.textContent = target.name;
+  updateOshi();
+  updateAtmBtn();
 
   show('play');
 
@@ -1483,7 +1704,7 @@ function startGame(){
     beep(1568, 0.3, 'sine', 0.09);
     beep(2093, 0.4, 'sine', 0.07, 0.12);
   } else {
-    toast('🎯 狙い：' + target.name + '。銀のラインをなぞってペリペリ！', 2400);
+    toast('🎯 狙い：' + target.name + 'を30個！ 銀のラインをなぞってペリペリ', 2600);
   }
 }
 
@@ -1502,10 +1723,12 @@ function pickDog(){
   return { dog: rest[i] };
 }
 
-function drawOne(rainbowBag){
+function drawOne(rainbowBag, simple){
   if (rainbowBag){ S.rainbowFirst = false; return { type:'rainbow' }; }
-  if (S.opens >= 15 && S.maxDup >= 4 && Math.random() < 0.006) return { type:'oyasan' };
-  if (S.opens >= 8 && Math.random() < 0.0015) return { type:'box' };
+  if (!simple){
+    if (S.opens >= 15 && S.maxDup >= 4 && Math.random() < 0.006) return { type:'oyasan' };
+    if (S.opens >= 8 && Math.random() < 0.0015) return { type:'box' };
+  }
 
   var pick = pickDog();
   if (pick.target) return { type:'target', dog: S.target };
@@ -1521,7 +1744,7 @@ function drawOne(rainbowBag){
 function pullInfo(p){
   var c = p.char, n = p.count, tone = 'new', quip, note;
   if (p.ita){
-    return { note:'30個目／痛バ1面完成！', tone:'ita', quip:'……30個。これ、痛バ1面 完成じゃん。' };
+    return { note:'30個目／別の子の痛バ完成', tone:'ita', quip:'……' + c.name + 'が30個。推しじゃないけど、これはこれで痛バ1面 組めた。' };
   }
   if (p.glasses){
     quip = '…金色のメガネをかけた' + c.name + 'だった。';
@@ -1585,9 +1808,9 @@ function resolveSingle(rainbowBag){
     tone: info.tone,
     quip: info.quip,
     glasses: p.glasses,
-    band: p.ita ? 'ITA / 30個目' : null,
+    band: p.ita ? '別バッグ / 30個目' : null,
     ita: p.ita
-  }, p.ita ? function(){ finishIta(); } : null);
+  }, null);
 }
 
 function spawnShreds(n){
@@ -1611,63 +1834,63 @@ function spawnShreds(n){
    開封（5袋まとめて）
    ============================================================ */
 function openBulk(){
-  if (!playing || busy || revealOpen || !S) return;
+  if (!playing || busy || revealOpen || tradeOpen || !S) return;
   var n = Math.min(BULK, Math.floor(S.funds / PRICE));
   if (n <= 0){
-    if (S.atmLeft > 0){ updateAtmBtn(); toast('💳 軍資金が足りない…ATMダッシュで +¥10,000', 2600); return; }
-    toBankrupt(); return;
+    updateAtmBtn();
+    toast('💼 軍資金が足りない…バイトで +¥4,000 しよう', 2600);
+    return;
   }
   busy = true;
   nego.classList.remove('show');
   S.pendingNego = null;
 
-  var pulls = [], special = null, itaHit = false;
+  var pulls = [], itaHit = false, oshiGain = 0;
   for (var i=0;i<n;i++){
     if (S.funds < PRICE) break;
-    var rainbowBag = !!(S.rainbowFirst && S.opens === 0);
     S.funds -= PRICE;
     S.spent += PRICE;
     S.opens++;
-    var p = drawOne(rainbowBag);
-    if (p.type === 'char'){
+    var p = drawOne(false, true);
+    if (p.type === 'target'){
+      addOshi(1);
+      oshiGain++;
+      pulls.push({ char: S.target, type:'target', count: S.oshi });
+      if (S.oshi >= OSHI_NEED){ itaHit = true; break; }
+    } else if (p.type === 'char'){
       pulls.push(p);
-      if (p.ita){ itaHit = true; break; }
-    } else {
-      special = p;
-      break;
     }
   }
 
   updateHUD();
   renderDups();
   sfxCoin();
-
-  if (special){
-    if (special.type === 'rainbow') showRainbow();
-    else if (special.type === 'target') showTarget();
-    else if (special.type === 'oyasan') showOyasan();
-    else showBox();
-    return;
-  }
+  if (oshiGain) sfxSecret();
 
   var cnt = {};
-  pulls.forEach(function(p){ cnt[p.char.id] = (cnt[p.char.id] || 0) + 1; });
-  var topId = Object.keys(cnt).sort(function(a,b){ return cnt[b] - cnt[a]; })[0];
-  var topDog = dogById(topId);
+  pulls.forEach(function(p){ if (p.type !== 'target') cnt[p.char.id] = (cnt[p.char.id] || 0) + 1; });
+  var ids = Object.keys(cnt);
+  var topId = ids.sort(function(a,b){ return cnt[b] - cnt[a]; })[0];
   var note;
   if (itaHit){
-    note = topDog.name + '（' + topDog.breed + '）が30個！ 痛バ1面 完成！！';
+    note = '🎯 ' + S.target.name + 'が30個そろった！ 推し痛バ1面 完成！！';
     sfxIta(); confetti(50);
-  } else {
-    note = topDog.name + 'が' + cnt[topId] + '枚' + (cnt[topId] >= 3 ? '…またお前か！' : '');
+  } else if (oshiGain > 0){
+    note = '🎯 推し ' + S.target.name + ' +' + oshiGain + '（' + S.oshi + '/30）'
+         + (topId ? ' ／ ' + dogById(topId).name + '×' + cnt[topId] + 'も来た' : '');
     sfxPop();
+  } else if (topId){
+    note = dogById(topId).name + 'が' + cnt[topId] + '枚' + (cnt[topId] >= 3 ? '…またお前か！' : '');
+    sfxPop();
+  } else {
+    note = '';
   }
 
   showMulti(pulls, {
     title: '📦 ' + pulls.length + (pulls.length > 1 ? '袋まとめて開封！' : '袋開封！'),
     note: note,
     ita: itaHit,
-    onNext: itaHit ? function(){ finishIta(); } : null
+    onNext: itaHit ? function(){ finishOshiIta(); } : null
   });
 }
 
@@ -1675,61 +1898,60 @@ function openBulk(){
    隠しルート／狙い的中
    ============================================================ */
 function showRainbow(){
-  S.targetGot = true; S.gotKind = 'rainbow';
   var t = S.target;
   var signed = {};
   for (var k in t){ if (Object.prototype.hasOwnProperty.call(t, k)) signed[k] = t[k]; }
   signed.crown = true;
+  addOshi(5);
   sfxRainbow(); confetti(64);
   showReveal({
     kind:'rainbow', dog:signed, band:'SSS+ / 神引き',
-    note:'直筆サイン入り／狙い的中', tone:'new',
-    quip:'最初の袋が虹色に光ってた…！ 狙いの' + t.name + 'の直筆サイン入りを引いた！！'
-  }, function(){ finishClear('rainbow'); });
+    note:'直筆サイン入り ×5（' + S.oshi + '/30）', tone:'new',
+    quip:'最初の袋が虹色に光ってた…！ 狙いの' + t.name + 'のサイン入りが5連で出た！！'
+  }, S.oshi >= OSHI_NEED ? function(){ finishOshiIta(); } : null);
 }
 
 function showTarget(){
-  S.targetGot = true; S.gotKind = 'target';
-  var t = S.target;
-  var quips = [
-    '狙いの' + t.name + '、確保！！ これで今日は勝ち確。',
-    'で、出た……！ 狙ってた' + t.name + 'が来た！！',
-    '物欲センサーを突破した！ ' + t.name + 'ゲットだ！！',
-    '「' + t.name + 'ください」って言い続けて' + S.opens + '袋。やっと会えた…'
-  ];
-  if (t.crown) quips.push('狙いの王冠サモエド、キラキラ仕様で降臨！！ これは自慢していいやつ。');
-  sfxSecret(); confetti(46);
+  addOshi(1);
+  var t = S.target, n = S.oshi;
+  var quip;
+  if (n >= OSHI_NEED) quip = '30個目！！！ 推し痛バ、1面完成だ…！';
+  else if (n >= OSHI_NEED - 5) quip = 'あと' + (OSHI_NEED - n) + '個…！ 手が震える。';
+  else if (n === 1) quip = 'やっと出た…！ まずは1個目。';
+  else quip = '出た！ ' + n + '/30個目！';
+  if (t.crown && n === 1) quip = '王冠サモエド、キラキラ仕様で降臨！！';
+  if (n >= OSHI_NEED){ sfxIta(); confetti(50); } else { sfxSecret(); confetti(30); }
   showReveal({
     kind: t.crown ? 'secret' : 'target', dog: t,
-    band:'🎯 狙い的中！', note:'推し確保', tone:'new',
-    quip: quips[rand(quips.length)]
-  }, function(){ finishClear('target'); });
+    band:'🎯 狙い的中！', note:'推し +1（' + n + '/30）', tone:'new',
+    quip: quip
+  }, n >= OSHI_NEED ? function(){ finishOshiIta(); } : null);
 }
 
 function showOyasan(){
-  S.targetGot = true; S.gotKind = 'oyasan';
+  addOshi(2);
   var t = S.target;
   sfxSecret(); confetti(26);
   showReveal({
     kind:'oyasan',
     dog:{ id:'oyasan', name:'現場のお姉さん', breed:'神交換の達人', fur:'#ffd9b8', ear:'#f0b98b', muzzle:'#fff6ea', inner:'#ffd0b0', earType:'floppy', kind:'推し余ってる人', c1:'#ffe9d6', c2:'#ffb27a' },
-    band:'SSR / 隠しルート', note:'神交換', tone:'new',
-    quip:'「' + t.name + '、余ってるので交換しませんか？」→ 狙いの' + t.name + '譲ってもらった！！'
-  }, function(){ finishClear('oyasan'); });
+    band:'SSR / 隠しルート', note:'神交換／推し +2（' + S.oshi + '/30）', tone:'new',
+    quip:'「' + t.name + '、余ってるので交換しませんか？」→ 狙いの' + t.name + 'を2個譲ってもらった！！'
+  }, S.oshi >= OSHI_NEED ? function(){ finishOshiIta(); } : null);
 }
 
 function showBox(){
   DOGS.forEach(function(c){ if (!S.counts[c.id]) S.counts[c.id] = 1; });
-  S.targetGot = true; S.gotKind = 'box';
   if (!S.maxDupId) S.maxDupId = DOGS[0].id;
+  addOshi(2);
   renderDups();
   sfxBox(); confetti(34);
   showReveal({
     kind:'box',
     dog:{ id:'tenin', name:'店員さん', breed:'神配慮のプロ', fur:'#ffe0c8', ear:'#f0c199', muzzle:'#fff8f0', inner:'#ffd3b6', earType:'pointy', kind:'補充の達人', c1:'#dceaff', c2:'#8fb6ff' },
-    band:'SS / 隠しルート', note:'BOX買い確定演出', tone:'new',
-    quip:'「これ、箱ごとどうぞ」→ 全種コンプ！ 狙いの' + S.target.name + 'も入ってた！'
-  }, function(){ finishClear('box'); });
+    band:'SS / 隠しルート', note:'BOX買い確定演出／推し +2', tone:'new',
+    quip:'「これ、箱ごとどうぞ」→ 全種コンプ！ 狙いの' + S.target.name + 'も2個入ってた！'
+  }, S.oshi >= OSHI_NEED ? function(){ finishOshiIta(); } : null);
 }
 
 /* ============================================================
@@ -1793,8 +2015,9 @@ function showMulti(pulls, opt){
 
   mGrid.innerHTML = pulls.map(function(p, i){
     var c = p.char;
-    var tag = p.ita ? '30個目！' : (p.count === 1 ? 'NEW' : '×' + p.count);
-    return '<div class="mit' + (p.ita ? ' ita' : '') + '" style="animation-delay:' + (i*0.07) + 's">'
+    var isT = p.type === 'target';
+    var tag = isT ? '🎯推し+1' : (p.ita ? '30個目！' : (p.count === 1 ? 'NEW' : '×' + p.count));
+    return '<div class="mit' + ((p.ita || isT) ? ' ita' : '') + '" style="animation-delay:' + (i*0.07) + 's">'
       + '<div class="bd" style="--c1:' + c.c1 + ';--c2:' + c.c2 + '">' + dogSVG(c, {glasses: p.glasses}) + '</div>'
       + '<div class="nm">' + c.name + '</div>'
       + '<div class="ct">' + tag + '</div>'
@@ -1825,16 +2048,12 @@ function afterReveal(){
   if (!playing || !S) return;
   updateHUD();
   if (S.funds < PRICE){
-    if (S.atmLeft > 0){
-      updateAtmBtn();
-      toast('💳 軍資金が尽きた…ATMダッシュで +¥10,000！', 2800);
-      return;
-    }
-    setTimeout(toBankrupt, 420);
+    updateAtmBtn();
+    toast('💼 軍資金が尽きた！ バイト(+¥4,000)か、Xで交換を集めよう', 3000);
     return;
   }
   if (S.pendingNego){ showNego(); return; }
-  if (Math.floor(S.funds / PRICE) === 1) toast('残り1袋…！ ここで推しが出るか、破産か', 2400);
+  if (Math.floor(S.funds / PRICE) === 1) toast('残り1袋…！ ここで推しが出るか、バッグの望み', 2400);
 }
 
 /* ============================================================
@@ -1857,14 +2076,14 @@ function doNego(){
   if (Math.random() < 0.40){
     S.counts[p.id] = Math.max(0, (S.counts[p.id] || 0) - 3);
     renderDups();
-    S.targetGot = true; S.gotKind = 'nego';
+    addOshi(2);
     sfxSecret(); confetti(34);
     showReveal({
       kind:'nego',
       dog:{ id:'tonkatsu', name:'隣のオタク', breed:'同じ現場の同志', fur:'#ffe6d0', ear:'#f2c9a4', muzzle:'#fff8f0', inner:'#ffd9c0', earType:'floppy', kind:'優しい', c1:'#e6ffe8', c2:'#7fe0a6' },
-      band:'S / 交換成立', note:'交換成立', tone:'new',
-      quip:'「' + S.target.name + '、余ってるのでどうぞ」→ 狙いの' + S.target.name + 'を譲ってもらった！'
-    }, function(){ finishClear('nego'); });
+      band:'S / 交換成立', note:'交換成立／推し +2（' + S.oshi + '/30）', tone:'new',
+      quip:'「' + S.target.name + '、余ってるのでどうぞ」→ 狙いの' + S.target.name + 'を2個譲ってもらった！'
+    }, S.oshi >= OSHI_NEED ? function(){ finishOshiIta(); } : null);
   } else {
     sfxDeny();
     S.counts[p.id] = Math.max(0, (S.counts[p.id] || 0) - 3);
@@ -1879,6 +2098,225 @@ function doNego(){
 }
 
 /* ============================================================
+   X風 交換募集（ゲーム内演出・实际にはポストされない）
+   ============================================================ */
+var tradeEl = $('trade'), tradeBack = $('tradeBack'), tradeClose = $('tradeClose');
+var composerEl = $('composer'), replyWrap = $('replyWrap'), twText = $('twText');
+var offerPick = $('offerPick'), postBtn = $('postBtn'), postAgainBtn = $('postAgainBtn');
+var repliesEl = $('replies'), rpHead = $('rpHead');
+var trade = { offer:{}, replies:[] };
+
+var RP_USERS = [
+  { n:'しば推し暦8年', h:'@shiba_8y', av:'🐕' },
+  { n:'遠征勢のミオ', h:'@mio_faraway', av:'✈️' },
+  { n:'缶バッジ収集家', h:'@can_badge', av:'📛' },
+  { n:'現場のマナー係', h:'@genba_manner', av:'🙇' },
+  { n:'同担歓迎マン', h:'@doutan_ok', av:'🤝' },
+  { n:'推しに会いたい', h:'@oshi_aitai', av:'💫' },
+  { n:'痛バ職人たけし', h:'@itaba_craft', av:'👜' },
+  { n:'検索から来ました', h:'@search_desu', av:'🔍' },
+  { n:'地方遠征けんと', h:'@ken_to_0419', av:'🚄' }
+];
+
+function tradeableDogs(){
+  if (!S) return [];
+  return DOGS.filter(function(d){ return (S.counts[d.id] || 0) > 0; })
+             .sort(function(a,b){ return (S.counts[b.id]||0) - (S.counts[a.id]||0); });
+}
+function canPay(cost){
+  for (var k in cost){ if ((S.counts[k] || 0) < cost[k]) return false; }
+  return true;
+}
+function payCost(cost){
+  for (var k in cost){ S.counts[k] = Math.max(0, (S.counts[k] || 0) - cost[k]); }
+}
+
+function openTrade(){
+  if (!playing || !S || busy || revealOpen) return;
+  tradeOpen = true;
+  trade.replies = [];
+  trade.offer = {};
+  tradeableDogs().slice(0, 3).forEach(function(d){ trade.offer[d.id] = true; });
+  composerEl.style.display = '';
+  replyWrap.style.display = 'none';
+  repliesEl.innerHTML = '';
+  renderComposer();
+  tradeEl.classList.add('show');
+  pauseTimer();
+  ensureAC(); sfxPop();
+  updateAtmBtn();
+}
+
+function closeTrade(){
+  if (!tradeOpen) return;
+  tradeOpen = false;
+  tradeEl.classList.remove('show');
+  if (playing && !revealOpen) resumeTimer();
+  updateAtmBtn();
+}
+
+function renderComposer(){
+  if (!S) return;
+  var list = tradeableDogs();
+  var t = S.target;
+  if (!list.length){
+    offerPick.innerHTML = '<span class="dup-empty">譲れるダブりがまだない…袋を開けてもう少し集めよう</span>';
+  } else {
+    offerPick.innerHTML = list.map(function(d){
+      return '<button type="button" class="ofc' + (trade.offer[d.id] ? ' on' : '') + '" data-id="' + d.id + '">'
+        + '<i style="--c1:' + d.c1 + ';--c2:' + d.c2 + '">' + dogSVG(d) + '</i>'
+        + d.name + '×' + (S.counts[d.id] || 0) + '</button>';
+    }).join('');
+  }
+  var give = list.filter(function(d){ return trade.offer[d.id]; })
+                 .map(function(d){ return d.name + '×' + (S.counts[d.id] || 0); });
+  twText.textContent = '【交換】' + t.name + '缶バッジ\n'
+    + '譲）' + (give.length ? give.join('、') : '—') + '\n'
+    + '求）' + t.name + '（' + t.breed + '）／郵送・現地手渡し希望\n'
+    + '検索からでもお気軽にお声がけください！';
+  postBtn.disabled = !give.length;
+  postBtn.textContent = give.length ? 'ポストして募集する' : '譲れるダブりがない…';
+}
+
+function makeReply(offered){
+  var u = RP_USERS[rand(RP_USERS.length)];
+  var d = offered[rand(offered.length)];
+  var T = S.target.name;
+  var r = Math.random(), type, cost, gain, text, tag = '';
+  if (r < 0.18){
+    type = 'god'; cost = {}; cost[d.id] = 1; gain = 2; tag = '神交換';
+    text = '【' + T + '】×2余ってます！ そちらの【' + d.name + '】×1と交換していただけませんか？';
+  } else if (r < 0.58){
+    type = 'equal'; cost = {}; cost[d.id] = 1; gain = 1;
+    text = '検索から失礼します！当方【' + T + '】×1所持しております。そちらの【' + d.name + '】×1と交換可能でしょうか？';
+  } else if (r < 0.80){
+    type = 'ratio2'; cost = {}; cost[d.id] = 2; gain = 1; tag = '比率違い';
+    text = '検索から失礼します！当方【' + T + '】×1に対し、そちらの【' + d.name + '】×2の比率違いでの交換は可能でしょうか？';
+  } else if (r < 0.90){
+    type = 'ratio3'; cost = {}; cost[d.id] = 3; gain = 1; tag = '比率違い';
+    text = 'はじめまして！【' + T + '】×1で、そちらの【' + d.name + '】×3の比率違い交換をお願いできますか…？';
+  } else if (r < 0.96){
+    type = 'bundle'; cost = {}; cost[d.id] = 1; gain = 1; tag = '抱き合わせ';
+    var other = DOGS[rand(DOGS.length)];
+    if (other.id === S.targetId) other = DOGS[(DOGS.indexOf(other) + 1) % DOGS.length];
+    cost[other.id] = 2;
+    text = '抱き合わせで【' + other.name + '】×2もつけてもらえますか？ その代わり【' + T + '】をお渡しします！';
+  } else {
+    type = 'no'; cost = {}; gain = 0; tag = '見送り';
+    text = 'FF外から失礼します！プロカ読ませていただきましたが、当方同担拒否のため今回は見送らせてください🙏';
+  }
+  return { u:u, type:type, cost:cost, gain:gain, text:text, tag:tag, done:false, res:null };
+}
+
+function dealText(r){
+  var parts = [];
+  for (var k in r.cost){ parts.push(nameOf(k) + '×' + r.cost[k]); }
+  return 'あなた: ' + parts.join(' ＋ ') + '  →  推し ' + S.target.name + '×' + r.gain
+       + (canPay(r.cost) ? '' : '（ダブり不足）');
+}
+
+function renderReplies(){
+  repliesEl.innerHTML = trade.replies.map(function(r, i){
+    var dis = !canPay(r.cost);
+    var tagCls = r.type === 'god' ? ' god' : (r.type === 'no' || r.type === 'bundle' ? ' bad' : '');
+    return '<div class="rp' + (r.done ? ' done' : '') + '" style="animation-delay:' + (i*0.12) + 's">'
+      + '<div class="rp-h"><span class="rp-av">' + r.u.av + '</span><b>' + r.u.n + '</b>'
+      +   '<em>' + r.u.h + ' · たった今</em>'
+      +   (r.tag ? '<span class="rp-tag' + tagCls + '">' + r.tag + '</span>' : '')
+      + '</div>'
+      + '<div class="rp-t">' + r.text + '</div>'
+      + (r.type !== 'no' ? '<div class="rp-deal">' + dealText(r) + '</div>' : '')
+      + (r.done
+          ? '<div class="rp-res ' + (r.res === 'ok' ? 'ok' : 'no') + '">'
+            + (r.res === 'ok' ? '🤝 交換成立！' : 'お断りしました') + '</div>'
+          : '<div class="rp-btns">'
+            + '<button class="ok" data-i="' + i + '" data-act="ok"' + (r.type === 'no' || dis ? ' disabled' : '') + '>受ける</button>'
+            + '<button class="no" data-i="' + i + '" data-act="no">お断りする</button>'
+            + '</div>')
+      + '</div>';
+  }).join('');
+  var allDone = trade.replies.length && trade.replies.every(function(r){ return r.done; });
+  postAgainBtn.style.display = allDone ? '' : 'none';
+}
+
+function postTrade(){
+  if (!S || !playing) return;
+  var offered = tradeableDogs().filter(function(d){ return trade.offer[d.id]; });
+  if (!offered.length) return;
+  S.posts++;
+  composerEl.style.display = 'none';
+  replyWrap.style.display = '';
+  trade.replies = [];
+  var n = 1 + rand(3);
+  for (var i=0;i<n;i++){ trade.replies.push(makeReply(offered)); }
+  renderReplies();
+  ensureAC(); beep(880, 0.06, 'sine', 0.07); beep(1174, 0.08, 'sine', 0.05, 0.08);
+  rpHead.textContent = 'リプライ ' + n + '件';
+  setTimeout(function(){ toast('🐦 リプライが' + n + '件届いた！', 2200); }, 350);
+}
+
+function acceptReply(i){
+  var r = trade.replies[i];
+  if (!r || r.done) return;
+  if (!canPay(r.cost)){ toast('そのダブりが足りない…', 1600); return; }
+  payCost(r.cost);
+  S.trades++;
+  addOshi(r.gain);
+  r.done = true; r.res = 'ok';
+  renderDups(); updateHUD(); renderReplies();
+  sfxCoin(); confetti(12);
+  toast('🤝 交換成立！ ' + S.target.name + ' +' + r.gain + '（' + S.oshi + '/30）', 2300);
+  if (S.oshi >= OSHI_NEED){
+    setTimeout(function(){ closeTrade(); finishOshiIta(); }, 900);
+  }
+}
+
+/* ============================================================
+   痛バアルバム（localStorage）
+   ============================================================ */
+var ALBUM_KEY = 'blind_ita_album_v1';
+var albumEl = $('album'), albGrid = $('albGrid'), albCount = $('albCount'), albTotal = $('albTotal');
+var albumBtn = $('albumBtn'), albumBtn2 = $('albumBtn2'), albumClose = $('albumClose');
+var albumCloseBtn = $('albumCloseBtn'), albumBack = $('albumBack');
+var liveBtn = $('liveBtn');
+
+function loadAlbum(){
+  try {
+    var s = window.localStorage.getItem(ALBUM_KEY);
+    return s ? JSON.parse(s) : {};
+  } catch(e){ return {}; }
+}
+function saveAlbum(a){ try { window.localStorage.setItem(ALBUM_KEY, JSON.stringify(a)); } catch(e){} }
+function recordAlbum(id, opens, sec){
+  var a = loadAlbum();
+  var r = a[id] || { count:0, best:0, bestSec:0 };
+  r.count = (r.count || 0) + 1;
+  if (!r.best || opens < r.best) r.best = opens;
+  if (!r.bestSec || sec < r.bestSec) r.bestSec = Math.round(sec);
+  a[id] = r;
+  saveAlbum(a);
+}
+function renderAlbum(){
+  var a = loadAlbum(), done = 0, total = 0;
+  albGrid.innerHTML = ALLD.map(function(d){
+    var r = a[d.id] || null;
+    var has = !!(r && r.count > 0);
+    if (has){ done++; total += r.count; }
+    return '<div class="alb' + (has ? ' done' : ' lock') + '">'
+      + '<div class="alb-art" style="--c1:' + d.c1 + ';--c2:' + d.c2 + '">' + dogSVG(d)
+      +   (has ? '<span class="alb-spark">✨</span>' : '') + '</div>'
+      + '<div class="alb-name">' + d.name + '</div>'
+      + '<div class="alb-meta">' + (has ? ('完成 ' + r.count + '回<br>最少 ' + r.best + '袋') : '未完成') + '</div>'
+      + (has ? '' : '<span class="alb-lock">🔒</span>')
+      + '</div>';
+  }).join('');
+  albCount.textContent = done + ' / ' + ALLD.length + ' 犬種コンプ';
+  albTotal.textContent = '痛バ完成 ' + total + '回';
+}
+function openAlbum(){ renderAlbum(); albumEl.classList.add('show'); ensureAC(); sfxPop(); }
+function closeAlbum(){ albumEl.classList.remove('show'); }
+
+/* ============================================================
    リザルト
    ============================================================ */
 function calcRank(sec){
@@ -1890,73 +2328,25 @@ function calcRank(sec){
   return { rank: names[idx], fast: fast && idx > 0 };
 }
 
-function finishClear(route){
-  if (!playing || !S) return;
-  playing = false;
-  pauseTimer();
-  if (tickId){ clearInterval(tickId); tickId = null; }
-  var sec = elapsedNow();
-  var t = S.target;
-  var R;
-
-  if (route === 'rainbow'){
-    R = { rank:'SSS+', cls:'r-sss', tag:'隠しルート／神引き',
-          title:'🌈 虹色袋から直筆サイン入り！',
-          desc:'最初の袋が虹色に輝いていた。開封' + S.opens + '回で、狙いの' + t.name + '（' + t.breed + '）の直筆サイン入りを引いた。',
-          shareLine:'虹色袋から狙いの' + t.name + 'の直筆サイン入り！' };
-  } else if (route === 'oyasan'){
-    R = { rank:'SSR', cls:'r-ssr', tag:'隠しルート／現場の神',
-          title:'現場のお姉さんが神交換してくれた！',
-          desc:'ダブり地獄のピンチに「' + t.name + '、余ってるので交換しませんか？」。狙いの' + t.name + 'を譲ってもらった。世の中まだ捨てたもんじゃない。',
-          shareLine:'現場のお姉さんの神交換で狙いの' + t.name + 'GET' };
-  } else if (route === 'box'){
-    R = { rank:'SS', cls:'r-ss', tag:'隠しルート／神配慮',
-          title:'店員さんの神配慮・BOX買い確定演出',
-          desc:'補充ついでに箱ごと。全7種コンプで、狙いの' + t.name + 'も当然入っていた。完全勝利。',
-          shareLine:'店員さんの神配慮でBOX買い→狙いの' + t.name + 'もコンプ' };
-  } else if (route === 'nego'){
-    R = { rank:'S', cls:'r-s', tag:'交換ルート',
-          title:'交換成立！隣のオタクに感謝',
-          desc:'「' + t.name + '、余ってるのでどうぞ」の一言で狙いの子が降りてきた。同担じゃなくてよかった。',
-          shareLine:'隣のオタクとの交換交渉で狙いの' + t.name + 'を確保' };
-  } else {
-    var r = calcRank(sec);
-    var titles = {
-      'SS':'神スピードで狙いの子を確保！',
-      'S':'狙いの子、確保！！',
-      'A':'ギリギリセーフで狙いの子降臨',
-      'B':'お財布は軽いけど狙いの子は重い',
-      'C':'ほぼ破産、されど狙いの子は来た'
-    };
-    var descs = {
-      'SS':'開封' + S.opens + '回で狙いの' + t.name + '（' + t.breed + '）を確保。神スピード＆神運。',
-      'S':'開封' + S.opens + '回で狙いの' + t.name + '（' + t.breed + '）を確保。良い引きしてる。',
-      'A':'開封' + S.opens + '回で狙いの' + t.name + '（' + t.breed + '）を確保。標準的なオタクの運。',
-      'B':'開封' + S.opens + '回。ダブり山が育ったけど、狙いの' + t.name + 'は来た。',
-      'C':'開封' + S.opens + '回。財布は瀕死。でも狙いの' + t.name + 'がいる。'
-    };
-    R = { rank:r.rank, cls:'r-' + r.rank.toLowerCase(), tag:'🎯 推し確保／クリア',
-          title:titles[r.rank], desc:descs[r.rank] + (r.fast ? ' ⏱ 速さボーナス +1ランク' : ''),
-          shareLine:'開封' + S.opens + '回で狙いの' + t.name + '（' + t.breed + '）を確保' };
-  }
-  renderResult(R, sec);
-}
-
-function finishIta(){
+function finishOshiIta(){
   if (!S) return;
   playing = false;
+  closeTrade();
   if (revealOpen){ revealOpen = false; reveal.className = 'reveal'; rcard.className = 'rcard'; }
   after = null;
   pauseTimer();
   if (tickId){ clearInterval(tickId); tickId = null; }
   var sec = elapsedNow();
-  var d = dogById(S.maxDupId || S.dupmaster.id);
-  var R = { rank:'ITA', cls:'r-ita', tag:'特別クリア／痛バ完成（SS+）',
-            title:'👜 痛バが1面 完成！！',
-            desc:'狙いの' + S.target.name + 'は出なかったのに、なぜか' + d.name + '（' + d.breed + '）の痛バが30個で1面組めてしまった。実質勝利！！',
-            shareLine:d.name + '（' + d.breed + '）を30個集めて痛バ完成！',
+  var d = S.target;
+  var R = { rank:'ITA', cls:'r-ita', tag:'推し痛バ／1面完成',
+            title:'👜 推し痛バが1面 完成！！',
+            desc: d.name + '（' + d.breed + '）の缶バッジを30個そろえた！ 開封' + S.opens + '回／X交換' + S.trades + '回'
+                  + (S.baito ? '／バイト' + S.baito + '回' : '') + 'で推しの痛バが完成した。',
+            shareLine:'推しの' + d.name + 'を30個そろえて痛バ1面完成！',
             itaDog:d };
   renderResult(R, sec);
+  recordAlbum(d.id, S.opens, sec);
+  sfxIta(); confetti(60);
 }
 
 function toBankrupt(){
@@ -1983,7 +2373,7 @@ function itaBagHTML(d){
     + '<div class="itafrill"></div>'
     + '<div class="itabody">'
     +   '<div class="itagrid">' + badges + '</div>'
-    +   '<div class="itaribbon">ITA-BAG 1面完成<span>' + d.name + '（' + d.breed + '）×30</span></div>'
+    +   '<div class="itaribbon">推し痛バ 1面完成<span>' + d.name + '（' + d.breed + '）×30</span></div>'
     + '</div>'
     + '</div>';
 }
@@ -1998,6 +2388,7 @@ function renderResult(R, sec){
   resDesc.textContent = R.desc;
 
   scOpens.textContent = S.opens + '回';
+  scTrades.textContent = S.trades + '回';
   scSpent.textContent = fmtYen(S.spent);
   scFunds.textContent = fmtYen(S.funds);
   scTime.textContent = fmtTime(sec);
@@ -2009,6 +2400,7 @@ function renderResult(R, sec){
   } else {
     itaWrap.innerHTML = '';
   }
+  liveBtn.style.display = R.itaDog ? '' : 'none';
 
   // 交換掲示板（破産）
   if (R.rank === 'D'){
@@ -2037,10 +2429,8 @@ function renderResult(R, sec){
             + c.name + '×' + n + '</span>';
     }
   });
-  if (S.targetGot){
-    var kinds = { rainbow:'✨直筆サイン入り', oyasan:'🎁神交換', box:'📦BOX買い', nego:'🔄交換', target:'🎯' };
-    coll += '<span class="cc secret"><i>' + dogSVG(S.target) + '</i>'
-          + (kinds[S.gotKind] || '🎯') + ' ' + S.target.name + '×1</span>';
+  if (S.oshi > 0){
+    coll = '<span class="cc secret"><i>' + dogSVG(S.target) + '</i>🎯 ' + S.target.name + '×' + S.oshi + '</span>' + coll;
   }
   if (!coll) coll = '<span class="cc" style="--c1:#3a2f4a;--c2:#241a33;color:#c9bde0"><i></i>コレクション：0</span>';
   resColl.innerHTML = coll;
@@ -2054,13 +2444,12 @@ function renderResult(R, sec){
                 .join('・');
   var text;
   if (R.rank === 'ITA'){
-    text = '【ITA】👜 狙いは' + S.target.name + 'だったのに、なぜか'
-         + (R.itaDog ? R.itaDog.name : '') + 'の痛バが1面完成してた！\n'
-         + '開封' + S.opens + '回／最大ダブり ' + dup + '\n'
+    text = '【推し痛バ完成】👜 推しの' + S.target.name + 'を30個そろえて痛バ1面完成！\n'
+         + '開封' + S.opens + '回／X交換' + S.trades + '回／最大ダブり ' + dup + '\n'
          + SHARE_URL + '\n' + TAGS;
   } else if (R.rank === 'D'){
-    text = '【D】📦 狙いの' + S.target.name + 'が全然出ないまま軍資金¥0…破産エンド\n'
-         + '開封' + S.opens + '回\n求）狙いの' + S.target.name + ' 譲）' + (top || 'なし') + '\n'
+    text = '【D】📦 狙いの' + S.target.name + 'が' + S.oshi + '/30のまま諦めた…破産エンド\n'
+         + '開封' + S.opens + '回／X交換' + S.trades + '回\n求）狙いの' + S.target.name + ' 譲）' + (top || 'なし') + '\n'
          + SHARE_URL + '\n' + TAGS;
   } else {
     text = '【' + R.rank + '】📦 ' + R.shareLine + '！\n'
@@ -2084,6 +2473,7 @@ function backToTitle(){
   screens.result.classList.remove('ita');
   if (tickId){ clearInterval(tickId); tickId = null; }
   segStart = 0;
+  closeTrade(); closeAlbum();
   reveal.className = 'reveal';
   goldFlash.classList.remove('show');
   rcard.className = 'rcard';
@@ -2124,14 +2514,51 @@ pickGrid.addEventListener('click', function(e){
   selectTarget(b.getAttribute('data-id'));
 });
 
+tradeBtn.addEventListener('click', function(e){ e.preventDefault(); openTrade(); });
+tradeClose.addEventListener('click', closeTrade);
+tradeBack.addEventListener('click', closeTrade);
+postBtn.addEventListener('click', postTrade);
+postAgainBtn.addEventListener('click', function(){
+  composerEl.style.display = '';
+  replyWrap.style.display = 'none';
+  renderComposer();
+});
+offerPick.addEventListener('click', function(e){
+  var b = e.target && e.target.closest ? e.target.closest('.ofc') : null;
+  if (!b) return;
+  var id = b.getAttribute('data-id');
+  trade.offer[id] = !trade.offer[id];
+  renderComposer(); sfxPop();
+});
+repliesEl.addEventListener('click', function(e){
+  var b = e.target && e.target.closest ? e.target.closest('button[data-act]') : null;
+  if (!b) return;
+  var i = parseInt(b.getAttribute('data-i'), 10);
+  var r = trade.replies[i];
+  if (!r || r.done) return;
+  if (b.getAttribute('data-act') === 'no'){
+    r.done = true; r.res = 'no';
+    renderReplies(); sfxDeny();
+    return;
+  }
+  acceptReply(i);
+});
+
+giveUpBtn.addEventListener('click', function(){ if (playing && S) toBankrupt(); });
+albumBtn.addEventListener('click', openAlbum);
+albumBtn2.addEventListener('click', openAlbum);
+albumClose.addEventListener('click', closeAlbum);
+albumCloseBtn.addEventListener('click', closeAlbum);
+albumBack.addEventListener('click', closeAlbum);
+
 function useAtm(){
-  if (!S || !playing || revealOpen || S.atmLeft <= 0) return;
-  S.atmLeft--;
-  S.funds += ATM_AMOUNT;
+  if (!S || !playing || revealOpen || tradeOpen) return;
+  S.funds += BAITO_AMOUNT;
+  S.baito++;
   sfxCoin(); confetti(12);
   beep(1568, 0.2, 'sine', 0.1);
   beep(2093, 0.3, 'sine', 0.08, 0.1);
-  toast('💳 ATMダッシュ！ 軍資金 +¥10,000（残り1回を使い切った）', 2600);
+  toast('💼 バイト完了！ 軍資金 +¥4,000（' + S.baito + '回目）', 2400);
   updateHUD();
   updateAtmBtn();
 }
