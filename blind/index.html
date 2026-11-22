@@ -784,8 +784,8 @@
 
     <div class="fundbox">
       <div class="fl">💰 軍資金はランダム決定</div>
-      <div class="fv">¥6,000 〜 ¥20,000</div>
-      <div class="fs">＝ 15〜50袋分（1袋 ¥400）／ 尽きたら💳ATMダッシュも</div>
+      <div class="fv">¥8,000 〜 ¥22,000</div>
+      <div class="fs">＝ 20〜55袋分（1袋 ¥400）／ 尽きたら💼バイトで補充</div>
     </div>
 
     <button class="btn" id="startBtn">しばおを狙って開封スタート</button>
@@ -1153,21 +1153,21 @@ function bagSVG(p){
   + '<g clip-path="url(#'+clip+')">'
   +   '<path d="M18 156 L202 52 L202 96 L18 200 Z" fill="#ffffff" opacity=".17"/>'
   +   '<path d="M18 196 L202 92 L202 104 L18 208 Z" fill="#ffffff" opacity=".12"/>'
-  +   // 左右のヒートシール（ギザギザの圧着跡）
+  // 左右のヒートシール（ギザギザの圧着跡）
   +   '<rect x="18" y="14" width="15" height="204" fill="url(#'+p+'seal)" opacity=".95"/>'
   +   '<rect x="187" y="14" width="15" height="204" fill="url(#'+p+'seal)" opacity=".95"/>'
   +   '<g stroke="#8d97ab" stroke-width=".9" opacity=".4">'
   +     '<path d="M21 16 v200 M25 16 v200 M29 16 v200 M191 16 v200 M195 16 v200 M199 16 v200"/>'
   +   '</g>'
-  +   // 上下の圧着部分
+  // 上下の圧着部分
   +   '<rect x="18" y="14" width="184" height="19" fill="url(#'+p+'seal)" opacity=".92"/>'
   +   '<path d="'+ribs+'" stroke="#8d97ab" stroke-width=".9" opacity=".38"/>'
   +   '<rect x="18" y="200" width="184" height="18" fill="url(#'+p+'seal)" opacity=".9"/>'
   +   '<path d="M22 205 h176 M22 209 h176 M22 213 h176" stroke="#8d97ab" stroke-width=".9" opacity=".34"/>'
-  +   // 印刷（袋に刷られた文字）
+  // 印刷（袋に刷られた文字）
   +   '<text x="110" y="70" text-anchor="middle" font-size="12" font-weight="900" fill="#5c5674" letter-spacing="1.1" font-family="Hiragino Sans, sans-serif">わんこシークレット</text>'
   +   '<text x="110" y="82" text-anchor="middle" font-size="7.6" font-weight="800" fill="#847d9c" letter-spacing=".7" font-family="Hiragino Sans, sans-serif">全7種 ／ 57mm缶バッジ</text>'
-  +   // 缶バッジの膨らみ
+  // 缶バッジの膨らみ
   +   '<circle cx="110" cy="139" r="55" fill="url(#'+p+'dome)"/>'
   +   '<circle cx="110" cy="139" r="55" fill="none" stroke="#ffffff" stroke-width="1.3" opacity=".5"/>'
   +   '<circle cx="110" cy="139" r="51" fill="none" stroke="#8f98ab" stroke-width="1" opacity=".28"/>'
