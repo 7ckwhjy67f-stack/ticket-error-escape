@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0a0713" />
 <title>📦 ランダム開封！推しのシークレットが出るまで帰れません</title>
-<meta name="description" content="1袋400円のブラインド銀袋を開封して、全6種のワンちゃん＋シークレットの推しが出るまで帰れない開封サバイバル。同じ柄30個で痛バ完成エンド!? 金色の光の偽引き、隣のオタクとの交換交渉、同担拒否、箱ごとBOX買いまで。スマホ縦画面・指1本で遊べる無料ブラウザゲーム。" />
+<meta name="description" content="1袋400円のブラインド銀袋をペリペリなぞって開封。狙いの推しを30個集めて痛バ1面を完成させよう。X風の交換募集で比率違い交渉、バイトで軍資金補充、完成した痛バはアルバムに保存。スマホ縦画面・指1本で遊べる無料ブラウザゲーム。" />
 <meta property="og:title" content="📦 ランダム開封！推しのシークレットが出るまで帰れません" />
 <meta property="og:description" content="軍資金6,000〜20,000円でブラインド銀袋を開封。出るのは同じワンちゃんばかり…ダブりが30個集まったら痛バ完成エンド！推しのシークレットが出るまで帰れません。" />
 <meta property="og:type" content="website" />
@@ -791,7 +791,7 @@
     <button class="btn" id="startBtn">しばおを狙って開封スタート</button>
 
     <ul class="rules">
-      <li>狙いの子（約12%）を30個集めて推し痛バ1面を目指す！</li>
+      <li>狙いの子（約14%）を30個集めて推し痛バ1面を目指す！</li>
       <li>ダブりはX交換募集で推しと交換できる</li>
       <li>なぞってペリペリ開封／軍資金切れはバイトで補充</li>
     </ul>
@@ -2598,6 +2598,19 @@ document.addEventListener('visibilitychange', function(){
   if (document.hidden){ pauseTimer(); }
   else if (playing && !revealOpen && !busy){ resumeTimer(); }
 });
+
+/* ===== TEMP DEV HOOK (removed before release) ===== */
+if (/(\?|&)dev=1/.test(location.search)){
+  window.__blind = {
+    S: function(){ return S; },
+    addOshi: addOshi,
+    finish: finishOshiIta,
+    set: function(o){
+      for (var k in o){ if (Object.prototype.hasOwnProperty.call(o,k)) S[k] = o[k]; }
+      updateOshi(); renderDups(); updateHUD(); updateAtmBtn();
+    }
+  };
+}
 
 })();
 </script>
