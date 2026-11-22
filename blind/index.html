@@ -198,7 +198,7 @@
   .dups-head b{ font-size:10.5px; color:#ffc4e2; letter-spacing:0; font-weight:900; }
   .dup-strip{
     display:flex; gap:5px; align-items:center; overflow-x:auto; overflow-y:hidden;
-    padding:5px 1px 1px; min-height:40px; scrollbar-width:none; -ms-overflow-style:none;
+    padding:6px 1px 4px; min-height:44px; scrollbar-width:none; -ms-overflow-style:none;
   }
   .dup-strip::-webkit-scrollbar{ display:none; }
   .dup-empty{ font-size:10.5px; color:#8f7fab; white-space:nowrap; padding-left:2px; }
@@ -481,7 +481,7 @@
   .board .bn{ font-size:9.5px; color:#8f869f; margin-top:5px; border-top:1px dashed rgba(255,255,255,.14); padding-top:4px; }
 
   /* 痛バ */
-  .itabag{ position:relative; width:100%; max-width:330px; margin:8px auto 2px; }
+  .itabag{ position:relative; width:100%; max-width:300px; margin:8px auto 2px; }
   .itahandle{ position:relative; height:26px; }
   .itahandle::before{
     content:""; position:absolute; left:50%; transform:translateX(-50%); top:6px;
@@ -490,8 +490,10 @@
   }
   .itafrill{
     height:14px;
-    background-image:radial-gradient(circle at 10px 0, #ffffff 9px, rgba(255,255,255,0) 10px);
-    background-size:20px 14px; background-repeat:repeat-x;
+    background-image:radial-gradient(circle at 10px 0, #ffffff 9px, rgba(255,255,255,0) 9.5px), linear-gradient(#ffffff,#ffffff);
+    background-size:20px 15px, 100% 9px;
+    background-position:left top, left bottom;
+    background-repeat:repeat-x, no-repeat;
     position:relative; z-index:2;
   }
   .itabody{
@@ -501,8 +503,8 @@
     box-shadow:0 14px 30px rgba(0,0,0,.45), inset 0 2px 0 rgba(255,255,255,.55);
   }
   .itagrid{
-    display:grid; grid-template-columns:repeat(5,1fr); gap:4px;
-    background:rgba(255,255,255,.55); border-radius:10px; padding:5px;
+    display:grid; grid-template-columns:repeat(5,1fr); gap:3px;
+    background:rgba(255,255,255,.55); border-radius:10px; padding:4px;
   }
   .ibdg{
     position:relative; aspect-ratio:1/1; border-radius:50%; overflow:hidden;
@@ -525,7 +527,11 @@
   .cc i svg{ width:130%; height:130%; }
   .cc.secret{ background:linear-gradient(100deg,#fff6c8,#ffc4e2 45%,#c8a2ff); box-shadow:0 0 12px rgba(255,200,240,.5); }
 
-  .acts{ width:100%; max-width:340px; margin-top:11px; padding-bottom:4px; }
+  .acts{
+    width:100%; max-width:340px; margin-top:10px; padding:8px 0 6px;
+    position:sticky; bottom:0; z-index:6;
+    background:linear-gradient(to top, rgba(8,4,16,.97) 58%, rgba(8,4,16,.82) 82%, rgba(8,4,16,0));
+  }
   .acts .btn{ margin-top:8px; }
   .acts .btn:first-child{ margin-top:0; }
 
@@ -1074,6 +1080,7 @@ function startGame(){
   S = {
     funds: bags * PRICE,
     init: bags * PRICE,
+    spent: 0,
     opens: 0,
     elapsed: 0,
     counts: {},
@@ -1205,6 +1212,7 @@ function openBag(){
   busy = true;
   var rainbowBag = !!(S.rainbowFirst && S.opens === 0);
   S.funds -= PRICE;
+  S.spent += PRICE;
   S.opens++;
   updateHUD();
   sfxCoin();
@@ -1287,6 +1295,7 @@ function openBulk(){
     if (S.funds < PRICE) break;
     var rainbowBag = !!(S.rainbowFirst && S.opens === 0);
     S.funds -= PRICE;
+    S.spent += PRICE;
     S.opens++;
     var p = drawOne(rainbowBag);
     if (p.type === 'char'){
@@ -1640,7 +1649,7 @@ function renderResult(R, sec){
   resDesc.textContent = R.desc;
 
   scOpens.textContent = S.opens + '回';
-  scSpent.textContent = fmtYen(S.init - S.funds);
+  scSpent.textContent = fmtYen(S.spent);
   scFunds.textContent = fmtYen(S.funds);
   scTime.textContent = fmtTime(sec);
   scDup.textContent = (S.maxDupId && S.maxDup >= 2) ? (nameOf(S.maxDupId) + '×' + S.maxDup) : 'なし';
@@ -1692,7 +1701,7 @@ function renderResult(R, sec){
                 .join('・');
   var text;
   if (R.rank === 'ITA'){
-    text = '【ITA】👜 痛バ1面完成！' + R.shareLine + '\n'
+    text = '【ITA】👜 ' + R.shareLine + '\n'
          + '推しのシークレットは出なかったけど実質勝利／開封' + S.opens + '回\n'
          + SHARE_URL + '\n' + TAGS;
   } else if (R.rank === 'D'){
