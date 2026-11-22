@@ -99,7 +99,7 @@
 
   .baghero{
     position:relative; z-index:2; width:100%; display:grid; place-items:center;
-    margin-top:0; height:min(33vh, 232px); flex:0 0 auto;
+    margin-top:2px; height:min(40vh, 300px); flex:0 0 auto;
   }
   .bagglow{
     position:absolute; width:72%; aspect-ratio:1; border-radius:50%;
@@ -108,7 +108,7 @@
   }
   @keyframes glowPulse{ 0%,100%{ transform:scale(.94); opacity:.8; } 50%{ transform:scale(1.06); opacity:1; } }
   .bag{
-    position:relative; width:min(48vw, 186px); transform-origin:50% 80%;
+    position:relative; width:min(54vw, 214px); transform-origin:50% 80%;
     animation:float 3.6s ease-in-out infinite;
   }
   @keyframes float{ 0%,100%{ transform:translateY(0) rotate(-1deg); } 50%{ transform:translateY(-9px) rotate(1deg); } }
@@ -805,8 +805,9 @@ function bagSVG(p){
   + '<path d="M38 62 q72 -12 144 0 l-9 152 q-63 17 -126 0 z" fill="url(#'+p+'f)" stroke="#a9b3c7" stroke-width="1.5"/>'
   + '<path d="M38 62 q72 -12 144 0 l-1 15 q-71 -12 -142 0 z" fill="#ffffff" opacity=".45"/>'
   + '<path d="M60 148 q50 9 100 0" stroke="#ffffff" stroke-width="9" opacity=".3" fill="none" stroke-linecap="round"/>'
-  + '<svg x="57" y="62" width="106" height="106" viewBox="0 0 100 100">' + dogInner(DOGS[0]) + '</svg>'
-  + '<text x="110" y="183" text-anchor="middle" font-size="14" font-weight="900" fill="#5f5878" letter-spacing="1.5" font-family="Hiragino Sans, sans-serif">わんこシークレット</text>'
+  + '<svg x="62" y="56" width="96" height="96" viewBox="0 0 100 100">' + dogInner(DOGS[0]) + '</svg>'
+  + '<rect x="44" y="160" width="132" height="21" rx="10.5" fill="#ffffff" opacity=".72"/>'
+  + '<text x="110" y="175" text-anchor="middle" font-size="12.5" font-weight="900" fill="#5f5878" letter-spacing="1.2" font-family="Hiragino Sans, sans-serif">わんこシークレット</text>'
   + '<g transform="rotate(-7 110 210)">'
   + '<rect x="66" y="192" width="88" height="30" rx="15" fill="url(#'+p+'p)"/>'
   + '<rect x="66" y="192" width="88" height="30" rx="15" fill="none" stroke="#ffffff" stroke-width="1.8" opacity=".75"/>'
