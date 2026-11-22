@@ -373,7 +373,7 @@
   @keyframes negoPulse{ 0%,100%{ box-shadow:0 8px 26px rgba(255,180,80,.4); } 50%{ box-shadow:0 8px 34px rgba(255,210,120,.75); } }
 
   #toast{
-    position:absolute; left:50%; top:calc(env(safe-area-inset-top) + 100px); z-index:44;
+    position:absolute; left:50%; top:calc(env(safe-area-inset-top) + 100px); z-index:62;
     transform:translate(-50%, -8px); opacity:0; pointer-events:none;
     max-width:88%; padding:7px 14px; border-radius:12px; text-align:center;
     font-size:12px; font-weight:800; line-height:1.4; color:#fff;
@@ -545,7 +545,7 @@
   .board .bn{ font-size:9.5px; color:#8f869f; margin-top:5px; border-top:1px dashed rgba(255,255,255,.14); padding-top:4px; }
 
   /* 痛バ */
-  .itabag{ position:relative; width:100%; max-width:300px; margin:8px auto 2px; }
+  .itabag{ position:relative; width:100%; max-width:238px; margin:6px auto 2px; }
   .itahandle{ position:relative; height:26px; }
   .itahandle::before{
     content:""; position:absolute; left:50%; transform:translateX(-50%); top:6px;
@@ -561,13 +561,13 @@
     position:relative; z-index:2;
   }
   .itabody{
-    position:relative; margin-top:-5px; padding:9px 9px 10px;
+    position:relative; margin-top:-5px; padding:7px 7px 8px;
     background:linear-gradient(165deg,#ffdcef,#ffb3d8 55%,#ef8abe);
     border-radius:8px 8px 20px 20px;
     box-shadow:0 14px 30px rgba(0,0,0,.45), inset 0 2px 0 rgba(255,255,255,.55);
   }
   .itagrid{
-    display:grid; grid-template-columns:repeat(5,1fr); gap:3px;
+    display:grid; grid-template-columns:repeat(5,1fr); gap:2px;
     background:rgba(255,255,255,.55); border-radius:10px; padding:4px;
   }
   .ibdg{
@@ -2364,10 +2364,12 @@ function renderReplies(){
       + (r.done
           ? '<div class="rp-res ' + (r.res === 'ok' ? 'ok' : 'no') + '">'
             + (r.res === 'ok' ? '🤝 交換成立！' : 'お断りしました') + '</div>'
-          : '<div class="rp-btns">'
-            + '<button class="ok" data-i="' + i + '" data-act="ok"' + (r.type === 'no' || dis ? ' disabled' : '') + '>受ける</button>'
-            + '<button class="no" data-i="' + i + '" data-act="no">お断りする</button>'
-            + '</div>')
+          : (r.type === 'no'
+              ? '<div class="rp-btns"><button class="no" data-i="' + i + '" data-act="no">閉じる</button></div>'
+              : '<div class="rp-btns">'
+                + '<button class="ok" data-i="' + i + '" data-act="ok"' + (dis ? ' disabled' : '') + '>受ける</button>'
+                + '<button class="no" data-i="' + i + '" data-act="no">お断りする</button>'
+                + '</div>'))
       + '</div>';
   }).join('');
   var allDone = trade.replies.length && trade.replies.every(function(r){ return r.done; });
