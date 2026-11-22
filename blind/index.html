@@ -674,6 +674,58 @@
   .btn.live .lv-s{ font-size:9.5px; font-weight:900; opacity:.75; letter-spacing:.02em; }
   .btn.live::after{ animation:btnSheen 2.2s ease-in-out infinite; }
 
+  /* ---- 金メガネコレクション ---- */
+  .glrow{
+    display:none; align-items:center; justify-content:space-between; gap:6px;
+    margin-top:5px; padding-top:5px; border-top:1px dashed rgba(255,210,74,.28);
+    font-size:9.5px; font-weight:900; color:#ffe9b0;
+  }
+  .glrow.show{ display:flex; }
+  .glrow b{ font-size:12px; color:#ffd24a; }
+  .glrow span:last-child{ color:#c9b9e4; font-weight:800; }
+
+  /* ---- ５袋セットのタグ ---- */
+  .bulktag{
+    display:none; position:absolute; right:-6px; top:6px; z-index:4;
+    align-items:center; gap:3px; padding:3px 8px; border-radius:999px;
+    background:linear-gradient(100deg,#ffd24a,#ff9ecb); color:#3a0d24;
+    font-size:13px; font-weight:900; box-shadow:0 4px 12px rgba(0,0,0,.45);
+    transform:rotate(6deg);
+  }
+  .bulktag i{ font-style:normal; font-size:12px; }
+  .bag.bulk .bulktag{ display:flex; animation:hintBeat 1.4s ease-in-out infinite; }
+  .bag.bulk .dragcue{ font-size:17px; }
+
+  /* ---- お姉さん / ミニ痛バ ---- */
+  .tcard.small{ max-height:86%; }
+  .oy-art{ display:grid; place-items:center; margin:2px 0 8px; }
+  .oy-art i{
+    width:92px; height:92px; border-radius:50%; overflow:hidden; display:grid; place-items:center;
+    background:linear-gradient(150deg,#ffe9d6,#ffb27a); font-style:normal;
+    box-shadow:0 8px 20px rgba(0,0,0,.45), inset 0 0 0 3px rgba(255,255,255,.7);
+  }
+  .oy-art i svg{ width:118%; height:118%; }
+  .oy-msg{ font-size:12px; line-height:1.65; color:#f2eaff; text-align:center; }
+  .oy-deal{
+    margin:8px 0 2px; padding:7px 9px; border-radius:11px; text-align:center;
+    font-size:11.5px; font-weight:900; color:#ffe58a;
+    background:rgba(255,210,74,.12); border:1px dashed rgba(255,210,74,.45);
+  }
+  .oy-btns{ margin-top:10px; }
+  .oy-btns button{ padding:12px 6px; font-size:12.5px; }
+
+  .mini-art{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:4px;
+    width:174px; margin:2px auto 10px; padding:6px;
+    background:linear-gradient(160deg,#ffe9a8,#ffc9ec 60%,#ffb0d8);
+    border-radius:12px; box-shadow:0 10px 26px rgba(0,0,0,.45), inset 0 2px 0 rgba(255,255,255,.6);
+  }
+  .mini-art span{
+    aspect-ratio:1; border-radius:50%; overflow:hidden; display:grid; place-items:center;
+    background:linear-gradient(150deg,#fff,#ffe6c8); border:1.5px solid #fff;
+  }
+  .mini-art svg{ width:112%; height:112%; }
+
   /* ---- X交換募集モーダル ---- */
   .modal{ position:absolute; inset:0; z-index:48; display:none; }
   .modal.show{ display:block; }
@@ -819,6 +871,7 @@
     <div class="dups">
       <div class="dups-head"><span>🗻 ダブり山 <b id="dupTotal">0体</b></span><span id="dupMax">最大 -</span></div>
       <div class="dup-strip" id="dupStrip"><span class="dup-empty">まだ0体… これから増える予定</span></div>
+      <div class="glrow" id="glRow"><span>🕶️ 金メガネ <b id="glNum">0</b> / 9</span><span id="glSub">あと9個でミニ痛バ</span></div>
     </div>
 
     <div class="bagwrap" id="bagWrap">
@@ -827,6 +880,7 @@
         <div id="bagB"></div>
         <div class="peel" id="peelB"></div>
         <div class="dragcue" id="dragCue">👉</div>
+        <div class="bulktag" id="bulkTag"><span>×5</span><i>📦</i></div>
         <span class="spk s1">✨</span><span class="spk s2">✨</span><span class="spk s3">✨</span>
         <div id="shreds"></div>
       </div>
@@ -874,6 +928,37 @@
       </div>
     </div>
   </section>
+
+  <!-- ============ 現地交換お姉さん ============ -->
+  <div id="oyasan" class="modal">
+    <div class="back" id="oyasanBack"></div>
+    <div class="tcard small">
+      <div class="thead"><span>🎀 現地交換お姉さんチャンス！</span></div>
+      <div class="tbody">
+        <div class="oy-art" id="oyArt"></div>
+        <div class="oy-msg" id="oyMsg"></div>
+        <div class="oy-deal" id="oyDeal"></div>
+        <div class="rp-btns oy-btns">
+          <button class="ok" id="oyYes">🤝 交換する！</button>
+          <button class="no" id="oyNo">🙅‍♀️ やめておく</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 金色メガネ ミニ痛バ ============ -->
+  <div id="mini" class="modal">
+    <div class="back" id="miniBack"></div>
+    <div class="tcard small">
+      <div class="thead"><span>🕶️ 金色メガネ ミニ痛バ 完成！</span><button id="miniClose" aria-label="閉じる">✕</button></div>
+      <div class="tbody">
+        <div class="mini-art" id="miniArt"></div>
+        <div class="oy-msg">金色メガネのワンちゃんが9個！<br>3×3の痛ポシェットが完成した！</div>
+        <div class="oy-deal">🎁 おまけボーナス：軍資金 +¥2,000</div>
+        <button class="mini post" id="miniOk">受け取ってつづける</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ============ 痛バアルバム ============ -->
   <div id="album" class="modal">
@@ -1483,7 +1568,7 @@ function toast(msg, ms){
 var pMouthG = $('pMouthG'), pMouthEl = $('pMouth'), pLipEl = $('pLip');
 var pLift = $('pLift'), pLiftSh = $('pLiftSh'), pLiftHi = $('pLiftHi');
 var pCurl = $('pCurl'), pGuide = $('pGuide');
-var peel = { p:0, active:false, pid:null, raf:0, holdT:0, snd:0 };
+var peel = { p:0, active:false, pid:null, raf:0, holdT:0, snd:0, mode:'single' };
 
 function setPeel(v){
   var p = v < 0 ? 0 : (v > 1 ? 1 : v);
@@ -1616,14 +1701,16 @@ function endPeel(){
 
 function completePeel(){
   if (!playing || busy || !S) return;
-  if (S.funds < PRICE){ animatePeelTo(0, 220); return; }
+  var isBulk = peel.mode === 'bulk';
+  var n = isBulk ? Math.min(BULK, Math.floor(S.funds / PRICE)) : 1;
+  if (n <= 0 || S.funds < PRICE){ animatePeelTo(0, 220); return; }
   peel.active = false;
   busy = true;
   animatePeelTo(1, 110);
   var rainbowBag = !!(S.rainbowFirst && S.opens === 0);
-  S.funds -= PRICE;
-  S.spent += PRICE;
-  S.opens++;
+  S.funds -= PRICE * n;
+  S.spent += PRICE * n;
+  S.opens += n;
   updateHUD();
   nego.classList.remove('show');
   S.pendingNego = null;
@@ -1633,7 +1720,13 @@ function completePeel(){
   sfxPeel();
   setTimeout(function(){ sfxTear(); bag.classList.add('torn'); spawnShreds(12); }, 140);
   setTimeout(function(){ bag.style.visibility = 'hidden'; }, 460);
-  setTimeout(function(){ resolveSingle(rainbowBag); }, 540);
+  if (isBulk){
+    peel.mode = 'single';
+    bag.classList.remove('bulk');
+    setTimeout(function(){ doBulk(n); }, 540);
+  } else {
+    setTimeout(function(){ resolveSingle(rainbowBag); }, 540);
+  }
 }
 
 /* ============================================================
@@ -1668,7 +1761,11 @@ function startGame(){
     oshi: 0,
     trades: 0,
     posts: 0,
-    baito: 0
+    baito: 0,
+    glasses: 0,
+    miniPending: false,
+    miniDone: 0,
+    lastGlassId: null
   };
   DOGS.forEach(function(c){ S.counts[c.id] = 0; });
 
@@ -1685,6 +1782,9 @@ function startGame(){
   dupTotal.textContent = '0体';
   dupMax.textContent = '最大 -';
   resetPeel();
+  peel.mode = 'single';
+  bag.classList.remove('bulk');
+  updateGl();
 
   oshiArt.innerHTML = dogSVG(target);
   oshiArt.style.setProperty('--c1', target.c1);
@@ -1728,7 +1828,6 @@ function pickDog(){
 function drawOne(rainbowBag, simple){
   if (rainbowBag){ S.rainbowFirst = false; return { type:'rainbow' }; }
   if (!simple){
-    if (S.opens >= 15 && S.maxDup >= 4 && Math.random() < 0.006) return { type:'oyasan' };
     if (S.opens >= 8 && Math.random() < 0.0015) return { type:'box' };
   }
 
@@ -1788,12 +1887,17 @@ function resolveSingle(rainbowBag){
   var p = drawOne(rainbowBag);
   if (p.type === 'rainbow'){ showRainbow(); return; }
   if (p.type === 'target'){ showTarget(); return; }
-  if (p.type === 'oyasan'){ showOyasan(); return; }
   if (p.type === 'box'){ showBox(); return; }
 
   var info = pullInfo(p);
-  if (p.ita){ sfxIta(); confetti(46); }
-  else if (p.glasses){ sfxGold(); }
+  if (p.glasses){
+    sfxGold();
+    S.glasses++;
+    S.lastGlassId = p.char.id;
+    updateGl();
+    if (S.glasses >= 9){ S.miniPending = true; }
+  }
+  else if (p.ita){ sfxIta(); confetti(46); }
   else if (p.count >= 3){ sfxDup(); }
   else { sfxPop(); }
 
@@ -1835,7 +1939,7 @@ function spawnShreds(n){
 /* ============================================================
    開封（5袋まとめて）
    ============================================================ */
-function openBulk(){
+function armBulk(){
   if (!playing || busy || revealOpen || tradeOpen || !S) return;
   var n = Math.min(BULK, Math.floor(S.funds / PRICE));
   if (n <= 0){
@@ -1843,16 +1947,17 @@ function openBulk(){
     toast('💼 軍資金が足りない…バイトで +¥4,000 しよう', 2600);
     return;
   }
-  busy = true;
-  nego.classList.remove('show');
-  S.pendingNego = null;
+  peel.mode = 'bulk';
+  resetPeel();
+  bag.classList.add('bulk');
+  bulkTag.innerHTML = '<span>×' + n + '</span><i>📦</i>';
+  ensureAC(); sfxPop();
+  toast('📦 ' + n + '袋セット！ 銀のラインをなぞってまとめてペリペリ！', 2600);
+}
 
+function doBulk(n){
   var pulls = [], itaHit = false, oshiGain = 0;
   for (var i=0;i<n;i++){
-    if (S.funds < PRICE) break;
-    S.funds -= PRICE;
-    S.spent += PRICE;
-    S.opens++;
     var p = drawOne(false, true);
     if (p.type === 'target'){
       addOshi(1);
@@ -1861,6 +1966,11 @@ function openBulk(){
       if (S.oshi >= OSHI_NEED){ itaHit = true; break; }
     } else if (p.type === 'char'){
       pulls.push(p);
+      if (p.glasses){
+        S.glasses++;
+        S.lastGlassId = p.char.id;
+        if (S.glasses >= 9) S.miniPending = true;
+      }
     }
   }
 
@@ -1928,18 +2038,6 @@ function showTarget(){
     band:'🎯 狙い的中！', note:'推し +1（' + n + '/30）', tone:'new',
     quip: quip
   }, n >= OSHI_NEED ? function(){ finishOshiIta(); } : null);
-}
-
-function showOyasan(){
-  addOshi(2);
-  var t = S.target;
-  sfxSecret(); confetti(26);
-  showReveal({
-    kind:'oyasan',
-    dog:{ id:'oyasan', name:'現場のお姉さん', breed:'神交換の達人', fur:'#ffd9b8', ear:'#f0b98b', muzzle:'#fff6ea', inner:'#ffd0b0', earType:'floppy', kind:'推し余ってる人', c1:'#ffe9d6', c2:'#ffb27a' },
-    band:'SSR / 隠しルート', note:'神交換／推し +2（' + S.oshi + '/30）', tone:'new',
-    quip:'「' + t.name + '、余ってるので交換しませんか？」→ 狙いの' + t.name + 'を2個譲ってもらった！！'
-  }, S.oshi >= OSHI_NEED ? function(){ finishOshiIta(); } : null);
 }
 
 function showBox(){
@@ -2048,7 +2146,8 @@ function closeReveal(){
 
 function afterReveal(){
   if (!playing || !S) return;
-  updateHUD();
+  updateHUD(); updateGl();
+  if (S.miniPending){ S.miniPending = false; showMini(); return; }
   if (S.funds < PRICE){
     updateAtmBtn();
     toast('💼 軍資金が尽きた！ バイト(+¥4,000)か、Xで交換を集めよう', 3000);
@@ -2056,6 +2155,9 @@ function afterReveal(){
   }
   if (S.pendingNego){ showNego(); return; }
   if (Math.floor(S.funds / PRICE) === 1) toast('残り1袋…！ ここで推しが出るか、バッグの望み', 2400);
+  if (S.opens >= 3 && !oyasanOpenNow && Math.random() < 0.10 && tradeableDogs().length){
+    setTimeout(showOyasanChance, 700);
+  }
 }
 
 /* ============================================================
@@ -2274,6 +2376,80 @@ function acceptReply(i){
 }
 
 /* ============================================================
+   金メガネコレクション（ミニ痛バ 3x3）
+   ============================================================ */
+function updateGl(){
+  if (!S){ glRow.classList.remove('show'); return; }
+  glNum.textContent = String(S.glasses);
+  glSub.textContent = S.glasses >= 9 ? 'ミニ痛バ完成！' : ('あと' + Math.max(0, 9 - S.glasses) + '個でミニ痛バ');
+  glRow.classList.toggle('show', S.glasses > 0);
+}
+
+function showMini(){
+  var d = dogById(S.lastGlassId || DOGS[0].id);
+  var html = '';
+  for (var i=0;i<9;i++){ html += '<span>' + dogSVG(d, {glasses: true}) + '</span>'; }
+  miniArt.innerHTML = html;
+  S.miniDone++;
+  recordAlbum('__glasses', S.opens, elapsedNow());
+  S.glasses = 0;
+  updateGl();
+  miniEl.classList.add('show');
+  pauseTimer();
+  ensureAC(); sfxIta(); confetti(44);
+}
+function closeMini(){
+  if (!miniEl.classList.contains('show')) return;
+  miniEl.classList.remove('show');
+  if (playing && !revealOpen && !oyasanOpenNow) resumeTimer();
+}
+
+/* ============================================================
+   現地交換お姉さんチャンス
+   ============================================================ */
+var oyasanOpenNow = false, oyTarget = null, oyGain = 1;
+
+function showOyasanChance(){
+  if (!playing || !S || revealOpen || tradeOpen || oyasanOpenNow) return;
+  var list = tradeableDogs();
+  if (!list.length) return;
+  oyTarget = list[rand(Math.min(3, list.length))];
+  oyGain = Math.random() < 0.28 ? 2 : 1;
+  oyArt.innerHTML = '<i>' + dogSVG({ id:'oyasan2', fur:'#ffd9b8', ear:'#f0b98b', muzzle:'#fff6ea', inner:'#ffd0b0', earType:'floppy' }) + '</i>';
+  oyMsg.innerHTML = '物販会場のお姉さん「すみません！ そちらの <b style=\"color:#ffe58a\">' + oyTarget.name
+    + '</b> と、こちらの <b style=\"color:#ffe58a\">' + S.target.name + '</b> 交換しませんか？」'
+    + (oyGain > 1 ? '<br><span style=\"color:#7dffd0\">「なんと2個あげるよ！」</span>' : '');
+  oyDeal.textContent = 'あなた: ' + oyTarget.name + '×1  →  推し ' + S.target.name + '×' + oyGain;
+  oyasanOpenNow = true;
+  oyasanEl.classList.add('show');
+  pauseTimer();
+  ensureAC(); sfxPop();
+  updateAtmBtn();
+}
+function closeOyasan(){
+  if (!oyasanOpenNow) return;
+  oyasanOpenNow = false;
+  oyTarget = null;
+  oyasanEl.classList.remove('show');
+  if (playing && !revealOpen && !miniEl.classList.contains('show')) resumeTimer();
+  updateAtmBtn();
+}
+function oyAccept(){
+  if (!S || !oyTarget) return;
+  var t = oyTarget, g = oyGain;
+  if ((S.counts[t.id] || 0) < 1){ toast('そのダブりが足りない…', 1500); closeOyasan(); return; }
+  S.counts[t.id]--;
+  S.trades++;
+  addOshi(g);
+  renderDups(); updateHUD();
+  sfxCoin(); confetti(14);
+  toast('🎀 現地交換成立！ ' + S.target.name + ' +' + g + '（' + S.oshi + '/30）', 2400);
+  var win = S.oshi >= OSHI_NEED;
+  closeOyasan();
+  if (win) setTimeout(finishOshiIta, 700);
+}
+
+/* ============================================================
    痛バアルバム（localStorage）
    ============================================================ */
 var ALBUM_KEY = 'blind_ita_album_v1';
@@ -2281,6 +2457,10 @@ var albumEl = $('album'), albGrid = $('albGrid'), albCount = $('albCount'), albT
 var albumBtn = $('albumBtn'), albumBtn2 = $('albumBtn2'), albumClose = $('albumClose');
 var albumCloseBtn = $('albumCloseBtn'), albumBack = $('albumBack');
 var liveBtn = $('liveBtn');
+var glRow = $('glRow'), glNum = $('glNum'), glSub = $('glSub'), bulkTag = $('bulkTag');
+var oyasanEl = $('oyasan'), oyArt = $('oyArt'), oyMsg = $('oyMsg'), oyDeal = $('oyDeal');
+var oyYes = $('oyYes'), oyNo = $('oyNo'), oyasanBack = $('oyasanBack');
+var miniEl = $('mini'), miniArt = $('miniArt'), miniOk = $('miniOk'), miniClose = $('miniClose'), miniBack = $('miniBack');
 
 function loadAlbum(){
   try {
@@ -2312,6 +2492,15 @@ function renderAlbum(){
       + (has ? '' : '<span class="alb-lock">🔒</span>')
       + '</div>';
   }).join('');
+  var g = a['__glasses'] || null;
+  var glDog = dogById((S && S.lastGlassId) ? S.lastGlassId : DOGS[0].id);
+  albGrid.innerHTML += '<div class="alb alb-gl' + (g && g.count ? ' done' : ' lock') + '">'
+    + '<div class="alb-art" style="--c1:#ffe9a8;--c2:#ffb0d8">' + dogSVG(glDog, {glasses: true})
+    +   (g && g.count ? '<span class="alb-spark">✨</span>' : '') + '</div>'
+    + '<div class="alb-name">金メガネミニ痛バ</div>'
+    + '<div class="alb-meta">' + (g && g.count ? ('特別枠 完成 ' + g.count + '回') : '特別枠 未完成') + '</div>'
+    + (g && g.count ? '' : '<span class="alb-lock">🔒</span>')
+    + '</div>';
   albCount.textContent = done + ' / ' + ALLD.length + ' 犬種コンプ';
   albTotal.textContent = '痛バ完成 ' + total + '回';
 }
@@ -2484,8 +2673,10 @@ function backToTitle(){
   atmBtn.classList.add('hidden');
   clearFx();
   bag.style.visibility = '';
-  bag.classList.remove('torn', 'shake', 'rainbow');
+  bag.classList.remove('torn', 'shake', 'rainbow', 'bulk');
   shreds.innerHTML = '';
+  peel.mode = 'single';
+  closeOyasan(); closeMini();
   resetPeel();
   show('title');
   screens.title.scrollTop = 0;
@@ -2507,7 +2698,7 @@ bag.addEventListener('pointerdown', beginPeel);
 bag.addEventListener('pointermove', movePeel);
 bag.addEventListener('pointerup', endPeel);
 bag.addEventListener('pointercancel', endPeel);
-bulkBtn.addEventListener('click', function(e){ e.preventDefault(); openBulk(); });
+bulkBtn.addEventListener('click', function(e){ e.preventDefault(); armBulk(); });
 atmBtn.addEventListener('click', function(e){ e.preventDefault(); useAtm(); });
 
 pickGrid.addEventListener('click', function(e){
@@ -2547,6 +2738,19 @@ repliesEl.addEventListener('click', function(e){
 });
 
 giveUpBtn.addEventListener('click', function(){ if (playing && S) toBankrupt(); });
+oyYes.addEventListener('click', oyAccept);
+oyNo.addEventListener('click', closeOyasan);
+oyasanBack.addEventListener('click', closeOyasan);
+miniOk.addEventListener('click', function(){
+  if (!S) return;
+  S.funds += 2000;
+  updateHUD(); updateAtmBtn();
+  toast('🕶️ ミニ痛バ完成ボーナス！ 軍資金 +¥2,000', 2400);
+  sfxCoin();
+  closeMini();
+});
+miniClose.addEventListener('click', closeMini);
+miniBack.addEventListener('click', closeMini);
 albumBtn.addEventListener('click', openAlbum);
 albumBtn2.addEventListener('click', openAlbum);
 albumClose.addEventListener('click', closeAlbum);
