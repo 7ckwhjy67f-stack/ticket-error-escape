@@ -3112,6 +3112,8 @@ if (testMode){
   var wm = /[?&]w=(\d{2,4})/.exec(location.search);
   var hm = /[?&]h=(\d{2,4})/.exec(location.search);
   if (/[?&]hidden=1(&|$)/.test(location.search)) S.forceHidden = true;
+  var cm = /[?&]char=(idol|dog|cat|robot)(&|$)/.exec(location.search);
+  if (cm) S.forceChar = cm[1];
   if (wm) stage.style.width = wm[1] + 'px';
   if (hm) stage.style.height = hm[1] + 'px';
   if (wm || hm) setTimeout(resize, 0);
