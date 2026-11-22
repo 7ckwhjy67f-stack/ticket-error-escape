@@ -2450,7 +2450,7 @@ function renderReplies(){
       + (r.type !== 'no' && r.type !== 'empty' ? '<div class="rp-deal">' + dealText(r) + '</div>' : '')
       + (r.done
           ? '<div class="rp-res ' + (r.res === 'ok' ? 'ok' : 'no') + '">'
-            + (r.res === 'ok' ? '🤝 交換成立！' : 'お断りしました') + '</div>'
+            + (r.res === 'ok' ? '🤝 交換成立！' : (r.type === 'empty' ? 'スルーしました' : 'お断りしました')) + '</div>'
           : (quiet
               ? '<div class="rp-btns"><button class="no" data-i="' + i + '" data-act="no">閉じる</button></div>'
               : '<div class="rp-btns">'
