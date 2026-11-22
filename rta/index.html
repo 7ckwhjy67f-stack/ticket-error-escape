@@ -1422,6 +1422,40 @@ var Sound = (function(){
     if (S.phase === 'count') renderClock(performance.now() - S.t0);
   });
 
+  /* ---- temporary test hook (?dev=1) ---- */
+  if (/[?&]dev=1/.test(location.search)){
+    window.__rtaDev = {
+      state: S,
+      press: function(off){
+        S.t0 = performance.now() - (5000 + off * 1000);
+        S.last = performance.now();
+        S.pressOffset = off;
+        goCongestion(performance.now() - S.t0);
+      },
+      form: function(off){
+        S.t0 = performance.now() - (5000 + (off || 0.3) * 1000);
+        S.pressOffset = off || 0.3;
+        S.need = 1;
+        S.taps = 1;
+        startForm();
+      },
+      fill: function(){ S.gauge = 100; passCongestion(); },
+      clear: function(off, time, taps){
+        S.pressOffset = off;
+        S.taps = taps || 0;
+        S.t0 = performance.now() - (5000 + time * 1000);
+        finishClear(time);
+      },
+      revive: function(time){
+        S.pressOffset = 0.2; S.taps = 9;
+        S.phase = 'result';
+        renderResult(buildResult('revive', time || 20));
+      },
+      soldout: function(){ S.phase = 'form'; triggerSoldOut(S.limit); },
+      late: function(){ S.phase = 'form'; finishLate(0); }
+    };
+  }
+
   resetGame();
   showScreen(scrTitle);
 })();
