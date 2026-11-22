@@ -293,7 +293,8 @@
   .mini:active{ transform:scale(.99); }
   .mini em{ font-style:normal; font-size:11px; opacity:.85; font-weight:800; }
   .mini.bulk{ color:#0b0620; background:linear-gradient(100deg,#9fe1ff,#b9a5ff); }
-  .mini.atm{ color:#3a1a00; background:linear-gradient(100deg,#ffe07a,#ffb04a); box-shadow:0 6px 20px rgba(255,180,80,.4); animation:itaBeat 1.1s ease-in-out infinite; }
+  .mini.atm{ color:#3a1a00; background:linear-gradient(100deg,#ffe07a,#ffb04a); animation:atmGlow 1.4s ease-in-out infinite; }
+  @keyframes atmGlow{ 0%,100%{ box-shadow:0 6px 20px rgba(255,180,80,.35); } 50%{ box-shadow:0 6px 32px rgba(255,215,120,.85); } }
   .mini.hidden{ display:none; }
   .foot{ text-align:center; font-size:9.5px; color:#a99cbe; letter-spacing:.04em; }
 
@@ -434,6 +435,7 @@
   /* ================= RESULT ================= */
   #result{ justify-content:flex-start; overflow-y:auto; -webkit-overflow-scrolling:touch; touch-action:pan-y; }
   .res-inner{ width:100%; display:flex; flex-direction:column; align-items:center; margin:auto 0; }
+  #result.ita .res-inner{ padding-bottom:96px; }
   .rtag{
     font-size:10px; font-weight:900; letter-spacing:.16em; color:#ffe6f6;
     border:1px solid rgba(255,230,246,.4); border-radius:999px; padding:3px 12px;
@@ -1332,7 +1334,7 @@ function openBulk(){
   }
 
   showMulti(pulls, {
-    title: '📦 ' + pulls.length + '袋まとめて開封！',
+    title: '📦 ' + pulls.length + (pulls.length > 1 ? '袋まとめて開封！' : '袋開封！'),
     note: note,
     ita: itaHit,
     onNext: itaHit ? function(){ finishIta(); } : null
@@ -1641,6 +1643,7 @@ function itaBagHTML(d){
 }
 
 function renderResult(R, sec){
+  screens.result.classList.toggle('ita', R.rank === 'ITA');
   resTag.textContent = R.tag;
   resTag.className = 'rtag' + (R.rank === 'D' ? ' bad' : (R.rank === 'ITA' ? ' ita' : ''));
   resRank.textContent = R.rank;
@@ -1728,6 +1731,7 @@ function renderResult(R, sec){
    ============================================================ */
 function backToTitle(){
   playing = false; busy = false; revealOpen = false; revealReady = false; after = null;
+  screens.result.classList.remove('ita');
   if (tickId){ clearInterval(tickId); tickId = null; }
   segStart = 0;
   reveal.className = 'reveal';
