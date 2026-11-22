@@ -372,6 +372,20 @@
   #soldOut.revive .soTitle{ color:var(--gold); }
   #soldOut.revive .soIcon{ animation:reviveSpin .9s ease; }
   @keyframes reviveSpin{ 0%{ transform:rotate(-20deg) scale(.5) } 50%{ transform:rotate(12deg) scale(1.15) } 100%{ transform:rotate(0) scale(1) } }
+  /* hidden twist variants */
+  #soldOut.panic{ background:radial-gradient(80% 60% at 50% 50%, rgba(255,51,85,.26), rgba(3,6,12,.95)); }
+  #soldOut.panic .soTitle{ color:var(--red); }
+  #soldOut.panic .soIcon{ animation:shakeX .4s 2; }
+  #soldOut.machinery{ background:radial-gradient(80% 60% at 50% 50%, rgba(255,209,102,.20), rgba(3,6,12,.95)); }
+  #soldOut.machinery .soTitle{ color:var(--gold); }
+  #soldOut.machinery .soIcon{ animation:reviveSpin .9s ease; }
+  #soldOut.exchange{ background:radial-gradient(80% 60% at 50% 50%, rgba(57,230,168,.22), rgba(3,6,12,.95)); }
+  #soldOut.exchange .soTitle{ color:var(--green); }
+  #soldOut.exchange .soIcon{ animation:reviveSpin .9s ease; }
+  #scrCong.godline .gaugeFill{ background:linear-gradient(90deg,#ffd166,#7bffd0); box-shadow:0 0 22px rgba(255,209,102,.8); }
+  #scrCong.godline .code503{ color:#ffd166; text-shadow:0 0 28px rgba(255,209,102,.65); }
+  #scrCong.godline .codeSub{ color:#ffd166; }
+  #scrCong.godline .browser{ border-color:rgba(255,209,102,.5); box-shadow:0 0 0 1px rgba(255,209,102,.25), 0 20px 52px rgba(0,0,0,.55); }
 
   #toast{
     position:absolute; left:50%; bottom:calc(env(safe-area-inset-bottom) + 22px); z-index:90;
@@ -494,7 +508,7 @@
     </div>
 
     <button id="startBtn" class="bigBtn">勝負をはじめる（11:59:55〜）</button>
-    <div class="ruleRow"><span>指1本</span><span>約40秒</span><span>隠しルート2種</span></div>
+    <div class="ruleRow"><span>指1本</span><span>約40秒</span><span>隠しルート5種</span></div>
     <a class="tinyLink" href="../blind/">← 第5作：ランダム開封</a>
   </section>
 
@@ -530,9 +544,9 @@
         <div class="brUrl">https://ticket.example.jp/live2026/apply</div>
       </div>
       <div class="brBody">
-        <div class="code503">503</div>
-        <div class="codeSub">SERVICE UNAVAILABLE</div>
-        <div class="codeMsg">現在アクセスが集中しています。<br>時間をおいて再読み込みしてください。</div>
+        <div class="code503" id="code503">503</div>
+        <div class="codeSub" id="codeSub">SERVICE UNAVAILABLE</div>
+        <div class="codeMsg" id="codeMsg">現在アクセスが集中しています。<br>時間をおいて再読み込みしてください。</div>
         <div class="gaugeWrap">
           <div class="gaugeTop"><span id="gaugeLabel">サーバー混雑中…</span><b id="gaugePct">0%</b></div>
           <div class="gauge"><div class="gaugeFill" id="gaugeFill"></div></div>
@@ -726,6 +740,7 @@ var Sound = (function(){
       resOff = $('resOff'), resTaps = $('resTaps'), nextBtn = $('nextBtn'),
       retryBtn = $('retryBtn'), shareBtn = $('shareBtn');
   var toastEl = $('toast'), flashEl = $('flash');
+  var code503El = $('code503'), codeSubEl = $('codeSub'), codeMsgEl = $('codeMsg');
 
   /* =========================================================
      state
@@ -749,6 +764,9 @@ var Sound = (function(){
     target: '',
     lastTickSec: -1,
     gateBeeped: false,
+    godline: false,
+    machinery: false,
+    venue: false,
     result: null,
     raf: 0
   };
@@ -856,9 +874,16 @@ var Sound = (function(){
     S.robot = false;
     S.lastTickSec = -1;
     S.gateBeeped = false;
+    S.godline = false;
+    S.machinery = false;
+    S.venue = false;
     S.result = null;
     soldOutEl.classList.add('hidden');
-    soldOutEl.classList.remove('revive');
+    soldOutEl.classList.remove('revive', 'panic', 'machinery', 'exchange');
+    scrCong.classList.remove('godline');
+    code503El.textContent = '503';
+    codeSubEl.textContent = 'SERVICE UNAVAILABLE';
+    codeMsgEl.innerHTML = '現在アクセスが集中しています。<br>時間をおいて再読み込みしてください。';
     toastEl.className = '';
     clockFace.classList.remove('live');
     zoneLabel.className = 'clkZone';
@@ -1025,6 +1050,43 @@ var Sound = (function(){
     gaugeHint.textContent = off <= 80 ? 'このまま一発接続！' : '連打で回線をこじ開けろ！';
     reloadBtn.classList.remove('done');
     reloadBtn.textContent = '🔄 再読み込み！';
+
+    /* ---------- 隠しSSS：📡 神回線（5G直結） ---------- */
+    if (off > 80 && off <= 350 && Math.random() < 0.06){
+      S.godline = true;
+      S.need = 1;
+      S.lastTapAt = performance.now();
+      code503El.textContent = 'OK';
+      codeSubEl.textContent = 'NO CONGESTION';
+      codeMsgEl.innerHTML = 'アクセス集中なし。<br>そのまま申込ページへ接続します。';
+      gaugeLabel.textContent = '📡 5G直結・アクセス集中なし';
+      gaugeHint.textContent = '一発貫通！';
+      reloadBtn.textContent = '📡 5G直結で接続中…';
+      scrCong.classList.add('godline');
+      showScreen(scrCong);
+      Sound.full();
+      flashScreen();
+      toast('📡 神回線（5G直結）！アクセス集中ゼロ・一発貫通！', 'good', 1800);
+      later(function(){
+        if (S.phase !== 'cong') return;
+        S.gauge = 42; S.lastTapAt = performance.now();
+        gaugeFill.style.width = '42%'; gaugePct.textContent = '42%';
+      }, 200);
+      later(function(){
+        if (S.phase !== 'cong') return;
+        S.gauge = 80; S.lastTapAt = performance.now();
+        gaugeFill.style.width = '80%'; gaugePct.textContent = '80%';
+      }, 440);
+      later(function(){
+        if (S.phase !== 'cong') return;
+        S.gauge = 100; S.lastTapAt = performance.now();
+        gaugeFill.style.width = '100%'; gaugePct.textContent = '100%';
+        gaugeLabel.textContent = '✅ アクセス集中なし・一発貫通！';
+        passCongestion();
+      }, 720);
+      return;
+    }
+
     showScreen(scrCong);
 
     if (off <= 80){
@@ -1037,13 +1099,15 @@ var Sound = (function(){
   function updateCong(now, dt){
     var el = now - S.t0;
     congClock.textContent = clockText(el, 3);
-    if (now - S.lastTapAt > 90){
+    if (now - S.lastTapAt > 90 && !S.godline){
       S.gauge = Math.max(0, S.gauge - dt * 4.5);
     }
     gaugeFill.style.width = S.gauge.toFixed(1) + '%';
     gaugePct.textContent = Math.floor(S.gauge) + '%';
-    if (S.gauge >= 40 && S.gauge < 75) gaugeLabel.textContent = '接続試行中…';
-    if (S.gauge >= 75) gaugeLabel.textContent = 'あと少し…！';
+    if (!S.godline){
+      if (S.gauge >= 40 && S.gauge < 75) gaugeLabel.textContent = '接続試行中…';
+      if (S.gauge >= 75) gaugeLabel.textContent = 'あと少し…！';
+    }
   }
 
   function onReload(ev){
@@ -1074,9 +1138,9 @@ var Sound = (function(){
     flashScreen();
     gaugeFill.style.width = '100%';
     gaugePct.textContent = '100%';
-    gaugeLabel.textContent = '✅ 接続成功！';
+    gaugeLabel.textContent = S.godline ? '📡 5G直結・一発貫通！' : '✅ 接続成功！';
     reloadBtn.classList.add('done');
-    reloadBtn.textContent = S.need === 1 ? '✅ 一発接続！' : '✅ 接続成功！';
+    reloadBtn.textContent = S.godline ? '📡 5G直結・一発貫通！' : (S.need === 1 ? '✅ 一発接続！' : '✅ 接続成功！');
     later(function(){
       if (S.phase !== 'congok') return;
       startForm();
@@ -1222,9 +1286,70 @@ var Sound = (function(){
       triggerSoldOut(time);
       return;
     }
+    if (!S.godline){
+      var left = S.limit - time;
+      if (Math.random() < 0.04){ triggerVenue(time); return; }
+      if (left < 3 && Math.random() < 0.35){ triggerMachinery(time); return; }
+    }
     finishClear(time);
   }
   submitBtn.addEventListener('pointerdown', onSubmit);
+
+  /* =========================================================
+     隠しルート演出（確定後に発動する逆転ルート）
+  ========================================================= */
+  function showTwist(theme, icon, title, sub){
+    soldOutEl.classList.remove('revive', 'panic', 'machinery', 'exchange');
+    if (theme) soldOutEl.classList.add(theme);
+    soIcon.textContent = icon;
+    soTitle.textContent = title;
+    soSub.textContent = sub;
+    soldOutEl.classList.remove('hidden');
+  }
+
+  /* 隠しSS：🪑 機材開放席・注釈付き指定席 */
+  function triggerMachinery(time){
+    S.phase = 'twist';
+    clearTimers();
+    showTwist('machinery', '🪑', '通常席は完売…', '最後の1席、まさか…？');
+    Sound.err();
+    shakeStage();
+    later(function(){
+      if (S.phase !== 'twist') return;
+      showTwist('machinery', '🪑✨', '機材開放席が1席だけ空いた！', '注釈付き指定席、ステージ袖の超近距離に滑り込んだ！');
+      Sound.revive();
+      flashScreen();
+      later(function(){
+        if (S.phase !== 'twist') return;
+        soldOutEl.classList.add('hidden');
+        S.machinery = true;
+        finishClear(time);
+      }, 1400);
+    }, 1100);
+  }
+
+  /* 隠しネタ：📅 日程・会場間違い → Xで交換成立 */
+  function triggerVenue(time){
+    S.phase = 'twist';
+    clearTimers();
+    showTwist('panic', '📅😱', 'よく見たら…大阪公演！？', '押したのは東京公演じゃなくて大阪公演でした…！');
+    Sound.err();
+    shakeStage();
+    flashScreen();
+    toast('😱 会場ちがい！？', 'bad', 1400);
+    later(function(){
+      if (S.phase !== 'twist') return;
+      showTwist('exchange', '🤝✨', 'でもXで交換成立！', '「大阪⇄東京 交換してください！」に即レス。無事に参戦決定！');
+      Sound.revive();
+      flashScreen();
+      later(function(){
+        if (S.phase !== 'twist') return;
+        soldOutEl.classList.add('hidden');
+        S.venue = true;
+        finishClear(time);
+      }, 1500);
+    }, 1600);
+  }
 
   /* =========================================================
      results
@@ -1264,6 +1389,31 @@ var Sound = (function(){
     }
 
     // success
+    /* ---------- 隠しルート（確定後に発動） ---------- */
+    if (S.godline){
+      r.kind = 'godline'; r.hidden = true;
+      r.grade = 'SSS'; r.cls = 'sssp'; r.gold = true; r.icon = '📡';
+      r.kicker = '隠しルート／神回線';
+      r.rank = '📡 神回線（5G直結）で503完全スキップ！';
+      r.msg = '押した瞬間、ルーターのランプが全部緑に…！アクセス集中ゼロ、503を一度も見ないまま一発貫通でフォーム直行。今日は回線ガチャまでSSS。';
+      return r;
+    }
+    if (S.venue){
+      r.kind = 'venue'; r.hidden = true;
+      r.grade = 'SS'; r.cls = 'ss'; r.gold = true; r.icon = '📅';
+      r.kicker = '隠しルート／会場ちがい';
+      r.rank = '📅 まさかの日程・会場間違い…からの交換成立！';
+      r.msg = '確定した瞬間に気づいた。「よく見たら東京じゃなくて大阪公演押してた！！」…からの、Xですぐ交換相手が見つかって無事参戦！オタクの絆、最強。';
+      return r;
+    }
+    if (S.machinery){
+      r.kind = 'machinery'; r.hidden = true;
+      r.grade = 'SS'; r.cls = 'ss'; r.gold = true; r.icon = '🪑';
+      r.kicker = '隠しルート／機材開放席';
+      r.rank = '🪑 機材開放席・注釈付き指定席を奇跡確保！';
+      r.msg = '通常席は完売だったのに、最後の1秒で滑り込んだのは機材開放席（注釈付き）。ステージ袖の超近距離、推しの汗まで見える席。';
+      return r;
+    }
     if (S.pressOffset <= 0.08){
       r.grade = 'SSS+'; r.cls = 'sssp'; r.gold = true; r.icon = '✨🎤';
       r.kicker = '隠しルート／超神速ジャスト';
@@ -1370,7 +1520,7 @@ var Sound = (function(){
         + '#先着チケ発RTA #推し活 #無料ブラウザゲーム';
     }
     var offTxt = r.off == null ? '—' : (Math.round(r.off * 1000)) + 'ms';
-    return '【先着チケ発RTA】🎫 ' + r.grade + '「' + r.rank + '」\n'
+    return '【先着チケ発RTA】🎫 ' + r.grade + '「' + r.rank + '」' + (r.hidden ? '（隠しルート）' : '') + '\n'
       + '確定 ' + r.time.toFixed(2) + '秒（ジャスト誤差 ' + offTxt + '）／再読み込み ' + r.taps + '回\n'
       + '#先着チケ発RTA #推し活 #無料ブラウザゲーム';
   }
@@ -1393,7 +1543,7 @@ var Sound = (function(){
     resGrade.className = r.cls || '';
     resGrade.innerHTML = '<span class="g">' + r.grade + '</span><span class="lbl">RANK</span>';
 
-    var success = (r.kind === 'clear' || r.kind === 'revive');
+    var success = (r.kind === 'clear' || r.kind === 'revive' || r.kind === 'godline' || r.kind === 'machinery' || r.kind === 'venue');
     nextBtn.classList.toggle('hidden', !success);
     shareBtn.setAttribute('href', shareUrl(r));
 
