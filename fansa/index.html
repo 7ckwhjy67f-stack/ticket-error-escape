@@ -205,6 +205,7 @@
     padding:10px 16px; border-radius:14px;
     background:rgba(16,8,30,.82); border:1px solid rgba(255,255,255,.16);
     box-shadow:0 10px 34px rgba(0,0,0,.45);
+    white-space:pre-line;
     opacity:0; transition:opacity .18s ease, transform .18s ease;
   }
   #toast.show{ opacity:1; transform:translate(-50%,-50%) scale(1); }
@@ -266,6 +267,14 @@
     box-shadow:0 18px 50px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.10);
   }
   .rlabel{ font-size:9.5px; letter-spacing:.34em; color:#a794d0; font-weight:800; }
+  .rchar{
+    display:inline-flex; align-items:center; gap:4px;
+    font-size:10.5px; font-weight:900; letter-spacing:.02em;
+    padding:2px 10px; border-radius:999px; margin-top:-3px;
+    background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.22);
+    color:#ffe9b8;
+  }
+  .rchar.hidden{ display:none; }
   #rRank{
     font-size:76px; line-height:.95; font-weight:900; letter-spacing:-.03em;
     background:linear-gradient(180deg,#fff 5%,#ffd0e6 35%,#ff5fa2 72%,#ffb86b 100%);
@@ -380,7 +389,7 @@
         <li><i>3</i><div><b>見られていない時に掲げっぱなしはNG</b><small>スタッフ警戒MAXで即・注意エンド</small></div></li>
       </ul>
       <button id="startBtn" class="btnMain big" type="button">🎤 トロッコ接近！スタンバイ</button>
-      <p class="foot">隠しルートあり（15〜20%）／🔊 音が出ます（右上でミュート）</p>
+      <p class="foot">隠しルートあり（15〜20%）／推し以外が乗ってくることも…？<br>🔊 音が出ます（右上でミュート）</p>
     </div>
   </section>
 
@@ -388,6 +397,7 @@
   <section id="result" class="screen hidden" aria-live="polite">
     <div class="rcard">
       <div class="rlabel">RESULT</div>
+      <div id="rChar" class="rchar hidden"></div>
       <div id="rRank" data-rank="C">C</div>
       <div id="rTitle">—</div>
       <div id="rSub">—</div>
@@ -635,16 +645,125 @@ var Sound = (function(){
 /* =========================================================
    game state
 ========================================================= */
-var CANPE = [
-  { text: '指さして', emoji: '👉', lines: ['指さして'] },
-  { text: 'ハート作って', emoji: '🫶', lines: ['ハート', '作って'] }
-];
-var TIERS = [
-  { name: 'お手振り', emoji: '👋', base: 40 },
-  { name: '指さし', emoji: '👉', base: 80 },
-  { name: 'ハート', emoji: '🫶', base: 130 },
-  { name: '両手投げキッス', emoji: '😘', base: 190 }
-];
+/* ---------- hidden characters (idol 81% / dog 7% / cat 7% / robot 5%) ---------- */
+var CHAR_DEFS = {
+  idol: {
+    id: 'idol', label: '推し', emoji: '🎤', rare: false,
+    canpePool: [
+      { text: '指さして', emoji: '👉', lines: ['指さして'] },
+      { text: 'ハート作って', emoji: '🫶', lines: ['ハート', '作って'] }
+    ],
+    tiers: [
+      { name: 'お手振り', emoji: '👋', base: 40 },
+      { name: '指さし', emoji: '👉', base: 80 },
+      { name: 'ハート', emoji: '🫶', base: 130 },
+      { name: '両手投げキッス', emoji: '😘', base: 190 }
+    ]
+  },
+  dog: {
+    id: 'dog', label: 'ワンちゃん', emoji: '🐶', rare: true,
+    canpePool: [
+      { text: 'お手して！', emoji: '🐾', lines: ['お手', 'して！'] },
+      { text: 'おすわりして！', emoji: '🦴', lines: ['おすわり', 'して！'] },
+      { text: '肉球見せて！', emoji: '🐶', lines: ['肉球', '見せて！'] }
+    ],
+    tiers: [
+      { name: 'しっぽフリ', emoji: '🐕', base: 40 },
+      { name: 'おて', emoji: '🐾', base: 80 },
+      { name: 'おすわり', emoji: '🦴', base: 130 },
+      { name: '肉球タッチ', emoji: '🐶', base: 190 }
+    ],
+    react: ['ワン！とお手してくれた！', 'しっぽブンブンで応えてくれた！', '肉球ペタッとタッチ！', '「クゥーン♡」と甘えてくれた'],
+    call: 'ワン！',
+    share: '🐶 今日はワンちゃんがトロッコに乗ってきた！',
+    titles: {
+      high: ['ワンちゃんが全力で応えてくれた人', 'おて＆おすわり完璧な人'],
+      mid: ['ワンちゃんに懐かれた人', '肉球まであと少しな人'],
+      low: ['しっぽフリ1回で満足した人'],
+      none: ['ワンちゃんに完全スルーされた人'],
+      manner: ['うちわを振りすぎてワンちゃんが逃げた人'],
+      hidden: ['トロッコ停止・ワンちゃんとゼロ距離確定ファンサ']
+    },
+    subs: {
+      high: 'ワンちゃんがしっぽブンブンで応えてくれた。確定ファンサ、もらいすぎ注意。',
+      mid: 'ワンちゃんとしっかり目が合った。肉球まであと一歩。',
+      low: 'ワンちゃんはちょっと気まぐれ。それでもしっぽは振ってくれた。',
+      none: 'ワンちゃんはトロッコの上でうたた寝。完全に空気と化した。',
+      manner: '「お客様、うちわは胸の高さでお願いします！」——ワンちゃんもびっくりして強制終了。',
+      hidden: 'ワンちゃんのトロッコが目の前で緊急停止。ゼロ距離で肉球タッチの確定ファンサを独占した。'
+    }
+  },
+  cat: {
+    id: 'cat', label: 'ネコちゃん', emoji: '🐱', rare: true,
+    canpePool: [
+      { text: 'にゃーんして！', emoji: '🐱', lines: ['にゃーん', 'して！'] },
+      { text: 'ふみふみして！', emoji: '🐾', lines: ['ふみふみ', 'して！'] },
+      { text: 'こっち向いて！', emoji: '👀', lines: ['こっち', '向いて！'] }
+    ],
+    tiers: [
+      { name: 'しっぽフリ', emoji: '🐈', base: 40 },
+      { name: 'にゃーん', emoji: '🐱', base: 80 },
+      { name: 'ふみふみ', emoji: '🐾', base: 130 },
+      { name: 'ゴロゴロ喉鳴らし', emoji: '😻', base: 190 }
+    ],
+    react: ['にゃーん♡と鳴いてくれた！', 'ゴロゴロ…と喉を鳴らしてくれた！', 'ふみふみ…と前足を揉んでくれた！', 'しっぽがピン！と立った！'],
+    call: 'にゃーん',
+    share: '🐱 今日はネコちゃんがトロッコに乗ってきた！',
+    titles: {
+      high: ['ネコちゃんが全力で甘えてきた人', 'ふみふみ完全再現された人'],
+      mid: ['ネコちゃんの気を引けた人', 'しっぽをピンと立ててもらった人'],
+      low: ['にゃーん1回で満足した人'],
+      none: ['ネコちゃんに完全無視された人'],
+      manner: ['うちわを振りすぎてネコちゃんに威嚇された人'],
+      hidden: ['トロッコ停止・ネコちゃんとゼロ距離確定ファンサ']
+    },
+    subs: {
+      high: 'ネコちゃんがゴロゴロ喉を鳴らして応えてくれた。今日は完全に懐かれた。',
+      mid: 'ネコちゃんと目が合った。ふみふみまであと一歩。',
+      low: 'ネコちゃんは今日もツンデレ。それでもしっぽは振ってくれた。',
+      none: 'ネコちゃんはトロッコの上で毛づくろい。こちらの存在に気づいていない。',
+      manner: '「お客様、うちわは胸の高さでお願いします！」——ネコちゃんが威嚇して強制終了。',
+      hidden: 'ネコちゃんのトロッコが目の前で緊急停止。ゼロ距離でゴロゴロ確定ファンサを独占した。'
+    }
+  },
+  robot: {
+    id: 'robot', label: 'ロボット', emoji: '🤖', rare: true,
+    canpePool: [
+      { text: 'ビーム出して！', emoji: '🔫', lines: ['ビーム', '出して！'] },
+      { text: 'ウィーンってして！', emoji: '⚙️', lines: ['ウィーン', 'ってして！'] },
+      { text: '充電100%に！', emoji: '🔋', lines: ['充電', '100%に！'] }
+    ],
+    tiers: [
+      { name: '点滅', emoji: '💡', base: 40 },
+      { name: 'ビーム', emoji: '⚡', base: 80 },
+      { name: 'ウィーン', emoji: '⚙️', base: 130 },
+      { name: '充電100%', emoji: '🔋', base: 190 }
+    ],
+    react: ['ﾋﾟﾋﾟｯ…ファンサ完了…', 'ｳｨｰﾝ…と腕を回してくれた！', 'ﾋﾞｰﾑ!!と光線を放った！', 'バッテリー残量100%になった！'],
+    call: 'ﾋﾟﾋﾟｯ',
+    share: '🤖 今日はロボットがトロッコに乗ってきた！',
+    titles: {
+      high: ['ロボットがファンサ機能を全開にした人', '充電100%にしてもらった人'],
+      mid: ['ロボットのビームを浴びた人', 'ウィーンと反応をもらった人'],
+      low: ['点滅1回で満足した人'],
+      none: ['ロボットに「対象外」判定された人'],
+      manner: ['うちわを振りすぎてロボットがエラーを出した人'],
+      hidden: ['トロッコ停止・ロボットとゼロ距離確定ファンサ']
+    },
+    subs: {
+      high: 'ロボットのファンサモードが全開。胸のパネルが虹色に光った。',
+      mid: 'ロボットはきっちり反応してくれた。充電100%まであと一歩。',
+      low: 'ロボットの反応は点滅1回。省エネモードだったらしい。',
+      none: 'ロボットは「ファンサ対象外」と表示して前を通過した。',
+      manner: '「お客様、うちわは胸の高さでお願いします！」——ロボットがエラーを出して強制終了。',
+      hidden: 'ロボットのトロッコが目の前で緊急停止。ゼロ距離で充電100%の確定ファンサを独占した。'
+    }
+  }
+};
+
+/* live lists for the current run (swapped per character) */
+var CANPE = CHAR_DEFS.idol.canpePool.slice(0, 2);
+var TIERS = CHAR_DEFS.idol.tiers;
 var DURATION = 16;
 var HIDDEN_CHANCE = 0.18;
 
@@ -671,6 +790,9 @@ var S = {
   flash: 0,
   hidden: false,
   forceHidden: false,
+  char: 'idol',
+  forceChar: null,
+  canpeList: CHAR_DEFS.idol.canpePool.slice(0, 2),
   stop: { active: false, t: 0, p: 0.52, pumped: false, given: false },
   result: null,
   endedKind: null
@@ -704,6 +826,7 @@ var el = {
   comboPill: document.getElementById('comboPill'),
   comboN: document.getElementById('comboN'),
   rRank: document.getElementById('rRank'),
+  rChar: document.getElementById('rChar'),
   rTitle: document.getElementById('rTitle'),
   rSub: document.getElementById('rSub'),
   rScore: document.getElementById('rScore'),
@@ -719,6 +842,36 @@ function showToast(text, ms, cls){
   toastTimer = setTimeout(function(){
     el.toast.className = '';
   }, ms || 1700);
+}
+
+/* =========================================================
+   hidden character picking
+========================================================= */
+function pickChar(){
+  var r = Math.random();
+  if (r < 0.07) return 'dog';
+  if (r < 0.14) return 'cat';
+  if (r < 0.19) return 'robot';
+  return 'idol';
+}
+function pickCanpePair(def){
+  var pool = def.canpePool.slice(0);
+  if (pool.length <= 2) return pool;
+  for (var i = pool.length - 1; i > 0; i--){
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = pool[i]; pool[i] = pool[j]; pool[j] = t;
+  }
+  return pool.slice(0, 2);
+}
+function applyChar(id){
+  S.char = CHAR_DEFS[id] ? id : 'idol';
+  var def = CHAR_DEFS[S.char];
+  S.canpeList = pickCanpePair(def);
+  CANPE = S.canpeList;
+  TIERS = def.tiers;
+}
+function isRare(){
+  return !!(CHAR_DEFS[S.char] && CHAR_DEFS[S.char].rare);
 }
 
 /* =========================================================
@@ -764,6 +917,7 @@ function startGame(){
   S.shake = 0;
   S.flash = 0;
   S.hidden = S.forceHidden || (Math.random() < HIDDEN_CHANCE);
+  applyChar(S.forceChar || pickChar());
   S.stop = { active: false, t: 0, p: 0.52, pumped: false, given: false };
   S.result = null;
   S.endedKind = null;
@@ -796,6 +950,7 @@ function backToTitle(){
   S.particles.length = 0;
   S.result = null;
   S.stop.active = false;
+  applyChar('idol');
   el.result.classList.add('hidden');
   el.hud.classList.add('hidden');
   el.controls.classList.add('hidden');
@@ -886,7 +1041,12 @@ function appeal(trigger){
 
   successFx(rec);
   Sound.success(tier);
-  showToast((flip ? '確定！' : '') + TIERS[tier].emoji + ' ' + TIERS[tier].name + '　+' + pts, 1100, 'good');
+  var toastLine = (flip ? '確定！' : '') + TIERS[tier].emoji + ' ' + TIERS[tier].name + '　+' + pts;
+  var chDef = CHAR_DEFS[S.char];
+  if (chDef.rare && chDef.react && chDef.react.length){
+    toastLine += '\n' + pick(chDef.react);
+  }
+  showToast(toastLine, 1100, 'good');
   if (S.combo >= 2){
     el.comboPill.classList.remove('hidden');
     el.comboN.textContent = S.combo;
@@ -1034,11 +1194,26 @@ function buildResult(kind){
     }
   }
 
+  var chDef = CHAR_DEFS[S.char];
+  if (chDef.rare){
+    var grp;
+    if (kind === 'hidden') grp = 'hidden';
+    else if (kind === 'manner') grp = 'manner';
+    else if (count === 0) grp = 'none';
+    else if (rank === 'SS' || rank === 'S') grp = 'high';
+    else if (rank === 'A' || rank === 'B') grp = 'mid';
+    else grp = 'low';
+    var tpool = chDef.titles[grp];
+    if (tpool && tpool.length) title = pick(tpool);
+    if (chDef.subs[grp]) sub = chDef.subs[grp];
+  }
+
   S.result = {
     kind: kind,
     rank: rank,
     title: title,
     sub: sub,
+    char: S.char,
     score: score,
     count: count,
     maxCombo: S.maxCombo,
@@ -1058,6 +1233,14 @@ function showResult(){
 
   el.rRank.textContent = R.rank;
   el.rRank.setAttribute('data-rank', R.rank);
+  var rc = CHAR_DEFS[R.char] || CHAR_DEFS.idol;
+  if (rc.rare){
+    el.rChar.textContent = rc.emoji + ' ' + rc.label + '回';
+    el.rChar.classList.remove('hidden');
+  } else {
+    el.rChar.textContent = '';
+    el.rChar.classList.add('hidden');
+  }
   el.rTitle.textContent = R.title;
   el.rSub.textContent = R.sub;
   el.rScore.textContent = fmt(R.score);
@@ -1098,7 +1281,9 @@ function showResult(){
 }
 
 function shareText(R){
+  var rc = CHAR_DEFS[R.char] || CHAR_DEFS.idol;
   return '「トロッコ通過！確定ファンサ奪取」で【' + R.rank + '】獲得！\n'
+    + (rc.rare ? rc.share + '\n' : '')
     + '称号：' + R.title + '\n'
     + 'スコア ' + fmt(R.score) + '／ファンサ' + R.count + '回\n'
     + '#確定ファンサ #推し活 #無料ブラウザゲーム';
@@ -1220,6 +1405,7 @@ function updateStop(dt){
     spawnHearts(pose.x, pose.y - pose.s * 140, 16);
     spawnStars(pose.x, pose.y - pose.s * 120, 16, ['#ffd76a', '#ff9ec8', '#fff']);
     addText(pose.x, pose.y - pose.s * 170, 'ゼロ距離確定ファンサ!!', '#ffe27a', 20);
+    if (isRare()) addText(pose.x, pose.y - pose.s * 206, CHAR_DEFS[S.char].call, '#ffe9b8', 17);
     S.flash = 0.5;
     S.shake = 9;
     Sound.success(3);
@@ -1336,6 +1522,10 @@ function successFx(rec){
   S.shake = 6;
   addText(x, y - 26, '+' + rec.pts, '#ffe27a', 25);
   addText(x, y - 54, rec.q + (rec.flip ? '・確定' : ''), rec.q === 'PERFECT' ? '#8ef7c0' : '#ffd0e2', 13);
+  var chDef = CHAR_DEFS[S.char];
+  if (chDef.rare){
+    addText(x, y - 84, chDef.call, '#ffe9b8', 18);
+  }
   S.particles.push({
     type: 'ring', x: x, y: y, vx: 0, vy: 0, g: 0,
     life: 0.6, max: 0.6, size: 12, rot: 0, vr: 0, color: '#ffe9b8'
@@ -1664,8 +1854,8 @@ function drawTrolley(pose, look, t){
     circle(bx - 2.4, by - 2.6, 2); ctx.fill();
   }
 
-  // oshi
-  drawOshi(0, -18, 1.62, gazing, t, S.mode === 'stop' || (S.mode === 'title'));
+  // oshi / hidden character
+  drawCharacter(0, -18, 1.62, gazing, t, S.mode === 'stop' || (S.mode === 'title'));
 
   ctx.restore();
 }
@@ -1808,6 +1998,387 @@ function drawOshi(x, y, sc, gazing, t, pointing){
     ctx.arc(0, -51, 2.4, 0.2 * Math.PI, 0.8 * Math.PI);
   }
   ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawCharacter(x, y, sc, gazing, t, pointing){
+  if (S.char === 'dog') { drawDog(x, y, sc, gazing, t); return; }
+  if (S.char === 'cat') { drawCat(x, y, sc, gazing, t); return; }
+  if (S.char === 'robot') { drawRobot(x, y, sc, gazing, t); return; }
+  drawOshi(x, y, sc, gazing, t, pointing);
+}
+
+/* ---------- 🐶 dog on the trolley ---------- */
+function drawDog(x, y, sc, gazing, t){
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(sc, sc);
+  ctx.translate(0, Math.sin(t * 3) * 0.8);
+
+  var fur = '#f6deb6', furD = '#e3c295', cream = '#fffaf0', inner = '#f3a9b0';
+
+  // shadow
+  ctx.fillStyle = 'rgba(0,0,0,.22)';
+  ctx.beginPath(); ctx.ellipse(0, 0, 22, 5, 0, 0, Math.PI * 2); ctx.fill();
+
+  // wagging tail
+  ctx.save();
+  ctx.translate(-15, -20);
+  ctx.rotate(-0.45 + Math.sin(t * (gazing ? 13 : 7)) * (gazing ? 0.55 : 0.3));
+  ctx.strokeStyle = furD;
+  ctx.lineWidth = 7;
+  ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(-9, -13, -3, -24); ctx.stroke();
+  ctx.fillStyle = cream;
+  circle(-3, -24, 4.2); ctx.fill();
+  ctx.restore();
+
+  // hind legs
+  ctx.fillStyle = fur;
+  rr(-17, -17, 15, 18, 7); ctx.fill();
+  rr(2, -17, 15, 18, 7); ctx.fill();
+
+  // body
+  var bg = ctx.createLinearGradient(0, -46, 0, -6);
+  bg.addColorStop(0, '#ffeed4');
+  bg.addColorStop(1, fur);
+  ctx.fillStyle = bg;
+  ctx.beginPath(); ctx.ellipse(0, -27, 17.5, 20, 0, 0, Math.PI * 2); ctx.fill();
+
+  // chest fluff
+  ctx.fillStyle = cream;
+  ctx.beginPath(); ctx.ellipse(0, -25, 10, 14, 0, 0, Math.PI * 2); ctx.fill();
+
+  // front paws
+  ctx.fillStyle = cream;
+  rr(-12, -13, 10, 14, 5); ctx.fill();
+  rr(2, -13, 10, 14, 5); ctx.fill();
+  ctx.strokeStyle = 'rgba(190,150,110,.30)';
+  ctx.lineWidth = 1;
+  for (var p = 0; p < 2; p++){
+    ctx.beginPath();
+    ctx.moveTo(-2 + p * 14, -3.5);
+    ctx.lineTo(-2 + p * 14, -8.5);
+    ctx.stroke();
+  }
+
+  // ears
+  ctx.fillStyle = furD;
+  ctx.beginPath(); ctx.moveTo(-15, -66); ctx.lineTo(-19, -82); ctx.lineTo(-3, -71); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(15, -66); ctx.lineTo(19, -82); ctx.lineTo(3, -71); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = inner;
+  ctx.beginPath(); ctx.moveTo(-13.5, -67); ctx.lineTo(-16.4, -77.5); ctx.lineTo(-6.4, -70.6); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(13.5, -67); ctx.lineTo(16.4, -77.5); ctx.lineTo(6.4, -70.6); ctx.closePath(); ctx.fill();
+
+  // head
+  var hg = ctx.createRadialGradient(-5, -64, 3, 0, -56, 22);
+  hg.addColorStop(0, '#fff3de');
+  hg.addColorStop(1, fur);
+  ctx.fillStyle = hg;
+  circle(0, -56, 17.5); ctx.fill();
+
+  // muzzle
+  ctx.fillStyle = cream;
+  ctx.beginPath(); ctx.ellipse(0, -48, 9.5, 7.6, 0, 0, Math.PI * 2); ctx.fill();
+
+  // nose
+  ctx.fillStyle = '#4a3427';
+  ctx.beginPath();
+  ctx.moveTo(-3.2, -53.6); ctx.lineTo(3.2, -53.6); ctx.lineTo(0, -49.9);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.55)';
+  ctx.beginPath(); ctx.ellipse(-1.1, -52.4, 1.1, 0.7, -0.4, 0, Math.PI * 2); ctx.fill();
+
+  // mouth
+  ctx.strokeStyle = '#8a6a52';
+  ctx.lineWidth = 1.1;
+  ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(0, -49.8); ctx.lineTo(0, -46.6); ctx.stroke();
+  if (gazing){
+    ctx.fillStyle = '#ff8fb0';
+    rr(-3.4, -46.8, 6.8, 4.6, 2.3); ctx.fill();
+    ctx.strokeStyle = '#d1547c';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(0, -46.8); ctx.lineTo(0, -42.4); ctx.stroke();
+  } else {
+    ctx.beginPath(); ctx.arc(-2.6, -46.2, 2.2, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+    ctx.beginPath(); ctx.arc(2.6, -46.2, 2.2, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+  }
+
+  // eyes
+  ctx.fillStyle = '#2e231c';
+  if (gazing){
+    ctx.beginPath(); ctx.ellipse(-6.2, -59.2, 3.2, 4.2, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(6.2, -59.2, 3.2, 4.2, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#fff';
+    circle(-7.4, -60.8, 1.4); ctx.fill();
+    circle(5.0, -60.8, 1.4); ctx.fill();
+    ctx.fillStyle = 'rgba(255,140,170,.45)';
+    circle(-11.6, -53.8, 3.4); ctx.fill();
+    circle(11.6, -53.8, 3.4); ctx.fill();
+  } else {
+    ctx.beginPath(); ctx.ellipse(-6.4, -59.2, 2.3, 2.8, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(6.4, -59.2, 2.3, 2.8, 0, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // brows
+  ctx.strokeStyle = 'rgba(140,104,72,.5)';
+  ctx.lineWidth = 1.1;
+  ctx.beginPath(); ctx.moveTo(-9.6, -65.6); ctx.lineTo(-4, -64.6); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(9.6, -65.6); ctx.lineTo(4, -64.6); ctx.stroke();
+
+  // collar + tag
+  ctx.fillStyle = '#ff5fa2';
+  rr(-12, -41.6, 24, 4.4, 2.2); ctx.fill();
+  ctx.fillStyle = '#ffd76a';
+  circle(0, -35.4, 3.4); ctx.fill();
+  ctx.strokeStyle = 'rgba(160,110,20,.5)';
+  ctx.lineWidth = 0.8;
+  circle(0, -35.4, 3.4); ctx.stroke();
+
+  ctx.restore();
+}
+
+/* ---------- 🐱 cat on the trolley ---------- */
+function drawCat(x, y, sc, gazing, t){
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(sc, sc);
+  ctx.translate(0, Math.sin(t * 3.2) * 0.7);
+
+  var fur = '#eae6f7', furD = '#c8c1dd', cream = '#fdfbff', inner = '#f5a8c0';
+
+  ctx.fillStyle = 'rgba(0,0,0,.22)';
+  ctx.beginPath(); ctx.ellipse(0, 0, 20, 5, 0, 0, Math.PI * 2); ctx.fill();
+
+  // tail
+  ctx.save();
+  ctx.translate(14, -16);
+  ctx.rotate(-0.35 + Math.sin(t * (gazing ? 9 : 5.5)) * (gazing ? 0.42 : 0.24));
+  ctx.strokeStyle = furD;
+  ctx.lineWidth = 6.5;
+  ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(12, -8, 8, -26); ctx.stroke();
+  ctx.restore();
+
+  // hind legs
+  ctx.fillStyle = fur;
+  rr(-15, -16, 13, 17, 6.5); ctx.fill();
+  rr(2, -16, 13, 17, 6.5); ctx.fill();
+
+  // body
+  var bg = ctx.createLinearGradient(0, -46, 0, -6);
+  bg.addColorStop(0, '#fbf9ff');
+  bg.addColorStop(1, fur);
+  ctx.fillStyle = bg;
+  ctx.beginPath(); ctx.ellipse(0, -27, 16, 19, 0, 0, Math.PI * 2); ctx.fill();
+
+  // chest
+  ctx.fillStyle = cream;
+  ctx.beginPath(); ctx.ellipse(0, -25, 9, 13, 0, 0, Math.PI * 2); ctx.fill();
+
+  // front paws
+  ctx.fillStyle = cream;
+  rr(-11, -13, 9, 14, 4.5); ctx.fill();
+  rr(2, -13, 9, 14, 4.5); ctx.fill();
+
+  // ears
+  ctx.fillStyle = furD;
+  ctx.beginPath(); ctx.moveTo(-15, -64); ctx.lineTo(-12, -82); ctx.lineTo(-1, -69); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(15, -64); ctx.lineTo(12, -82); ctx.lineTo(1, -69); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = inner;
+  ctx.beginPath(); ctx.moveTo(-12.4, -66.5); ctx.lineTo(-11, -77); ctx.lineTo(-4, -69.6); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(12.4, -66.5); ctx.lineTo(11, -77); ctx.lineTo(4, -69.6); ctx.closePath(); ctx.fill();
+
+  // head
+  var hg = ctx.createRadialGradient(-5, -63, 2, 0, -55, 21);
+  hg.addColorStop(0, '#ffffff');
+  hg.addColorStop(1, fur);
+  ctx.fillStyle = hg;
+  circle(0, -55, 16.5); ctx.fill();
+
+  // forehead stripes
+  ctx.strokeStyle = 'rgba(168,158,198,.5)';
+  ctx.lineWidth = 1.6;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(-3.4, -70); ctx.lineTo(-4.4, -66);
+  ctx.moveTo(0, -71); ctx.lineTo(0, -66.6);
+  ctx.moveTo(3.4, -70); ctx.lineTo(4.4, -66);
+  ctx.stroke();
+
+  // eyes
+  if (gazing){
+    ctx.strokeStyle = '#3a3150';
+    ctx.lineWidth = 1.9;
+    ctx.beginPath(); ctx.arc(-6, -56, 3.4, Math.PI * 1.12, Math.PI * 1.88); ctx.stroke();
+    ctx.beginPath(); ctx.arc(6, -56, 3.4, Math.PI * 1.12, Math.PI * 1.88); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,140,175,.42)';
+    circle(-10.8, -51, 3.1); ctx.fill();
+    circle(10.8, -51, 3.1); ctx.fill();
+  } else {
+    ctx.fillStyle = '#3a3150';
+    ctx.beginPath(); ctx.ellipse(-6, -56, 2.6, 3.4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(6, -56, 2.6, 3.4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#fff';
+    circle(-6.9, -57.2, 1.1); ctx.fill();
+    circle(5.1, -57.2, 1.1); ctx.fill();
+  }
+
+  // nose + mouth
+  ctx.fillStyle = '#f08fa8';
+  ctx.beginPath(); ctx.moveTo(-2.6, -50.6); ctx.lineTo(2.6, -50.6); ctx.lineTo(0, -48.2); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#b06a84';
+  ctx.lineWidth = 1.1;
+  ctx.beginPath(); ctx.moveTo(0, -48.2); ctx.lineTo(0, -46.4); ctx.stroke();
+  ctx.beginPath(); ctx.arc(-2.4, -46.4, 2.1, 0.12 * Math.PI, 0.88 * Math.PI); ctx.stroke();
+  ctx.beginPath(); ctx.arc(2.4, -46.4, 2.1, 0.12 * Math.PI, 0.88 * Math.PI); ctx.stroke();
+
+  // whiskers
+  ctx.strokeStyle = 'rgba(120,110,150,.55)';
+  ctx.lineWidth = 0.9;
+  for (var w = 0; w < 2; w++){
+    ctx.beginPath(); ctx.moveTo(-9, -51 + w * 3); ctx.lineTo(-19, -52.5 + w * 4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(9, -51 + w * 3); ctx.lineTo(19, -52.5 + w * 4); ctx.stroke();
+  }
+
+  // collar + bell
+  ctx.fillStyle = '#ff5fa2';
+  rr(-11, -41.2, 22, 4, 2); ctx.fill();
+  ctx.fillStyle = '#ffd76a';
+  circle(0, -35.6, 3.2); ctx.fill();
+  ctx.strokeStyle = 'rgba(160,110,20,.5)';
+  ctx.lineWidth = 0.8;
+  circle(0, -35.6, 3.2); ctx.stroke();
+
+  ctx.restore();
+}
+
+/* ---------- 🤖 retro robot on the trolley ---------- */
+function drawRobot(x, y, sc, gazing, t){
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(sc, sc);
+  ctx.translate(0, Math.sin(t * 2.6) * 1.1);
+
+  var metal = '#c3cbe0', metalD = '#7c88a8', dark = '#2b3350', glow = '#7be6ff';
+
+  ctx.fillStyle = 'rgba(0,0,0,.24)';
+  ctx.beginPath(); ctx.ellipse(0, 0, 21, 5, 0, 0, Math.PI * 2); ctx.fill();
+
+  // legs
+  ctx.fillStyle = metalD;
+  rr(-12, -17, 9, 17, 3); ctx.fill();
+  rr(3, -17, 9, 17, 3); ctx.fill();
+  ctx.fillStyle = metal;
+  rr(-14, -5, 12, 5, 2.2); ctx.fill();
+  rr(2, -5, 12, 5, 2.2); ctx.fill();
+
+  // body
+  var bg = ctx.createLinearGradient(-16, -48, 16, -10);
+  bg.addColorStop(0, '#e7ecf8');
+  bg.addColorStop(0.5, metal);
+  bg.addColorStop(1, '#8d99b8');
+  ctx.fillStyle = bg;
+  rr(-16, -48, 32, 36, 9); ctx.fill();
+  ctx.strokeStyle = 'rgba(43,51,80,.5)';
+  ctx.lineWidth = 1.4;
+  rr(-16, -48, 32, 36, 9); ctx.stroke();
+
+  // chest panel with LEDs
+  ctx.fillStyle = dark;
+  rr(-10, -40, 20, 13, 4); ctx.fill();
+  for (var i = 0; i < 3; i++){
+    ctx.fillStyle = (Math.floor(t * 4) + i) % 3 ? 'rgba(123,230,255,.92)' : 'rgba(123,230,255,.26)';
+    rr(-7.6 + i * 5.4, -37.6, 3.4, 8, 1.5); ctx.fill();
+  }
+  ctx.fillStyle = 'rgba(255,255,255,.75)';
+  circle(-12, -44.6, 1.5); ctx.fill();
+  circle(12, -44.6, 1.5); ctx.fill();
+
+  // left arm
+  ctx.strokeStyle = metalD;
+  ctx.lineWidth = 5;
+  ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(-16, -42); ctx.lineTo(-22, -30); ctx.stroke();
+  ctx.fillStyle = metal;
+  circle(-23, -28, 4); ctx.fill();
+
+  // right arm (waves when gazing)
+  ctx.save();
+  ctx.translate(16, -42);
+  var ang = gazing ? (-1.2 + Math.sin(t * 8) * 0.24) : (0.55 + Math.sin(t * 3) * 0.08);
+  ctx.rotate(ang);
+  ctx.strokeStyle = metalD;
+  ctx.lineWidth = 5;
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, 16); ctx.stroke();
+  ctx.fillStyle = metal;
+  circle(0, 18, 4.6); ctx.fill();
+  ctx.strokeStyle = 'rgba(123,230,255,.75)';
+  ctx.lineWidth = 1.2;
+  circle(0, 18, 4.6); ctx.stroke();
+  ctx.restore();
+
+  // neck
+  ctx.fillStyle = metalD;
+  rr(-4, -52, 8, 5, 2); ctx.fill();
+
+  // antenna
+  ctx.strokeStyle = metalD;
+  ctx.lineWidth = 2.2;
+  ctx.beginPath(); ctx.moveTo(0, -76); ctx.lineTo(0, -84); ctx.stroke();
+  var blink = 0.5 + 0.5 * Math.sin(t * 6);
+  ctx.fillStyle = 'rgba(255,110,150,' + (0.55 + 0.45 * blink).toFixed(2) + ')';
+  circle(0, -86, 3.3); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.8)';
+  circle(-1, -87, 1.1); ctx.fill();
+
+  // head
+  var hg = ctx.createLinearGradient(-16, -78, 16, -52);
+  hg.addColorStop(0, '#eef2fb');
+  hg.addColorStop(0.55, metal);
+  hg.addColorStop(1, '#8b97b6');
+  ctx.fillStyle = hg;
+  rr(-16, -78, 32, 26, 8); ctx.fill();
+  ctx.strokeStyle = 'rgba(43,51,80,.5)';
+  ctx.lineWidth = 1.4;
+  rr(-16, -78, 32, 26, 8); ctx.stroke();
+
+  // side bolts
+  ctx.fillStyle = metalD;
+  circle(-16.5, -65, 2.2); ctx.fill();
+  circle(16.5, -65, 2.2); ctx.fill();
+
+  // screen face
+  ctx.fillStyle = '#141a2c';
+  rr(-12, -74, 24, 18, 5); ctx.fill();
+  ctx.save();
+  rr(-12, -74, 24, 18, 5); ctx.clip();
+  var sg = ctx.createLinearGradient(0, -74, 0, -56);
+  sg.addColorStop(0, 'rgba(123,230,255,.22)');
+  sg.addColorStop(1, 'rgba(123,230,255,.05)');
+  ctx.fillStyle = sg;
+  ctx.fillRect(-12, -74, 24, 18);
+  ctx.fillStyle = 'rgba(255,255,255,.07)';
+  ctx.fillRect(-12, -74 + ((t * 22) % 18), 24, 1.6);
+  ctx.restore();
+
+  // glowing eyes + mouth
+  ctx.save();
+  ctx.fillStyle = glow;
+  ctx.shadowColor = 'rgba(123,230,255,.95)';
+  ctx.shadowBlur = 8;
+  if (gazing){
+    circle(-6, -66, 3.2); ctx.fill();
+    circle(6, -66, 3.2); ctx.fill();
+    rr(-4.5, -61.6, 9, 3.6, 1.8); ctx.fill();
+  } else {
+    rr(-8.6, -68, 4.8, 3.4, 1.2); ctx.fill();
+    rr(3.8, -68, 4.8, 3.4, 1.2); ctx.fill();
+    rr(-3.6, -61.2, 7.2, 2.2, 1.1); ctx.fill();
+  }
+  ctx.restore();
 
   ctx.restore();
 }
@@ -2515,6 +3086,9 @@ window.__fansa = {
       alert: Number(S.alert.toFixed(1)),
       fansa: S.fansa.length,
       hidden: S.hidden,
+      char: S.char,
+      canpe: (S.canpeList || []).map(function(c){ return c.text; }),
+      charLabel: CHAR_DEFS[S.char] ? CHAR_DEFS[S.char].label : null,
       stop: S.stop.active,
       rank: S.result ? S.result.rank : null,
       title: S.result ? S.result.title : null,
@@ -2527,6 +3101,8 @@ window.__fansa = {
 if (testMode){
   window.__fansa.test = {
     forceHidden: function(){ S.forceHidden = true; },
+    setChar: function(id){ S.forceChar = id; },
+    setCharNow: function(id){ applyChar(id); },
     finish: function(kind){ finish(kind || 'normal'); },
     setTime: function(t){ S.t = t; },
     setFlip: function(k){ flipFreeze = true; S.canpePrev = S.canpe; S.canpe = 1 - S.canpe; S.flipAnim = k; },
