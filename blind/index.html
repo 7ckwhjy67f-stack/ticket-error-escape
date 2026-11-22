@@ -2881,6 +2881,20 @@ document.addEventListener('visibilitychange', function(){
   else if (playing && !revealOpen && !busy){ resumeTimer(); }
 });
 
+/* ===== TEMP DEV HOOK (removed before release) ===== */
+if (/(\?|&)dev=1/.test(location.search)){
+  window.__blind = {
+    set: function(o){
+      for (var k in o){ if (Object.prototype.hasOwnProperty.call(o,k)) S[k] = o[k]; }
+      updateOshi(); renderDups(); updateHUD(); updateAtmBtn(); updateGl();
+    },
+    oyasan: showOyasanChance,
+    mini: showMini,
+    finish: finishOshiIta,
+    album: openAlbum
+  };
+}
+
 })();
 </script>
 </body>
