@@ -713,6 +713,8 @@
   }
   .oy-btns{ margin-top:10px; }
   .oy-btns button{ padding:12px 6px; font-size:12.5px; }
+  .rp-btns .no.danger{ color:#ff9ecb; border-color:rgba(255,120,180,.5); background:rgba(255,80,140,.12); }
+  #quitYes{ order:2; }
 
   .mini-art{
     display:grid; grid-template-columns:repeat(3,1fr); gap:4px;
@@ -928,6 +930,23 @@
       </div>
     </div>
   </section>
+
+  <!-- ============ 破産の確認 ============ -->
+  <div id="quit" class="modal">
+    <div class="back" id="quitBack"></div>
+    <div class="tcard small">
+      <div class="thead"><span>🛑 本当に破産（終了）しますか？</span></div>
+      <div class="tbody">
+        <div class="oy-msg">現在 <b id="quitNow" style="color:#ffe58a;font-size:15px">0</b> / 30個。<br>
+          ここで諦めると痛バは完成しません。<br>
+          <span style="color:#c9b9e4;font-size:11px">軍資金の補充は何度でもできます。</span></div>
+        <div class="rp-btns oy-btns">
+          <button class="ok" id="quitNo">キャンセル</button>
+          <button class="no danger" id="quitYes">本当に破産する</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ============ 現地交換お姉さん ============ -->
   <div id="oyasan" class="modal">
@@ -1169,8 +1188,8 @@ function peelSVG(){
   + '</defs>'
   // 開いた口（テープが剥がれたところから見える中身）
   + '<g id="pMouthG" opacity="0">'
-  +   '<rect id="pMouth" x="26" y="32" width="0" height="22" rx="9" fill="url(#pMouthG)"/>'
-  +   '<rect id="pLip" x="26" y="32" width="0" height="3.6" rx="1.8" fill="#eef3ff" opacity=".9"/>'
+  +   '<rect id="pMouth" x="26" y="31" width="0" height="25" rx="10" fill="url(#pMouthG)"/>'
+  +   '<rect id="pLip" x="26" y="31" width="0" height="3.6" rx="1.8" fill="#eef3ff" opacity=".9"/>'
   + '</g>'
   // めくれたテープ
   + '<path id="pLiftSh" d="" fill="#0a0614" opacity=".32"/>'
@@ -1504,7 +1523,7 @@ function updateHUD(){
 function updateAtmBtn(){
   if (!S){ atmBtn.classList.add('hidden'); giveUpBtn.classList.add('hidden'); return; }
   var out = S.funds < PRICE;
-  var show = !!(playing && !revealOpen && !tradeOpen);
+  var show = !!(playing && !revealOpen && !tradeOpen && !oyasanOpenNow && !quitOpenNow);
   atmBtn.classList.toggle('hidden', !(show && (out || S.funds < PRICE * 4)));
   giveUpBtn.classList.toggle('hidden', !(show && out));
 }
@@ -1588,8 +1607,8 @@ function setPeel(v){
   pMouthEl.setAttribute('width', mw);
   pLipEl.setAttribute('width', mw);
 
-  var rise = 5 + 31 * Math.sin(Math.min(1, p * 1.05) * Math.PI / 2);
-  var th = 16;
+  var rise = 7 + 24 * Math.sin(Math.min(1, p * 1.05) * Math.PI / 2);
+  var th = 11;
   var midX = L + W * p * 0.55;
   var backX = fx - W * p * 0.32;
   var topY = 52 - rise;
@@ -1604,8 +1623,8 @@ function setPeel(v){
     + ' C' + midX + ',' + (52 - rise * 0.6 - th + 3) + ' ' + backX + ',' + (52 - th + 3) + ' ' + fx + ',' + (52 - th + 3));
   pCurl.setAttribute('cx', L + 7);
   pCurl.setAttribute('cy', topY - th / 2);
-  pCurl.setAttribute('rx', 8.5);
-  pCurl.setAttribute('ry', th / 2 + 2);
+  pCurl.setAttribute('rx', 6.5);
+  pCurl.setAttribute('ry', th / 2 + 1.5);
 }
 
 function resetPeel(){
@@ -2376,6 +2395,30 @@ function acceptReply(i){
 }
 
 /* ============================================================
+   破産（終了）の確認
+   ============================================================ */
+function openQuit(){
+  if (!S || !playing || revealOpen || tradeOpen || oyasanOpenNow) return;
+  quitNow.textContent = String(S.oshi);
+  quitOpenNow = true;
+  quitEl.classList.add('show');
+  pauseTimer();
+  ensureAC(); sfxDeny();
+  updateAtmBtn();
+}
+function closeQuit(){
+  if (!quitOpenNow) return;
+  quitOpenNow = false;
+  quitEl.classList.remove('show');
+  if (playing && !revealOpen && !oyasanOpenNow && !miniEl.classList.contains('show')) resumeTimer();
+  updateAtmBtn();
+}
+function quitConfirm(){
+  closeQuit();
+  toBankrupt();
+}
+
+/* ============================================================
    金メガネコレクション（ミニ痛バ 3x3）
    ============================================================ */
 function updateGl(){
@@ -2461,6 +2504,8 @@ var glRow = $('glRow'), glNum = $('glNum'), glSub = $('glSub'), bulkTag = $('bul
 var oyasanEl = $('oyasan'), oyArt = $('oyArt'), oyMsg = $('oyMsg'), oyDeal = $('oyDeal');
 var oyYes = $('oyYes'), oyNo = $('oyNo'), oyasanBack = $('oyasanBack');
 var miniEl = $('mini'), miniArt = $('miniArt'), miniOk = $('miniOk'), miniClose = $('miniClose'), miniBack = $('miniBack');
+var quitEl = $('quit'), quitNow = $('quitNow'), quitYes = $('quitYes'), quitNo = $('quitNo'), quitBack = $('quitBack');
+var quitOpenNow = false;
 
 function loadAlbum(){
   try {
@@ -2676,7 +2721,7 @@ function backToTitle(){
   bag.classList.remove('torn', 'shake', 'rainbow', 'bulk');
   shreds.innerHTML = '';
   peel.mode = 'single';
-  closeOyasan(); closeMini();
+  closeOyasan(); closeMini(); closeQuit();
   resetPeel();
   show('title');
   screens.title.scrollTop = 0;
@@ -2737,7 +2782,10 @@ repliesEl.addEventListener('click', function(e){
   acceptReply(i);
 });
 
-giveUpBtn.addEventListener('click', function(){ if (playing && S) toBankrupt(); });
+giveUpBtn.addEventListener('click', openQuit);
+quitYes.addEventListener('click', quitConfirm);
+quitNo.addEventListener('click', closeQuit);
+quitBack.addEventListener('click', closeQuit);
 oyYes.addEventListener('click', oyAccept);
 oyNo.addEventListener('click', closeOyasan);
 oyasanBack.addEventListener('click', closeOyasan);
