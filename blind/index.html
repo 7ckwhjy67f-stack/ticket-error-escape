@@ -2302,7 +2302,7 @@ function renderComposer(){
 }
 
 function pickReplyType(used){
-  var weights = [['god',18],['equal',34],['ratio2',22],['ratio3',10],['bundle',8],['no',8]];
+  var weights = [['god',16],['equal',28],['ratio2',26],['ratio3',12],['bundle',10],['no',8]];
   var pool = weights.filter(function(w){ return used.indexOf(w[0]) < 0; });
   if (!pool.length) pool = weights;
   var total = 0;
@@ -2312,8 +2312,10 @@ function pickReplyType(used){
   return pool[0][0];
 }
 
-function makeReply(offered, used){
-  var u = RP_USERS[rand(RP_USERS.length)];
+function makeReply(offered, used, usedUsers){
+  var pool = RP_USERS.filter(function(x){ return (usedUsers || []).indexOf(x.h) < 0; });
+  if (!pool.length) pool = RP_USERS;
+  var u = pool[rand(pool.length)];
   var d = offered[rand(offered.length)];
   var T = S.target.name;
   var type = pickReplyType(used || []);
@@ -2385,10 +2387,11 @@ function postTrade(){
   replyWrap.style.display = '';
   trade.replies = [];
   var n = 1 + rand(3);
-  var used = [];
+  var used = [], usedUsers = [];
   for (var i=0;i<n;i++){
-    var r = makeReply(offered, used);
+    var r = makeReply(offered, used, usedUsers);
     used.push(r.type);
+    usedUsers.push(r.u.h);
     trade.replies.push(r);
   }
   renderReplies();
