@@ -1695,8 +1695,8 @@ function endPeel(){
   if (peel.p > 0.45) toast('あと少し！ 最後までなぞるとペリペリッ！', 1500);
   peel.holdT = setTimeout(function(){
     peel.holdT = 0;
-    animatePeelTo(0, 340, function(){ dragCue.style.display = ''; tapHint.classList.remove('off'); });
-  }, 260);
+    animatePeelTo(0, 360, function(){ dragCue.style.display = ''; tapHint.classList.remove('off'); });
+  }, 520);
 }
 
 function completePeel(){
@@ -2811,8 +2811,14 @@ if (/(\?|&)dev=1/.test(location.search)){
     finish: finishOshiIta,
     set: function(o){
       for (var k in o){ if (Object.prototype.hasOwnProperty.call(o,k)) S[k] = o[k]; }
-      updateOshi(); renderDups(); updateHUD(); updateAtmBtn();
-    }
+      updateOshi(); renderDups(); updateHUD(); updateAtmBtn(); updateGl();
+    },
+    peel: function(p){ setPeel(p); },
+    armBulk: armBulk,
+    openTrade: openTrade,
+    post: postTrade,
+    oyasan: showOyasanChance,
+    mini: showMini
   };
 }
 
