@@ -1431,13 +1431,16 @@ var Sound = (function(){
         S.last = performance.now();
         S.pressOffset = off;
         goCongestion(performance.now() - S.t0);
+        if (!S.raf) S.raf = requestAnimationFrame(loop);
       },
       form: function(off){
         S.t0 = performance.now() - (5000 + (off || 0.3) * 1000);
         S.pressOffset = off || 0.3;
         S.need = 1;
         S.taps = 1;
+        S.last = performance.now();
         startForm();
+        if (!S.raf) S.raf = requestAnimationFrame(loop);
       },
       fill: function(){ S.gauge = 100; passCongestion(); },
       clear: function(off, time, taps){
