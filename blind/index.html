@@ -2301,31 +2301,43 @@ function renderComposer(){
   postBtn.textContent = give.length ? 'ポストして募集する' : '譲れるダブりがない…';
 }
 
-function makeReply(offered){
+function pickReplyType(used){
+  var weights = [['god',18],['equal',34],['ratio2',22],['ratio3',10],['bundle',8],['no',8]];
+  var pool = weights.filter(function(w){ return used.indexOf(w[0]) < 0; });
+  if (!pool.length) pool = weights;
+  var total = 0;
+  for (var i=0;i<pool.length;i++){ total += pool[i][1]; }
+  var x = Math.random() * total;
+  for (var j=0;j<pool.length;j++){ x -= pool[j][1]; if (x <= 0) return pool[j][0]; }
+  return pool[0][0];
+}
+
+function makeReply(offered, used){
   var u = RP_USERS[rand(RP_USERS.length)];
   var d = offered[rand(offered.length)];
   var T = S.target.name;
-  var r = Math.random(), type, cost, gain, text, tag = '';
-  if (r < 0.18){
-    type = 'god'; cost = {}; cost[d.id] = 1; gain = 2; tag = '神交換';
+  var type = pickReplyType(used || []);
+  var cost = {}, gain = 1, text = '', tag = '';
+  if (type === 'god'){
+    cost[d.id] = 1; gain = 2; tag = '神交換';
     text = '【' + T + '】×2余ってます！ そちらの【' + d.name + '】×1と交換していただけませんか？';
-  } else if (r < 0.58){
-    type = 'equal'; cost = {}; cost[d.id] = 1; gain = 1;
+  } else if (type === 'equal'){
+    cost[d.id] = 1; gain = 1;
     text = '検索から失礼します！当方【' + T + '】×1所持しております。そちらの【' + d.name + '】×1と交換可能でしょうか？';
-  } else if (r < 0.80){
-    type = 'ratio2'; cost = {}; cost[d.id] = 2; gain = 1; tag = '比率違い';
+  } else if (type === 'ratio2'){
+    cost[d.id] = 2; gain = 1; tag = '比率違い';
     text = '検索から失礼します！当方【' + T + '】×1に対し、そちらの【' + d.name + '】×2の比率違いでの交換は可能でしょうか？';
-  } else if (r < 0.90){
-    type = 'ratio3'; cost = {}; cost[d.id] = 3; gain = 1; tag = '比率違い';
+  } else if (type === 'ratio3'){
+    cost[d.id] = 3; gain = 1; tag = '比率違い';
     text = 'はじめまして！【' + T + '】×1で、そちらの【' + d.name + '】×3の比率違い交換をお願いできますか…？';
-  } else if (r < 0.96){
-    type = 'bundle'; cost = {}; cost[d.id] = 1; gain = 1; tag = '抱き合わせ';
+  } else if (type === 'bundle'){
+    cost[d.id] = 1; gain = 1; tag = '抱き合わせ';
     var other = DOGS[rand(DOGS.length)];
     if (other.id === S.targetId) other = DOGS[(DOGS.indexOf(other) + 1) % DOGS.length];
     cost[other.id] = 2;
     text = '抱き合わせで【' + other.name + '】×2もつけてもらえますか？ その代わり【' + T + '】をお渡しします！';
   } else {
-    type = 'no'; cost = {}; gain = 0; tag = '見送り';
+    type = 'no'; gain = 0; tag = '見送り';
     text = 'FF外から失礼します！プロカ読ませていただきましたが、当方同担拒否のため今回は見送らせてください🙏';
   }
   return { u:u, type:type, cost:cost, gain:gain, text:text, tag:tag, done:false, res:null };
@@ -2371,7 +2383,12 @@ function postTrade(){
   replyWrap.style.display = '';
   trade.replies = [];
   var n = 1 + rand(3);
-  for (var i=0;i<n;i++){ trade.replies.push(makeReply(offered)); }
+  var used = [];
+  for (var i=0;i<n;i++){
+    var r = makeReply(offered, used);
+    used.push(r.type);
+    trade.replies.push(r);
+  }
   renderReplies();
   ensureAC(); beep(880, 0.06, 'sine', 0.07); beep(1174, 0.08, 'sine', 0.05, 0.08);
   rpHead.textContent = 'リプライ ' + n + '件';
