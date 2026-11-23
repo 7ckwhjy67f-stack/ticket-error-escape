@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ホビ垢絵文字メーカー</title>
+<meta name="description" content="ホビ垢のプロフ・ポスト用デコ文字とオリジナル絵文字PNGがつくれるアプリ">
+<meta name="theme-color" content="#ffd9ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="絵文字メーカー">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-512.png">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<style>
+  :root{
+    --pink:#ff8fc7; --pink-d:#ff5fa2; --lav:#b79cff; --lav-d:#8f74e8;
+    --ink:#4a3b52; --ink2:#6b5b78; --muted:#9a8fa6; --line:#f0e6f6; --card:#ffffff;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;
+    color:var(--ink);
+    background:radial-gradient(120% 70% at 8% 0%,#ffe9f6 0%,#f4efff 46%,#fdf9ff 100%) fixed;
+    overflow-x:hidden;
+    padding-bottom:calc(74px + env(safe-area-inset-bottom));
+    -webkit-text-size-adjust:100%;
+  }
+  .topbar{
+    position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:10px;
+    padding:calc(9px + env(safe-area-inset-top)) 14px 9px;
+    background:rgba(255,255,255,.84); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid rgba(183,156,255,.18);
+  }
+  .logo{
+    width:38px; height:38px; flex:0 0 38px; border-radius:13px; display:grid; place-items:center; font-size:20px;
+    background:linear-gradient(135deg,#ffd0e6,#d9ccff); box-shadow:0 4px 12px rgba(255,143,199,.3);
+  }
+  .titles{min-width:0}
+  .titles h1{margin:0; font-size:14.5px; font-weight:800; letter-spacing:.02em; white-space:nowrap}
+  .titles p{margin:2px 0 0; font-size:10.5px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .inst-btn{
+    margin-left:auto; flex:0 0 auto; border:1px solid #ffd5e8; background:#fff6fb; color:#d63d8b;
+    font-size:11.5px; font-weight:800; padding:8px 11px; border-radius:999px; font-family:inherit;
+    display:flex; align-items:center; gap:4px;
+  }
+  main{max-width:480px; margin:0 auto; padding:12px 12px 4px}
+  .page{display:none}
+  .page.active{display:block; animation:fade .18s ease-out}
+  .panel{display:none}
+  .panel.active{display:block}
+  @keyframes fade{from{opacity:.4; transform:translateY(4px)} to{opacity:1; transform:none}}
+
+  /* segmented */
+  .seg{display:flex; gap:5px; background:#fff; border:1px solid var(--line); border-radius:16px; padding:4px; margin-bottom:12px; box-shadow:0 3px 12px rgba(160,130,200,.07)}
+  .seg-btn{flex:1; border:0; background:none; font-family:inherit; font-size:12.5px; font-weight:700; color:var(--ink2); padding:9px 4px; border-radius:12px; cursor:pointer}
+  .seg-btn.active{background:linear-gradient(135deg,#ff9ecd,#b79cff); color:#fff; box-shadow:0 4px 12px rgba(255,143,199,.32)}
+
+  /* preview */
+  .preview-card{
+    background:linear-gradient(135deg,#fff0f8,#f3ecff); border-radius:26px; padding:12px 12px 9px;
+    margin-bottom:12px; box-shadow:0 8px 26px rgba(200,160,220,.16);
+  }
+  #preview{
+    width:100%; display:block; border-radius:18px;
+    background:repeating-conic-gradient(#f3edf9 0% 25%,#fff 0% 50%) 50%/14px 14px;
+  }
+  .preview-meta{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 3px 0; font-size:10.5px; color:#9b8aa8}
+  .size-tag{background:rgba(255,255,255,.8); border:1px solid rgba(255,255,255,.9); color:#a08fb0; border-radius:999px; padding:3px 8px; font-weight:700; white-space:nowrap}
+
+  /* cards */
+  .card{background:var(--card); border:1px solid rgba(240,230,246,.95); border-radius:20px; padding:14px; margin-bottom:12px; box-shadow:0 4px 18px rgba(160,130,200,.075)}
+  .card h3{margin:0 0 10px; font-size:13px; font-weight:800; display:flex; align-items:center; gap:6px}
+  .card h3 .n{display:inline-grid; place-items:center; width:19px; height:19px; border-radius:7px; font-size:11px; background:linear-gradient(135deg,#ffe0f0,#ece3ff); color:#c2459a}
+  .fl{display:block; font-size:10.5px; font-weight:800; color:#a08fb0; letter-spacing:.08em; margin:12px 0 7px}
+  .fl:first-child{margin-top:0}
+  textarea,input[type=text],input:not([type]){
+    width:100%; border:1px solid var(--line); background:#fdfbff; border-radius:14px;
+    padding:11px 12px; font-size:16px; font-family:inherit; color:var(--ink); outline:none;
+  }
+  textarea:focus,input:focus{border-color:#ffb8de; background:#fff}
+  textarea{resize:none; line-height:1.45; display:block}
+  input::placeholder,textarea::placeholder{color:#c0b4cc}
+  .chips{display:flex; flex-wrap:wrap; gap:6px}
+  .chip{
+    border:1px solid var(--line); background:#fff; color:var(--ink2); border-radius:999px;
+    padding:7px 11px; font-size:12.5px; font-family:inherit; cursor:pointer; line-height:1.2;
+  }
+  .chip.active{background:linear-gradient(135deg,#ffe4f2,#efe7ff); border-color:#ffc3e2; color:#d63d8b; font-weight:800}
+  .row{display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-top:10px}
+  .row .lab{font-size:12px; color:var(--ink2); font-weight:700}
+  input[type=range]{
+    -webkit-appearance:none; appearance:none; width:100%; height:8px; margin:6px 0 2px; border-radius:999px;
+    background:linear-gradient(90deg,#ffb2d8,#b79cff); outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none; width:26px; height:26px; border-radius:50%;
+    background:#fff; border:4px solid #ff8fc7; box-shadow:0 3px 8px rgba(255,143,199,.45);
+  }
+  input[type=range]::-moz-range-thumb{width:20px; height:20px; border-radius:50%; background:#fff; border:4px solid #ff8fc7}
+  input[type=color]{
+    -webkit-appearance:none; appearance:none; border:0; width:38px; height:34px; padding:0; background:none;
+    border-radius:11px; cursor:pointer; vertical-align:middle;
+  }
+  input[type=color]::-webkit-color-swatch-wrapper{padding:0}
+  input[type=color]::-webkit-color-swatch{border:2px solid #fff; border-radius:11px; box-shadow:0 0 0 1px #eadff5,0 2px 6px rgba(150,120,180,.14)}
+  .check{display:inline-flex; align-items:center; gap:5px; font-size:12.5px; color:var(--ink2); font-weight:700}
+  input[type=checkbox]{width:18px; height:18px; accent-color:#ff5fa2}
+
+  /* actions */
+  .action-row{display:grid; grid-template-columns:1.25fr 1fr 1fr; gap:8px; margin:2px 0 6px}
+  .btn{
+    border:0; border-radius:16px; padding:13px 8px; font-size:13px; font-weight:800; font-family:inherit;
+    background:#fff; color:var(--ink2); box-shadow:0 3px 12px rgba(160,130,200,.14); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:4px; white-space:nowrap;
+  }
+  .btn:active{transform:scale(.97)}
+  .btn.primary{background:linear-gradient(135deg,#ff9ecd,#b79cff); color:#fff; box-shadow:0 6px 16px rgba(255,143,199,.34)}
+  .btn.small{padding:9px 10px; font-size:12px; border-radius:12px}
+  .btn.ghost{background:#fbf7ff; box-shadow:none; border:1px solid var(--line)}
+
+  /* dot */
+  .dot-head{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:9px}
+  .dot-head .fl{white-space:nowrap; flex:0 0 auto}
+  .dot-head #dotStatus{font-size:10px; color:var(--muted); text-align:right; flex:1 1 auto; min-width:0;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  #dotGrid{width:100%; display:block; border-radius:14px; border:1px solid var(--line); touch-action:none; background:#fff}
+  .dot-tools{display:flex; gap:6px; margin-top:10px}
+  .palette{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; align-items:center}
+  .sw{width:32px; height:32px; border-radius:11px; border:2px solid #fff; box-shadow:0 0 0 1px #eadff5; cursor:pointer; padding:0}
+  .sw.active{box-shadow:0 0 0 3px #ff9ecd, 0 2px 8px rgba(255,143,199,.4)}
+  .inline{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink2); font-weight:700; margin-top:12px}
+
+  /* deco tab */
+  .sec-title{margin:2px 2px 3px; font-size:17px; font-weight:800}
+  .sec-sub{margin:0 2px 12px; font-size:11.5px; color:var(--muted)}
+  .color-row{display:grid; grid-template-columns:repeat(5,1fr); gap:7px}
+  .color-btn{border:0; background:#fff; border-radius:14px; padding:7px 2px 6px; display:flex; flex-direction:column; align-items:center; gap:4px; font-family:inherit; font-size:10px; color:var(--ink2); cursor:pointer; border:1px solid var(--line)}
+  .color-btn .dot{width:26px; height:26px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1px #e8ddf4}
+  .color-btn.active{background:linear-gradient(135deg,#ffe9f5,#f0e9ff); border-color:#ffc3e2; color:#d63d8b; font-weight:800}
+  .color-btn.active .dot{box-shadow:0 0 0 2px #ff9ecd}
+  .symbol-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-top:11px}
+  .symbol-grid button{
+    aspect-ratio:1; border:1px solid var(--line); background:#fff; border-radius:13px; font-size:19px;
+    display:flex; align-items:center; justify-content:center; padding:0; cursor:pointer; font-family:inherit; line-height:1;
+  }
+  .symbol-grid button:active{background:#fff0f8; transform:scale(.95)}
+  .compose{margin-top:11px}
+  .compose textarea{background:#fffafd; border-style:dashed}
+  .compose-actions{display:flex; gap:6px; margin-top:8px; flex-wrap:wrap}
+  .hint{font-size:10.5px; color:var(--muted); margin:8px 0 0}
+  .font-results{display:flex; flex-direction:column; gap:7px; margin-top:10px}
+  .frow{
+    background:#fdf8ff; border:1px solid #f2e8fa; border-radius:14px; padding:8px 11px;
+    display:flex; flex-direction:column; gap:2px; cursor:pointer; text-align:left; font-family:inherit; color:inherit;
+  }
+  .frow:active{background:#fff0f8}
+  .frow .lab{font-size:9.5px; color:#a08fb0; font-weight:800; letter-spacing:.06em}
+  .frow .val{font-size:17px; line-height:1.35; word-break:break-word}
+  .deco-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:11px}
+  .deco-grid button{
+    min-height:42px; border:1px solid var(--line); background:#fff; border-radius:12px; font-size:13px;
+    display:flex; align-items:center; justify-content:center; padding:6px 4px; cursor:pointer; font-family:inherit; line-height:1.2;
+    word-break:break-all;
+  }
+  .deco-grid button:active{background:#fff0f8; transform:scale(.97)}
+  .deco-grid button.span3{grid-column:span 3; justify-content:flex-start; padding-left:11px; font-size:14px}
+  .result-box{
+    white-space:pre-wrap; word-break:break-word; background:#fdf8ff; border:1px dashed #e7dcf6;
+    border-radius:14px; padding:11px 12px; font-size:13px; line-height:1.75; margin:10px 0 0; min-height:44px;
+    font-family:inherit;
+  }
+
+  /* vault */
+  .vault-head{display:flex; align-items:baseline; justify-content:space-between; margin:16px 3px 9px}
+  .vault-head h3{margin:0; font-size:13px; font-weight:800}
+  .vault-head span{font-size:10.5px; color:var(--muted)}
+  .img-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
+  .img-item{background:#fff; border:1px solid var(--line); border-radius:16px; padding:6px; display:flex; flex-direction:column; gap:6px}
+  .img-item img{width:100%; aspect-ratio:1; border-radius:11px; object-fit:contain; background:repeating-conic-gradient(#f3edf9 0% 25%,#fff 0% 50%) 50%/10px 10px}
+  .img-item .acts{display:flex; gap:4px}
+  .mini{flex:1; border:1px solid var(--line); background:#fdf8ff; border-radius:9px; font-size:11px; padding:5px 0; cursor:pointer; font-family:inherit; color:var(--ink2)}
+  .txt-list{display:flex; flex-direction:column; gap:7px}
+  .txt-item{background:#fff; border:1px solid var(--line); border-radius:14px; padding:9px 11px; display:flex; align-items:center; gap:8px}
+  .txt-item .tx{flex:1; min-width:0; font-size:12.5px; line-height:1.5; max-height:3em; overflow:hidden; white-space:pre-wrap; word-break:break-word}
+  .empty{text-align:center; color:var(--muted); font-size:12px; padding:22px 10px; background:#fff; border:1px dashed var(--line); border-radius:16px; line-height:1.7}
+
+  /* tabbar */
+  .tabbar{
+    position:fixed; left:0; right:0; bottom:0; z-index:30; display:flex;
+    background:rgba(255,255,255,.95); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border-top:1px solid rgba(183,156,255,.2); padding-bottom:env(safe-area-inset-bottom);
+  }
+  .tabbar button{
+    flex:1; border:0; background:none; padding:8px 0 7px; font-family:inherit; font-size:10px; font-weight:700;
+    color:#a89bb4; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer;
+  }
+  .tabbar button .ti{font-size:19px; line-height:1}
+  .tabbar button.active{color:#ff5fa2}
+  .tabbar button.active .ti{filter:drop-shadow(0 2px 5px rgba(255,143,199,.5))}
+
+  /* modal + toast */
+  .modal{position:fixed; inset:0; z-index:60; display:none; align-items:flex-end; justify-content:center; background:rgba(74,59,82,.42); backdrop-filter:blur(3px)}
+  .modal.show{display:flex}
+  .sheet{
+    background:#fff; width:100%; max-width:480px; border-radius:26px 26px 0 0;
+    padding:18px 18px calc(20px + env(safe-area-inset-bottom)); animation:up .24s ease-out;
+  }
+  @keyframes up{from{transform:translateY(30px)} to{transform:none}}
+  .sheet h2{margin:0 0 4px; font-size:15px}
+  .sheet p{margin:0 0 12px; font-size:11.5px; color:var(--muted); line-height:1.6}
+  .steps{list-style:none; margin:0 0 14px; padding:0; display:flex; flex-direction:column; gap:9px}
+  .steps li{display:flex; gap:9px; font-size:13px; line-height:1.55; color:var(--ink2)}
+  .steps li b{flex:0 0 21px; width:21px; height:21px; border-radius:8px; background:linear-gradient(135deg,#ffe0f0,#ece3ff); color:#c2459a; display:grid; place-items:center; font-size:11px; font-weight:800}
+  .steps li span b{display:inline; background:none; color:#d63d8b; width:auto; height:auto; font-size:inherit}
+  .note{font-size:11px; color:var(--muted); background:#fbf7ff; border:1px solid var(--line); border-radius:12px; padding:9px 11px; line-height:1.6}
+  #toast{
+    position:fixed; left:50%; bottom:calc(88px + env(safe-area-inset-bottom)); transform:translate(-50%,16px);
+    background:rgba(74,59,82,.94); color:#fff; font-size:12.5px; padding:10px 16px; border-radius:999px;
+    opacity:0; pointer-events:none; transition:.24s; z-index:70; max-width:84vw; text-align:center; line-height:1.45;
+  }
+  #toast.show{opacity:1; transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="logo">🎀</div>
+  <div class="titles">
+    <h1>ホビ垢絵文字メーカー</h1>
+    <p>つくって、コピーして、推し活に。</p>
+  </div>
+  <button id="installBtn" class="inst-btn" type="button">📱 アプリ化</button>
+</header>
+
+<main id="main">
+
+  <!-- ============ タブ1：画像絵文字メーカー ============ -->
+  <section class="page active" id="page-make">
+    <div class="seg" id="modeSeg">
+      <button class="seg-btn active" type="button" data-mode="text">文字絵文字</button>
+      <button class="seg-btn" type="button" data-mode="dot">ドット絵</button>
+      <button class="seg-btn" type="button" data-mode="frame">デコフレーム</button>
+    </div>
+
+    <div class="preview-card">
+      <canvas id="preview" width="512" height="512" aria-label="プレビュー"></canvas>
+      <div class="preview-meta">
+        <span id="modeHint">文字を入れてデコる</span>
+        <span class="size-tag">256×256 PNG</span>
+      </div>
+    </div>
+
+    <!-- 文字絵文字 -->
+    <div class="panel active" id="panel-text">
+      <div class="card">
+        <label class="fl" for="txtInput">ことば（1〜6文字・改行OK）</label>
+        <textarea id="txtInput" rows="2" maxlength="13" placeholder="尊い">尊い</textarea>
+        <div class="chips" id="presetChips" style="margin-top:10px"></div>
+      </div>
+
+      <div class="card">
+        <span class="fl">フォント</span>
+        <div class="chips" id="fontChips">
+          <button class="chip active" type="button" data-font="maru">丸ゴ</button>
+          <button class="chip" type="button" data-font="pop">極太ポップ</button>
+          <button class="chip" type="button" data-font="mincho">明朝</button>
+          <button class="chip" type="button" data-font="hand">手書き風</button>
+        </div>
+        <span class="fl">文字サイズ</span>
+        <input type="range" id="fontSize" min="40" max="150" value="104">
+        <div class="row">
+          <span class="lab">文字色</span><input type="color" id="textColor" value="#ff5fa2">
+          <label class="check"><input type="checkbox" id="outlineOn" checked>フチ</label>
+          <input type="color" id="outlineColor" value="#ffffff">
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="fl">背景</span>
+        <div class="chips" id="bgChips">
+          <button class="chip" type="button" data-bg="solid">単色</button>
+          <button class="chip active" type="button" data-bg="gradient">グラデ</button>
+          <button class="chip" type="button" data-bg="transparent">透過</button>
+        </div>
+        <div class="row" id="bgColorRow">
+          <input type="color" id="bg1" value="#ffe1f0">
+          <input type="color" id="bg2" value="#e7dcff">
+          <span class="lab" id="bgHint">グラデ2色</span>
+        </div>
+        <span class="fl">枠の形</span>
+        <div class="chips" id="shapeChips">
+          <button class="chip" type="button" data-shape="square">四角</button>
+          <button class="chip active" type="button" data-shape="round">角丸</button>
+          <button class="chip" type="button" data-shape="circle">まる</button>
+          <button class="chip" type="button" data-shape="heart">ハート</button>
+          <button class="chip" type="button" data-shape="sparkle">キラキラ枠</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ドット絵 -->
+    <div class="panel" id="panel-dot">
+      <div class="card">
+        <div class="dot-head">
+          <span class="fl" style="margin:0">16×16 キャンバス</span>
+          <span id="dotStatus">タップ＆なぞって描けるよ</span>
+        </div>
+        <canvas id="dotGrid" width="512" height="512" aria-label="ドット絵キャンバス"></canvas>
+        <div class="dot-tools">
+          <button class="chip active" type="button" id="toolPen">✏️ ペン</button>
+          <button class="chip" type="button" id="toolEraser">🧽 消しゴム</button>
+          <button class="chip" type="button" id="dotClear">🗑 クリア</button>
+        </div>
+        <div class="palette" id="dotPalette"></div>
+        <label class="inline">自分で色 <input type="color" id="dotColor" value="#ff8fc7"></label>
+      </div>
+      <div class="card">
+        <span class="fl">テンプレ（タップで読み込み・色変え）</span>
+        <div class="chips" id="tplChips"></div>
+        <span class="fl">背景</span>
+        <div class="chips" id="dotBgChips">
+          <button class="chip active" type="button" data-dotbg="transparent">透過</button>
+          <button class="chip" type="button" data-dotbg="#ffffff">白</button>
+          <button class="chip" type="button" data-dotbg="#fff6e9">クリーム</button>
+          <button class="chip" type="button" data-dotbg="#ffeaf5">ピンク</button>
+          <button class="chip" type="button" data-dotbg="#f1ebff">ラベンダー</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- デコフレーム -->
+    <div class="panel" id="panel-frame">
+      <div class="card">
+        <span class="fl">フレームを選ぶ</span>
+        <div class="chips" id="frameChips">
+          <button class="chip active" type="button" data-frame="wing">天使の羽</button>
+          <button class="chip" type="button" data-frame="cat">猫耳</button>
+          <button class="chip" type="button" data-frame="ribbon">リボン</button>
+          <button class="chip" type="button" data-frame="sparkle">キラキラ</button>
+          <button class="chip" type="button" data-frame="cheki">チェキ風</button>
+        </div>
+        <span class="fl">中の文字・絵文字（1〜8文字）</span>
+        <input id="frameText" type="text" maxlength="16" value="推し" placeholder="推し">
+        <div class="row">
+          <span class="lab">文字色</span>
+          <button class="sw" type="button" data-fcolor="#7a4b6e" style="background:#7a4b6e" aria-label="こげ茶"></button>
+          <button class="sw" type="button" data-fcolor="#ff5fa2" style="background:#ff5fa2" aria-label="ピンク"></button>
+          <button class="sw" type="button" data-fcolor="#8f74e8" style="background:#8f74e8" aria-label="ラベンダー"></button>
+          <button class="sw" type="button" data-fcolor="#e0333f" style="background:#e0333f" aria-label="赤"></button>
+          <input type="color" id="frameColor" value="#7a4b6e">
+        </div>
+        <span class="fl">文字サイズ</span>
+        <input type="range" id="frameSize" min="48" max="140" value="96">
+      </div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn primary" type="button" id="savePng">📥 PNG保存</button>
+      <button class="btn" type="button" id="sharePng">📤 シェア</button>
+      <button class="btn" type="button" id="vaultSave">💾 保存庫</button>
+    </div>
+  </section>
+
+  <!-- ============ タブ2：テキストデコ ============ -->
+  <section class="page" id="page-deco">
+    <h2 class="sec-title">✨ テキストデコ</h2>
+    <p class="sec-sub">プロフ・ポストにそのままコピペできるデコ文字セット</p>
+
+    <div class="card">
+      <h3><span class="n">1</span>推し色絵文字ミックス</h3>
+      <div class="color-row" id="paletteRow"></div>
+      <div class="symbol-grid" id="symbolGrid"></div>
+      <div class="compose">
+        <textarea id="mixBox" rows="2" placeholder="タップした絵文字がここに入るよ"></textarea>
+        <div class="compose-actions">
+          <button class="btn primary small" type="button" id="mixCopy">📋 コピー</button>
+          <button class="btn small" type="button" id="mixFav">♡ お気に入り</button>
+          <button class="btn small ghost" type="button" id="mixClear">クリア</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="n">2</span>おしゃれフォント変換</h3>
+      <input id="fontInput" type="text" maxlength="24" placeholder="cute" autocomplete="off">
+      <div class="font-results" id="fontResults"></div>
+      <p class="hint">行をタップするとコピーできるよ📋</p>
+    </div>
+
+    <div class="card">
+      <h3><span class="n">3</span>デコ記号・区切り線・顔文字</h3>
+      <div class="chips" id="decoTabs"></div>
+      <div class="deco-grid" id="decoGrid"></div>
+      <div class="compose">
+        <textarea id="decoBox" rows="2" placeholder="タップした記号がここに入るよ"></textarea>
+        <div class="compose-actions">
+          <button class="btn primary small" type="button" id="decoCopy">📋 コピー</button>
+          <button class="btn small" type="button" id="decoFav">♡ お気に入り</button>
+          <button class="btn small ghost" type="button" id="decoClear">クリア</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="n">4</span>ホビ垢プロフ生成</h3>
+      <input id="pfName" type="text" maxlength="20" placeholder="名前（例：ゆめ）">
+      <div style="height:7px"></div>
+      <input id="pfOshi" type="text" maxlength="30" placeholder="推し（例：〇〇くん）">
+      <div style="height:7px"></div>
+      <input id="pfArea" type="text" maxlength="24" placeholder="地域・年齢（例：東京 / 20代）">
+      <div style="height:7px"></div>
+      <input id="pfMemo" type="text" maxlength="40" placeholder="ひとこと（例：チケット当てたい！）">
+      <div class="chips" id="pfStyleChips" style="margin-top:10px">
+        <button class="chip active" type="button" data-pf="kirari">キラキラ</button>
+        <button class="chip" type="button" data-pf="fuwari">ふんわり</button>
+        <button class="chip" type="button" data-pf="simple">シンプル</button>
+      </div>
+      <pre class="result-box" id="pfResult"></pre>
+      <div class="compose-actions">
+        <button class="btn primary small" type="button" id="pfCopy">📋 コピー</button>
+        <button class="btn small" type="button" id="pfFav">♡ お気に入り</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ タブ3：マイ保存庫 ============ -->
+  <section class="page" id="page-vault">
+    <h2 class="sec-title">📁 マイ保存庫</h2>
+    <p class="sec-sub">このスマホに保存した絵文字とテキスト（アプリを消すまで残るよ）</p>
+    <div class="vault-head"><h3>画像絵文字</h3><span id="imgCount"></span></div>
+    <div id="imgGrid" class="img-grid"></div>
+    <div class="vault-head"><h3>お気に入りテキスト</h3><span id="txtCount"></span></div>
+    <div id="txtList"></div>
+  </section>
+</main>
+
+<nav class="tabbar" id="tabbar">
+  <button class="active" type="button" data-tab="make"><span class="ti">🎨</span>つくる</button>
+  <button type="button" data-tab="deco"><span class="ti">✨</span>テキストデコ</button>
+  <button type="button" data-tab="vault"><span class="ti">📁</span>保存庫</button>
+</nav>
+
+<div class="modal" id="installModal">
+  <div class="sheet">
+    <h2>📱 ホーム画面に追加してアプリにする</h2>
+    <p>ホーム画面のアイコンから、全画面のアプリみたいに開けるようになるよ。</p>
+    <ol class="steps">
+      <li><b>1</b><span>iPhoneは <b>Safari</b> でこのページを開く（Chromeなどは不可）</span></li>
+      <li><b>2</b><span>画面下の <b>共有ボタン</b>（□に↑）をタップ</span></li>
+      <li><b>3</b><span>メニューを下にスクロールして <b>「ホーム画面に追加」</b> をタップ</span></li>
+      <li><b>4</b><span>右上の <b>「追加」</b> で完了！（Androidはメニューの「アプリをインストール」）</span></li>
+    </ol>
+    <p class="note">保存した絵文字やお気に入りは、このスマホの中に残るよ。<br>アプリを消すと一緒に消えるから気をつけてね。</p>
+    <button class="btn primary" type="button" id="installClose" style="margin-top:14px;width:100%">わかった！</button>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  'use strict';
+  var S = 512;
+  var $ = function(s, r){ return (r||document).querySelector(s); };
+  var $$ = function(s, r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+  var preview = $('#preview');
+  var ctx = preview.getContext('2d');
+  var LS = 'hobieEmoji.v1.';
+
+  /* ---------------- utils ---------------- */
+  var toastTimer = null;
+  function toast(msg){
+    var t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  }
+  function copyText(text){
+    if(!text){ toast('コピーする文がまだ空だよ'); return; }
+    var done = function(){ toast('コピーしたよ📋'); };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done, function(){ fallbackCopy(text); done(); });
+    } else { fallbackCopy(text); done(); }
+  }
+  function fallbackCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly','');
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try{ document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta);
+  }
+  function loadJSON(key, def){
+    try{ var v = localStorage.getItem(LS + key); return v ? JSON.parse(v) : def; }catch(e){ return def; }
+  }
+  function saveJSON(key, val){
+    try{ localStorage.setItem(LS + key, JSON.stringify(val)); return true; }
+    catch(e){ return false; }
+  }
+  function pad(n){ return (n<10?'0':'') + n; }
+  function nowStamp(){
+    var d = new Date();
+    return d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '-' + pad(d.getHours()) + pad(d.getMinutes());
+  }
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+  /* ---------------- fonts ---------------- */
+  var FONTS = {
+    maru: "\"Hiragino Maru Gothic ProN\",\"Hiragino Maru Gothic Pro\",\"ヒラギノ丸ゴ ProN\",\"M PLUS Rounded 1c\",\"Rounded Mplus 1c\",\"Arial Rounded MT Bold\",\"Hiragino Sans\",system-ui,sans-serif",
+    pop: "\"Hiragino Kaku Gothic StdN\",\"Hiragino Sans\",\"Hiragino Kaku Gothic ProN\",\"Noto Sans JP\",system-ui,sans-serif",
+    mincho: "\"Hiragino Mincho ProN\",\"YuMincho\",\"Yu Mincho\",\"Noto Serif JP\",serif",
+    hand: "\"Hannotate SC\",\"HanziPen SC\",\"Klee One\",\"Chalkboard SE\",\"Bradley Hand\",\"Segoe Print\",\"Hiragino Maru Gothic ProN\",cursive"
+  };
+  function fontStr(name, size){
+    var w = (name === 'pop') ? '900 ' : '700 ';
+    return w + size + 'px ' + (FONTS[name] || FONTS.maru);
+  }
+
+  /* ---------------- state ---------------- */
+  var state = {
+    mode: 'text',
+    text: { chars:'尊い', font:'maru', size:104, color:'#ff5fa2', outline:true, outlineColor:'#ffffff',
+            bg:'gradient', bg1:'#ffe1f0', bg2:'#e7dcff', shape:'round' },
+    dot: { grid:new Array(256).fill(null), color:'#ff8fc7', tool:'pen', bg:'transparent' },
+    frame: { type:'wing', text:'推し', color:'#7a4b6e', size:96 }
+  };
+  (function restore(){
+    var t = loadJSON('text', null); if(t && typeof t === 'object'){ for(var k in t){ if(k in state.text) state.text[k] = t[k]; } }
+    var f = loadJSON('frame', null); if(f && typeof f === 'object'){ for(var k2 in f){ if(k2 in state.frame) state.frame[k2] = f[k2]; } }
+    var d = loadJSON('dot', null);
+    if(d && d.grid && d.grid.length === 256){ state.dot.grid = d.grid; }
+    if(d && d.color){ state.dot.color = d.color; }
+    if(d && d.bg){ state.dot.bg = d.bg; }
+  })();
+  function savePrefs(){
+    saveJSON('text', state.text);
+    saveJSON('frame', state.frame);
+    saveJSON('dot', { grid:state.dot.grid, color:state.dot.color, bg:state.dot.bg });
+  }
+
+  /* ---------------- canvas helpers ---------------- */
+  function rrect(c, x, y, w, h, r){
+    r = Math.min(r, w/2, h/2);
+    c.beginPath();
+    if(c.roundRect){ c.roundRect(x, y, w, h, r); return; }
+    c.moveTo(x+r, y);
+    c.arcTo(x+w, y, x+w, y+h, r);
+    c.arcTo(x+w, y+h, x, y+h, r);
+    c.arcTo(x, y+h, x, y, r);
+    c.arcTo(x, y, x+w, y, r);
+    c.closePath();
+  }
+  function heartPath(c, cx, cy, size){
+    var w = size, h = size;
+    c.beginPath();
+    c.moveTo(cx, cy + h*0.42);
+    c.bezierCurveTo(cx - w*0.60, cy + h*0.02, cx - w*0.58, cy - h*0.46, cx - w*0.22, cy - h*0.42);
+    c.bezierCurveTo(cx - w*0.07, cy - h*0.40, cx - w*0.01, cy - h*0.28, cx, cy - h*0.19);
+    c.bezierCurveTo(cx + w*0.01, cy - h*0.28, cx + w*0.07, cy - h*0.40, cx + w*0.22, cy - h*0.42);
+    c.bezierCurveTo(cx + w*0.58, cy - h*0.46, cx + w*0.60, cy + h*0.02, cx, cy + h*0.42);
+    c.closePath();
+  }
+  function star4(c, x, y, r){
+    var k = r*0.16;
+    c.beginPath();
+    c.moveTo(x, y-r);
+    c.quadraticCurveTo(x+k, y-k, x+r, y);
+    c.quadraticCurveTo(x+k, y+k, x, y+r);
+    c.quadraticCurveTo(x-k, y+k, x-r, y);
+    c.quadraticCurveTo(x-k, y-k, x, y-r);
+    c.closePath();
+  }
+  function drawFittedText(text, box, opt){
+    text = (text || '').replace(/\r/g, '');
+    if(!text.trim()) return;
+    var lines = text.split('\n').slice(0,2);
+    var size = opt.size || 100;
+    ctx.font = fontStr(opt.font, size);
+    var widest = 1;
+    lines.forEach(function(l){ widest = Math.max(widest, ctx.measureText(l).width); });
+    var height = size * 1.14 * lines.length;
+    var scale = Math.min(1, box.w / widest, box.h / height);
+    if(scale < 1){
+      size = Math.max(8, Math.floor(size * scale));
+      ctx.font = fontStr(opt.font, size);
+    }
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.lineJoin = 'round';
+    ctx.miterLimit = 2;
+    var lh = size * 1.14;
+    var startY = box.cy - (lh * (lines.length - 1)) / 2;
+    for(var i = 0; i < lines.length; i++){
+      var y = startY + i * lh;
+      if(opt.outline){
+        ctx.lineWidth = Math.max(3, size * 0.17);
+        ctx.strokeStyle = opt.outlineColor || '#ffffff';
+        ctx.strokeText(lines[i], box.cx, y);
+      }
+      ctx.fillStyle = opt.color || '#ff5fa2';
+      ctx.fillText(lines[i], box.cx, y);
+    }
+  }
+
+  /* ---------------- text emoji renderer ---------------- */
+  var SHAPE_BOX = {
+    square:  { cx:S/2, cy:S/2, w:S*0.84, h:S*0.72 },
+    round:   { cx:S/2, cy:S/2, w:S*0.82, h:S*0.70 },
+    circle:  { cx:S/2, cy:S/2, w:S*0.66, h:S*0.58 },
+    heart:   { cx:S/2, cy:S*0.47, w:S*0.52, h:S*0.40 },
+    sparkle: { cx:S/2, cy:S/2, w:S*0.66, h:S*0.54 }
+  };
+
+  function shapePath(shape){
+    var m = 8;
+    ctx.beginPath();
+    if(shape === 'square'){ ctx.rect(m, m, S-2*m, S-2*m); }
+    else if(shape === 'circle'){ ctx.arc(S/2, S/2, S/2-m, 0, Math.PI*2); }
+    else if(shape === 'heart'){ heartPath(ctx, S/2, S/2, (S-2*m)*0.92); }
+    else if(shape === 'sparkle'){ rrect(ctx, m+10, m+10, S-2*m-20, S-2*m-20, 54); }
+    else { rrect(ctx, m, m, S-2*m, S-2*m, 62); }
+  }
+
+  function drawTextEmoji(){
+    var t = state.text;
+    ctx.clearRect(0, 0, S, S);
+    // background clipped to shape
+    if(t.bg !== 'transparent'){
+      ctx.save();
+      shapePath(t.shape);
+      ctx.clip();
+      if(t.bg === 'solid'){
+        ctx.fillStyle = t.bg1;
+      } else {
+        var g = ctx.createLinearGradient(0, 0, S, S);
+        g.addColorStop(0, t.bg1);
+        g.addColorStop(1, t.bg2);
+        ctx.fillStyle = g;
+      }
+      ctx.fillRect(0, 0, S, S);
+      ctx.restore();
+    }
+    // sparkle frame decorations
+    if(t.shape === 'sparkle'){
+      ctx.save();
+      ctx.fillStyle = 'rgba(255,255,255,.94)';
+      ctx.shadowColor = 'rgba(214,110,175,.45)';
+      ctx.shadowBlur = 16;
+      star4(ctx, 74, 74, 44);
+      ctx.fill();
+      star4(ctx, S-70, 82, 32);
+      ctx.fill();
+      star4(ctx, 82, S-76, 30);
+      ctx.fill();
+      star4(ctx, S-76, S-70, 42);
+      ctx.fill();
+      ctx.restore();
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255,255,255,.8)';
+      ctx.lineWidth = 6;
+      rrect(ctx, 30, 30, S-60, S-60, 44);
+      ctx.stroke();
+      ctx.restore();
+    }
+    var box = SHAPE_BOX[t.shape] || SHAPE_BOX.round;
+    drawFittedText(t.chars, box, { font:t.font, size:t.size, color:t.color, outline:t.outline, outlineColor:t.outlineColor });
+  }
+
+  /* ---------------- dot renderer ---------------- */
+  var dotGridEl = $('#dotGrid');
+  var dctx = dotGridEl.getContext('2d');
+
+  function drawDotPreview(){
+    ctx.clearRect(0, 0, S, S);
+    if(state.dot.bg !== 'transparent'){
+      ctx.fillStyle = state.dot.bg;
+      ctx.fillRect(0, 0, S, S);
+    }
+    var cell = S/16;
+    for(var i = 0; i < 256; i++){
+      var col = state.dot.grid[i];
+      if(!col) continue;
+      ctx.fillStyle = col;
+      ctx.fillRect((i%16)*cell, Math.floor(i/16)*cell, cell + 0.4, cell + 0.4);
+    }
+  }
+
+  function drawDotGrid(){
+    var cell = 512/16;
+    dctx.clearRect(0, 0, 512, 512);
+    dctx.fillStyle = '#fffdfe';
+    dctx.fillRect(0, 0, 512, 512);
+    for(var i = 0; i < 256; i++){
+      var col = state.dot.grid[i];
+      if(!col) continue;
+      dctx.fillStyle = col;
+      dctx.fillRect((i%16)*cell, Math.floor(i/16)*cell, cell + 0.5, cell + 0.5);
+    }
+    dctx.strokeStyle = 'rgba(160,140,180,.18)';
+    dctx.lineWidth = 1;
+    for(var n = 0; n <= 16; n++){
+      dctx.beginPath(); dctx.moveTo(n*cell, 0); dctx.lineTo(n*cell, 512); dctx.stroke();
+      dctx.beginPath(); dctx.moveTo(0, n*cell); dctx.lineTo(512, n*cell); dctx.stroke();
+    }
+  }
+
+  /* ---------------- frame renderer ---------------- */
+  function frameBg(c1, c2, radius){
+    ctx.clearRect(0, 0, S, S);
+    ctx.save();
+    rrect(ctx, 8, 8, S-16, S-16, radius || 68);
+    ctx.clip();
+    var g = ctx.createLinearGradient(0, 0, S, S);
+    g.addColorStop(0, c1);
+    g.addColorStop(1, c2);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, S, S);
+    ctx.restore();
+  }
+  function drawWing(x, y, w, h, dir, fill, stroke){
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(dir, 1);
+    ctx.fillStyle = fill;
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 4;
+    ctx.lineJoin = 'round';
+    for(var i = 0; i < 4; i++){
+      var t = i/3;
+      ctx.save();
+      ctx.rotate(-0.66 + t*0.74);
+      ctx.beginPath();
+      ctx.ellipse(w*(0.34 + 0.02*t), 0, w*(0.40 - 0.04*t), h*(0.085 + 0.012*(1-t)), 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+  function frameWing(){
+    var f = state.frame;
+    frameBg('#fff7fb', '#eee6ff', 74);
+    var rg = ctx.createRadialGradient(S/2, S/2, 24, S/2, S/2, S*0.46);
+    rg.addColorStop(0, 'rgba(255,255,255,.95)');
+    rg.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = rg;
+    ctx.beginPath(); ctx.arc(S/2, S/2, S*0.46, 0, Math.PI*2); ctx.fill();
+    drawWing(S*0.30, S*0.50, S*0.50, S*0.62, -1, 'rgba(255,255,255,.98)', '#ffd3e9');
+    drawWing(S*0.70, S*0.50, S*0.50, S*0.62, 1, 'rgba(255,255,255,.98)', '#ffd3e9');
+    drawFittedText(f.text, { cx:S/2, cy:S/2 - 4, w:S*0.46, h:S*0.40 },
+      { font:'maru', size:f.size, color:f.color, outline:true, outlineColor:'#ffffff' });
+  }
+  function frameCat(){
+    var f = state.frame;
+    frameBg('#ffe9f5', '#efe4ff', 84);
+    // ears
+    ctx.fillStyle = '#fffafd';
+    ctx.strokeStyle = '#ffc2e0';
+    ctx.lineWidth = 6;
+    ctx.lineJoin = 'round';
+    function ear(x, dir){
+      ctx.beginPath();
+      ctx.moveTo(x - 58*dir, 132);
+      ctx.lineTo(x + 6*dir, 34);
+      ctx.lineTo(x + 62*dir, 128);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x - 30*dir, 118);
+      ctx.lineTo(x + 4*dir, 62);
+      ctx.lineTo(x + 34*dir, 116);
+      ctx.closePath();
+      ctx.fillStyle = '#ffc9e3';
+      ctx.fill();
+      ctx.fillStyle = '#fffafd';
+    }
+    ear(150, 1);
+    ear(362, -1);
+    // face
+    ctx.fillStyle = '#fffafd';
+    ctx.strokeStyle = '#ffc2e0';
+    ctx.lineWidth = 6;
+    rrect(ctx, 58, 108, S-116, S-160, 132);
+    ctx.fill();
+    ctx.stroke();
+    // cheeks
+    ctx.fillStyle = 'rgba(255,150,196,.34)';
+    ctx.beginPath(); ctx.arc(146, 344, 30, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(S-146, 344, 30, 0, Math.PI*2); ctx.fill();
+    // whiskers
+    ctx.strokeStyle = 'rgba(255,160,205,.8)';
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    [[118, 292], [112, 318], [S-118, 292], [S-112, 318]].forEach(function(p, i){
+      ctx.beginPath();
+      ctx.moveTo(p[0], p[1]);
+      ctx.lineTo(p[0] + (i < 2 ? -34 : 34), p[1] - 8);
+      ctx.stroke();
+    });
+    drawFittedText(f.text, { cx:S/2, cy:S/2 + 6, w:S*0.56, h:S*0.36 },
+      { font:'maru', size:f.size, color:f.color, outline:true, outlineColor:'#ffffff' });
+  }
+  function frameRibbon(){
+    var f = state.frame;
+    frameBg('#fff3f8', '#ffe6f4', 72);
+    // dots
+    ctx.fillStyle = 'rgba(255,255,255,.85)';
+    [[70,90,10],[440,110,8],[64,420,8],[448,404,11],[104,250,6],[420,236,6]].forEach(function(d){
+      ctx.beginPath(); ctx.arc(d[0], d[1], d[2], 0, Math.PI*2); ctx.fill();
+    });
+    var bx = S/2, by = 118;
+    // tails
+    ctx.fillStyle = '#ff9ecd';
+    ctx.beginPath();
+    ctx.moveTo(bx-8, by+18); ctx.lineTo(bx-58, by+118); ctx.lineTo(bx-20, by+104); ctx.lineTo(bx+4, by+16); ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(bx+8, by+18); ctx.lineTo(bx+62, by+112); ctx.lineTo(bx+24, by+104); ctx.lineTo(bx-2, by+16); ctx.closePath(); ctx.fill();
+    // loops
+    ctx.save();
+    ctx.translate(bx-60, by); ctx.rotate(-0.22);
+    ctx.beginPath(); ctx.ellipse(0, 0, 62, 40, 0, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+    ctx.save();
+    ctx.translate(bx+60, by); ctx.rotate(0.22);
+    ctx.beginPath(); ctx.ellipse(0, 0, 62, 40, 0, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+    // knot
+    ctx.fillStyle = '#ff77b7';
+    ctx.beginPath(); ctx.ellipse(bx, by+4, 27, 25, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.6)';
+    ctx.beginPath(); ctx.ellipse(bx-9, by-4, 7, 5, -0.5, 0, Math.PI*2); ctx.fill();
+    drawFittedText(f.text, { cx:S/2, cy:S*0.63, w:S*0.74, h:S*0.34 },
+      { font:'maru', size:f.size, color:f.color, outline:true, outlineColor:'#ffffff' });
+  }
+  function frameSparkle(){
+    var f = state.frame;
+    frameBg('#fff2fa', '#e9e0ff', 70);
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,150,200,.5)';
+    ctx.shadowBlur = 14;
+    ctx.fillStyle = 'rgba(255,255,255,.95)';
+    [[92,96,40],[430,90,28],[74,432,26],[438,420,38],[256,64,20],[250,452,22]].forEach(function(p){
+      star4(ctx, p[0], p[1], p[2]); ctx.fill();
+    });
+    ctx.fillStyle = 'rgba(255,238,170,.95)';
+    [[152,150,15],[372,150,12],[150,384,12],[376,382,16]].forEach(function(p){
+      star4(ctx, p[0], p[1], p[2]); ctx.fill();
+    });
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(255,255,255,.75)';
+    ctx.lineWidth = 6;
+    rrect(ctx, 34, 34, S-68, S-68, 46);
+    ctx.stroke();
+    drawFittedText(f.text, { cx:S/2, cy:S/2, w:S*0.62, h:S*0.42 },
+      { font:'maru', size:f.size, color:f.color, outline:true, outlineColor:'#ffffff' });
+  }
+  function frameCheki(){
+    var f = state.frame;
+    ctx.clearRect(0, 0, S, S);
+    ctx.save();
+    ctx.shadowColor = 'rgba(150,120,180,.25)';
+    ctx.shadowBlur = 18;
+    ctx.fillStyle = '#ffffff';
+    rrect(ctx, 20, 20, S-40, S-40, 22);
+    ctx.fill();
+    ctx.restore();
+    var g = ctx.createLinearGradient(52, 44, S-52, 400);
+    g.addColorStop(0, '#ffe3f2');
+    g.addColorStop(1, '#e6dcff');
+    ctx.fillStyle = g;
+    rrect(ctx, 46, 44, S-92, 348, 8);
+    ctx.fill();
+    // soft glows in photo
+    ctx.fillStyle = 'rgba(255,255,255,.55)';
+    ctx.beginPath(); ctx.arc(140, 130, 54, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(S-150, 320, 40, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.9)';
+    star4(ctx, S-120, 120, 24); ctx.fill();
+    star4(ctx, 120, 320, 18); ctx.fill();
+    drawFittedText(f.text, { cx:S/2, cy:218, w:S*0.6, h:S*0.5 },
+      { font:'hand', size:f.size, color:f.color, outline:true, outlineColor:'rgba(255,255,255,.95)' });
+    // bottom caption
+    var d = new Date();
+    ctx.fillStyle = '#b9a8c8';
+    ctx.font = "700 20px " + FONTS.hand;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(d.getFullYear() + '.' + pad(d.getMonth()+1) + '.' + pad(d.getDate()), 52, 438);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#ff9ecd';
+    ctx.fillText('♡ ✧ ♡', S-52, 438);
+  }
+
+  /* ---------------- render dispatch ---------------- */
+  function drawFrameEmoji(){
+    var t = state.frame.type;
+    if(t === 'cat') frameCat();
+    else if(t === 'ribbon') frameRibbon();
+    else if(t === 'sparkle') frameSparkle();
+    else if(t === 'cheki') frameCheki();
+    else frameWing();
+  }
+
+  function render(){
+    if(state.mode === 'text') drawTextEmoji();
+    else if(state.mode === 'dot') drawDotPreview();
+    else drawFrameEmoji();
+  }
+
+  /* ---------------- export ---------------- */
+  function exportCanvas(){
+    var c = document.createElement('canvas');
+    c.width = 256; c.height = 256;
+    var x = c.getContext('2d');
+    x.imageSmoothingEnabled = true;
+    if('imageSmoothingQuality' in x) x.imageSmoothingQuality = 'high';
+    x.drawImage(preview, 0, 0, 256, 256);
+    return c;
+  }
+  function dataURL(){ return exportCanvas().toDataURL('image/png'); }
+  function fileName(){ return 'hobi-emoji-' + nowStamp() + '.png'; }
+
+  function download(url, name){
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+  function savePng(){
+    download(dataURL(), fileName());
+    toast('PNGを保存したよ📥 保存されない時は画像を長押しで保存してね');
+  }
+  function canvasBlob(){
+    return new Promise(function(resolve){
+      exportCanvas().toBlob(function(b){ resolve(b); }, 'image/png');
+    });
+  }
+  function sharePng(){
+    canvasBlob().then(function(blob){
+      if(!blob){ savePng(); return; }
+      var file;
+      try{ file = new File([blob], fileName(), { type:'image/png' }); }catch(e){ file = null; }
+      if(file && navigator.canShare && navigator.canShare({ files:[file] })){
+        navigator.share({ files:[file], text:'ホビ垢絵文字メーカーで作ったよ🎀' })
+          .catch(function(){ /* キャンセルは何もしない */ });
+      } else {
+        savePng();
+        toast('この環境ではシェアが使えないので保存したよ📥');
+      }
+    });
+  }
+
+  /* ---------------- vault ---------------- */
+  function getImages(){ return loadJSON('images', []); }
+  function getTexts(){ return loadJSON('texts', []); }
+
+  function renderVault(){
+    var imgs = getImages();
+    var txts = getTexts();
+    var grid = $('#imgGrid');
+    grid.innerHTML = '';
+    $('#imgCount').textContent = imgs.length ? imgs.length + '個' : '';
+    if(!imgs.length){
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1">まだ画像はないよ。<br>「つくる」で作って💾保存庫へ保存してみて！</div>';
+    } else {
+      imgs.forEach(function(it){
+        var d = document.createElement('div');
+        d.className = 'img-item';
+        var img = document.createElement('img');
+        img.src = it.dataUrl;
+        img.alt = '保存した絵文字';
+        var acts = document.createElement('div');
+        acts.className = 'acts';
+        var dl = document.createElement('button');
+        dl.className = 'mini'; dl.type = 'button'; dl.textContent = '⬇';
+        dl.addEventListener('click', function(){ download(it.dataUrl, it.name || ('hobi-emoji-' + nowStamp() + '.png')); toast('再ダウンロードしたよ📥'); });
+        var del = document.createElement('button');
+        del.className = 'mini'; del.type = 'button'; del.textContent = '🗑';
+        del.addEventListener('click', function(){
+          var list = getImages().filter(function(x){ return x.id !== it.id; });
+          saveJSON('images', list);
+          renderVault();
+          toast('消したよ');
+        });
+        acts.appendChild(dl); acts.appendChild(del);
+        d.appendChild(img); d.appendChild(acts);
+        grid.appendChild(d);
+      });
+    }
+
+    var list = $('#txtList');
+    list.innerHTML = '';
+    $('#txtCount').textContent = txts.length ? txts.length + '件' : '';
+    if(!txts.length){
+      list.innerHTML = '<div class="empty">まだお気に入りはないよ。<br>テキストデコで♡お気に入りを押すとここに残るよ！</div>';
+    } else {
+      txts.forEach(function(it){
+        var row = document.createElement('div');
+        row.className = 'txt-item';
+        var tx = document.createElement('div');
+        tx.className = 'tx';
+        tx.textContent = it.text;
+        var cp = document.createElement('button');
+        cp.className = 'mini'; cp.type = 'button'; cp.textContent = '📋'; cp.style.flex = '0 0 38px';
+        cp.addEventListener('click', function(){ copyText(it.text); });
+        var del = document.createElement('button');
+        del.className = 'mini'; del.type = 'button'; del.textContent = '🗑'; del.style.flex = '0 0 34px';
+        del.addEventListener('click', function(){
+          var l2 = getTexts().filter(function(x){ return x.id !== it.id; });
+          saveJSON('texts', l2);
+          renderVault();
+          toast('消したよ');
+        });
+        row.appendChild(tx); row.appendChild(cp); row.appendChild(del);
+        list.appendChild(row);
+      });
+    }
+  }
+  function saveImageToVault(){
+    var url = dataURL();
+    var list = getImages();
+    list.unshift({ id:uid(), dataUrl:url, name:fileName(), ts:Date.now(), mode:state.mode });
+    if(list.length > 40) list = list.slice(0, 40);
+    if(saveJSON('images', list)){
+      renderVault();
+      toast('マイ保存庫に保存したよ💾');
+    } else {
+      toast('保存庫がいっぱいみたい…古いものを消してね');
+    }
+  }
+  function saveTextFav(text){
+    if(!text || !text.trim()){ toast('保存する文がまだ空だよ'); return; }
+    var list = getTexts();
+    list.unshift({ id:uid(), text:text, ts:Date.now() });
+    if(list.length > 60) list = list.slice(0, 60);
+    if(saveJSON('texts', list)){
+      renderVault();
+      toast('お気に入りに保存したよ♡');
+    } else {
+      toast('保存できなかった…保存庫がいっぱいかも');
+    }
+  }
+
+  /* ---------------- text panel wiring ---------------- */
+  var txtInput = $('#txtInput');
+  function normalizeChars(v){
+    return v.split('\n').slice(0,2).map(function(l){
+      return Array.from(l).slice(0,6).join('');
+    }).join('\n');
+  }
+  ['尊い','神','優勝','チケ発','待機','LOVE','推し','天才'].forEach(function(p){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.textContent = p;
+    b.addEventListener('click', function(){
+      txtInput.value = p;
+      state.text.chars = p;
+      render(); savePrefs();
+    });
+    $('#presetChips').appendChild(b);
+  });
+  txtInput.addEventListener('input', function(){
+    var v = normalizeChars(txtInput.value);
+    if(v !== txtInput.value){
+      var pos = txtInput.selectionStart;
+      txtInput.value = v;
+      try{ txtInput.setSelectionRange(Math.min(pos, v.length), Math.min(pos, v.length)); }catch(e){}
+    }
+    state.text.chars = v;
+    render(); savePrefs();
+  });
+  $$('#fontChips .chip').forEach(function(b){
+    b.addEventListener('click', function(){
+      $$('#fontChips .chip').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+      state.text.font = b.dataset.font;
+      render(); savePrefs();
+    });
+  });
+  $('#fontSize').addEventListener('input', function(e){
+    state.text.size = +e.target.value; render(); savePrefs();
+  });
+  $('#textColor').addEventListener('input', function(e){
+    state.text.color = e.target.value; render(); savePrefs();
+  });
+  $('#outlineOn').addEventListener('change', function(e){
+    state.text.outline = e.target.checked; render(); savePrefs();
+  });
+  $('#outlineColor').addEventListener('input', function(e){
+    state.text.outlineColor = e.target.value; render(); savePrefs();
+  });
+  $$('#bgChips .chip').forEach(function(b){
+    b.addEventListener('click', function(){
+      $$('#bgChips .chip').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+      state.text.bg = b.dataset.bg;
+      syncBgUI();
+      render(); savePrefs();
+    });
+  });
+  function syncBgUI(){
+    var bg = state.text.bg;
+    $('#bgHint').textContent = bg === 'gradient' ? 'グラデ2色' : (bg === 'solid' ? '背景色' : '背景なし');
+    $('#bg1').style.display = bg === 'transparent' ? 'none' : '';
+    $('#bg2').style.display = bg === 'gradient' ? '' : 'none';
+  }
+  $('#bg1').addEventListener('input', function(e){ state.text.bg1 = e.target.value; render(); savePrefs(); });
+  $('#bg2').addEventListener('input', function(e){ state.text.bg2 = e.target.value; render(); savePrefs(); });
+  $$('#shapeChips .chip').forEach(function(b){
+    b.addEventListener('click', function(){
+      $$('#shapeChips .chip').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+      state.text.shape = b.dataset.shape;
+      render(); savePrefs();
+    });
+  });
+
+  /* ---------------- dot panel wiring ---------------- */
+  var DOT_COLORS = ['#ff8fc7','#ff5fa2','#b79cff','#8f74e8','#8fd0ff','#9df0d0','#ffe066','#ff9a8b','#4a3b52','#ffffff'];
+  function renderDotPalette(){
+    var p = $('#dotPalette');
+    p.innerHTML = '';
+    DOT_COLORS.forEach(function(col){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'sw' + (col === state.dot.color ? ' active' : '');
+      b.style.background = col;
+      b.setAttribute('aria-label', '色 ' + col);
+      b.addEventListener('click', function(){
+        state.dot.color = col;
+        state.dot.tool = 'pen';
+        syncDotTools();
+        renderDotPalette();
+        savePrefs();
+      });
+      p.appendChild(b);
+    });
+    var ci = $('#dotColor');
+    ci.value = state.dot.color;
+  }
+  function syncDotTools(){
+    $('#toolPen').classList.toggle('active', state.dot.tool === 'pen');
+    $('#toolEraser').classList.toggle('active', state.dot.tool === 'eraser');
+  }
+  $('#toolPen').addEventListener('click', function(){ state.dot.tool = 'pen'; syncDotTools(); });
+  $('#toolEraser').addEventListener('click', function(){ state.dot.tool = 'eraser'; syncDotTools(); });
+  $('#dotClear').addEventListener('click', function(){
+    state.dot.grid = new Array(256).fill(null);
+    drawDotGrid(); drawDotPreview(); savePrefs();
+    toast('キャンバスをクリアしたよ');
+  });
+  $('#dotColor').addEventListener('input', function(e){
+    state.dot.color = e.target.value;
+    state.dot.tool = 'pen';
+    syncDotTools(); renderDotPalette(); savePrefs();
+  });
+
+  var TPL = {
+    'ハート': [
+      '................',
+      '................',
+      '...111....111...',
+      '..11111..11111..',
+      '.11111111111111.',
+      '.11111111111111.',
+      '.11111111111111.',
+      '..111111111111..',
+      '...1111111111...',
+      '....11111111....',
+      '.....111111.....',
+      '......1111......',
+      '.......11.......',
+      '................',
+      '................',
+      '................'
+    ],
+    'リボン': [
+      '................',
+      '................',
+      '..111......111..',
+      '.11111....11111.',
+      '.111111..111111.',
+      '.11111111111111.',
+      '..111111111111..',
+      '...1111111111...',
+      '.....111111.....',
+      '.....111111.....',
+      '....111..111....',
+      '...111....111...',
+      '..111......111..',
+      '................',
+      '................',
+      '................'
+    ],
+    '星': [
+      '................',
+      '.......11.......',
+      '.......11.......',
+      '......1111......',
+      '......1111......',
+      '.11111111111111.',
+      '..111111111111..',
+      '...1111111111...',
+      '....11111111....',
+      '...1111111111...',
+      '..111111111111..',
+      '..1111....1111..',
+      '.1111......1111.',
+      '................',
+      '................',
+      '................'
+    ],
+    'うちわ': [
+      '......1111......',
+      '....11111111....',
+      '...1111111111...',
+      '..111111111111..',
+      '..111111111111..',
+      '..111111111111..',
+      '..111111111111..',
+      '..111111111111..',
+      '...1111111111...',
+      '....11111111....',
+      '.......11.......',
+      '.......11.......',
+      '.......11.......',
+      '.......11.......',
+      '......1111......',
+      '................'
+    ],
+    'ペンラ': [
+      '......1111......',
+      '.....111111.....',
+      '....11111111....',
+      '....11111111....',
+      '.....111111.....',
+      '......1111......',
+      '.......11.......',
+      '.......11.......',
+      '.......11.......',
+      '.......11.......',
+      '.......11.......',
+      '.......11.......',
+      '.......11.......',
+      '.......11.......',
+      '......1111......',
+      '................'
+    ],
+    'いぬ': [
+      '................',
+      '..11........11..',
+      '..1111....1111..',
+      '..111111111111..',
+      '..111111111111..',
+      '.11111111111111.',
+      '.11111111111111.',
+      '.111.111111.111.',
+      '.11111111111111.',
+      '.11111.11.11111.',
+      '.11111111111111.',
+      '..111111111111..',
+      '...11.1111.11...',
+      '....11111111....',
+      '................',
+      '................'
+    ]
+  };
+  var tplChips = $('#tplChips');
+  Object.keys(TPL).forEach(function(name){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.textContent = name;
+    b.addEventListener('click', function(){
+      var tpl = TPL[name];
+      var grid = new Array(256).fill(null);
+      for(var y = 0; y < 16; y++){
+        for(var x = 0; x < 16; x++){
+          if(tpl[y] && tpl[y][x] === '1') grid[y*16 + x] = state.dot.color;
+        }
+      }
+      state.dot.grid = grid;
+      drawDotGrid(); drawDotPreview(); savePrefs();
+      $('#dotStatus').textContent = name + ' を読み込んだよ';
+      toast(name + ' を読み込んだよ✏️');
+    });
+    tplChips.appendChild(b);
+  });
+  $$('#dotBgChips .chip').forEach(function(b){
+    b.addEventListener('click', function(){
+      $$('#dotBgChips .chip').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+      state.dot.bg = b.dataset.dotbg;
+      drawDotPreview(); savePrefs();
+    });
+  });
+
+  // dot painting
+  var drawing = false, lastCell = null;
+  function cellFromEvent(e){
+    var r = dotGridEl.getBoundingClientRect();
+    var x = (e.clientX - r.left) / r.width;
+    var y = (e.clientY - r.top) / r.height;
+    if(x < 0 || x > 1 || y < 0 || y > 1) return null;
+    return { x:Math.min(15, Math.max(0, Math.floor(x*16))), y:Math.min(15, Math.max(0, Math.floor(y*16))) };
+  }
+  function paintCell(cell){
+    var idx = cell.y*16 + cell.x;
+    var val = state.dot.tool === 'eraser' ? null : state.dot.color;
+    if(state.dot.grid[idx] === val) return false;
+    state.dot.grid[idx] = val;
+    return true;
+  }
+  function paintLine(a, b){
+    var dx = b.x - a.x, dy = b.y - a.y;
+    var steps = Math.max(Math.abs(dx), Math.abs(dy));
+    if(steps === 0){ paintCell(a); return; }
+    for(var i = 0; i <= steps; i++){
+      var t = i/steps;
+      paintCell({ x:Math.round(a.x + dx*t), y:Math.round(a.y + dy*t) });
+    }
+  }
+  dotGridEl.addEventListener('pointerdown', function(e){
+    e.preventDefault();
+    drawing = true;
+    try{ dotGridEl.setPointerCapture(e.pointerId); }catch(err){}
+    var c = cellFromEvent(e);
+    if(!c) return;
+    paintCell(c);
+    lastCell = c;
+    drawDotGrid(); drawDotPreview();
+  });
+  dotGridEl.addEventListener('pointermove', function(e){
+    if(!drawing) return;
+    e.preventDefault();
+    var c = cellFromEvent(e);
+    if(!c) return;
+    if(lastCell) paintLine(lastCell, c); else paintCell(c);
+    lastCell = c;
+    drawDotGrid(); drawDotPreview();
+  });
+  function endDraw(){
+    if(!drawing) return;
+    drawing = false; lastCell = null;
+    savePrefs();
+  }
+  dotGridEl.addEventListener('pointerup', endDraw);
+  dotGridEl.addEventListener('pointercancel', endDraw);
+  dotGridEl.addEventListener('pointerleave', function(){ if(drawing) endDraw(); });
+
+  /* ---------------- frame wiring ---------------- */
+  $$('#frameChips .chip').forEach(function(b){
+    b.addEventListener('click', function(){
+      $$('#frameChips .chip').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+      state.frame.type = b.dataset.frame;
+      render(); savePrefs();
+    });
+  });
+  $('#frameText').addEventListener('input', function(e){
+    var v = Array.from(e.target.value).slice(0,8).join('');
+    if(v !== e.target.value) e.target.value = v;
+    state.frame.text = v;
+    render(); savePrefs();
+  });
+  $('#frameSize').addEventListener('input', function(e){
+    state.frame.size = +e.target.value; render(); savePrefs();
+  });
+  $('#frameColor').addEventListener('input', function(e){
+    state.frame.color = e.target.value; render(); savePrefs();
+  });
+  $$('[data-fcolor]').forEach(function(b){
+    b.addEventListener('click', function(){
+      state.frame.color = b.dataset.fcolor;
+      $('#frameColor').value = b.dataset.fcolor;
+      render(); savePrefs();
+    });
+  });
+
+  /* ---------------- actions ---------------- */
+  $('#savePng').addEventListener('click', savePng);
+  $('#sharePng').addEventListener('click', sharePng);
+  $('#vaultSave').addEventListener('click', saveImageToVault);
+
+  /* ---------------- tabs ---------------- */
+  function switchTab(tab){
+    $$('#tabbar button').forEach(function(b){ b.classList.toggle('active', b.dataset.tab === tab); });
+    $$('.page').forEach(function(p){ p.classList.toggle('active', p.id === 'page-' + tab); });
+    if(tab === 'vault') renderVault();
+    window.scrollTo({ top:0, behavior:'smooth' });
+  }
+  $$('#tabbar button').forEach(function(b){
+    b.addEventListener('click', function(){ switchTab(b.dataset.tab); });
+  });
+  function switchMode(mode){
+    state.mode = mode;
+    $$('#modeSeg .seg-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.mode === mode); });
+    $$('.panel').forEach(function(p){ p.classList.remove('active'); });
+    var panel = $('#panel-' + mode);
+    if(panel) panel.classList.add('active');
+    $('#modeHint').textContent = mode === 'text' ? '文字を入れてデコる' : (mode === 'dot' ? '16×16をタップで描く' : 'フレームを選んで文字を入れる');
+    var pc = document.querySelector('.preview-card');
+    if(pc && pc.getBoundingClientRect().top < 58){
+      window.scrollTo({ top:0, behavior:'smooth' });
+    }
+    render();
+  }
+  $$('#modeSeg .seg-btn').forEach(function(b){
+    b.addEventListener('click', function(){ switchMode(b.dataset.mode); });
+  });
+
+  /* ---------------- text deco ---------------- */
+  var COLOR_SETS = [
+    { name:'赤', c:'#ff5b6e', items:['❤️','🔴','🍒','🌹','♥','✿','🔥'] },
+    { name:'青', c:'#5b8dff', items:['💙','🔵','🫐','🌊','♪','✧','🐬'] },
+    { name:'黄', c:'#ffc93c', items:['💛','🟡','🌻','⭐','🌟','✨','🍋'] },
+    { name:'緑', c:'#4ec98a', items:['💚','🟢','🍀','🌿','✿','🍃','🐸'] },
+    { name:'紫', c:'#a97bff', items:['💜','🟣','🪻','🔮','☂','✦','🦄'] },
+    { name:'ピンク', c:'#ff8fc7', items:['💗','🩷','🌸','🎀','🧸','♡','🍑'] },
+    { name:'オレンジ', c:'#ff9a5b', items:['🧡','🟠','🍊','🌅','🎃','✩','🐯'] },
+    { name:'水色', c:'#6fd6ef', items:['🩵','🔷','💎','❄','☁','🐟','✧'] },
+    { name:'白', c:'#e8e2ee', items:['🤍','⚪','☁','🕊','🎐','✉','✦'] },
+    { name:'黒', c:'#4a3b52', items:['🖤','⚫','🎱','♠','✦','🕶','🎧'] }
+  ];
+  var activeColor = 5;
+  function renderPalette(){
+    var row = $('#paletteRow');
+    row.innerHTML = '';
+    COLOR_SETS.forEach(function(set, i){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'color-btn' + (i === activeColor ? ' active' : '');
+      b.innerHTML = '<span class="dot" style="background:' + set.c + '"></span>' + set.name;
+      b.addEventListener('click', function(){
+        activeColor = i;
+        renderPalette(); renderSymbols();
+      });
+      row.appendChild(b);
+    });
+  }
+  function addTo(box, text){
+    box.value = (box.value || '') + text;
+    box.scrollTop = box.scrollHeight;
+  }
+  function renderSymbols(){
+    var g = $('#symbolGrid');
+    g.innerHTML = '';
+    COLOR_SETS[activeColor].items.forEach(function(sym){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = sym;
+      b.addEventListener('click', function(){ addTo($('#mixBox'), sym); });
+      g.appendChild(b);
+    });
+  }
+
+  var SCRIPT_U = '𝒜ℬ𝒞𝒟ℰℱ𝒢ℋℐ𝒥𝒦ℒℳ𝒩𝒪𝒫𝒬ℛ𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵';
+  var SCRIPT_L = '𝒶𝒷𝒸𝒹ℯ𝒻ℊ𝒽𝒾𝒿𝓀𝓁𝓂𝓃ℴ𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏';
+  var CIRC_U = 'ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏ';
+  var CIRC_L = 'ⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩ';
+  var SMALL = 'ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘǫʀꜱᴛᴜᴠᴡxʏᴢ';
+  var GOTH_U = '𝔄𝔅ℭ𝔇𝔈𝔉𝔊ℌℑ𝔍𝔎𝔏𝔐𝔑𝔒𝔓𝔔ℜ𝔖𝔗𝔘𝔙𝔚𝔛𝔜ℨ';
+  var GOTH_L = '𝔞𝔟𝔠𝔡𝔢𝔣𝔤𝔥𝔦𝔧𝔨𝔩𝔪𝔫𝔬𝔭𝔮𝔯𝔰𝔱𝔲𝔳𝔴𝔵𝔶𝔷';
+
+  function mapPair(ch, up, lo){
+    var code = ch.codePointAt(0);
+    var U = Array.from(up), L = Array.from(lo);
+    if(code >= 65 && code <= 90) return U[code - 65] || ch;
+    if(code >= 97 && code <= 122) return L[code - 97] || ch;
+    return ch;
+  }
+  function mapSmall(ch){
+    var code = ch.codePointAt(0);
+    if(code >= 65 && code <= 90) return Array.from(SMALL)[code - 65] || ch;
+    if(code >= 97 && code <= 122) return Array.from(SMALL)[code - 97] || ch;
+    return ch;
+  }
+  function mapBold(ch){
+    var c = ch.codePointAt(0);
+    if(c >= 65 && c <= 90) return String.fromCodePoint(0x1D400 + c - 65);
+    if(c >= 97 && c <= 122) return String.fromCodePoint(0x1D41A + c - 97);
+    if(c >= 48 && c <= 57) return String.fromCodePoint(0x1D7CE + c - 48);
+    return ch;
+  }
+  function mapFull(ch){
+    var c = ch.codePointAt(0);
+    if(c === 32) return '\u3000';
+    if(c >= 0x21 && c <= 0x7e) return String.fromCharCode(c + 0xFEE0);
+    return ch;
+  }
+  function mapCircle(ch){
+    var c = ch.codePointAt(0);
+    if(c >= 48 && c <= 57) return '⓪①②③④⑤⑥⑦⑧⑨'[c - 48];
+    return mapPair(ch, CIRC_U, CIRC_L);
+  }
+  var FONT_STYLES = [
+    { id:'script', label:'筆記体', fn:function(s){ return Array.from(s).map(function(c){ return mapPair(c, SCRIPT_U, SCRIPT_L); }).join(''); } },
+    { id:'bold', label:'太字', fn:function(s){ return Array.from(s).map(mapBold).join(''); } },
+    { id:'circle', label:'丸囲み', fn:function(s){ return Array.from(s).map(mapCircle).join(''); } },
+    { id:'full', label:'全角', fn:function(s){ return Array.from(s).map(mapFull).join(''); } },
+    { id:'small', label:'スモールキャップス', fn:function(s){ return Array.from(s).map(mapSmall).join(''); } },
+    { id:'gothic', label:'ゴシック体', fn:function(s){ return Array.from(s).map(function(c){ return mapPair(c, GOTH_U, GOTH_L); }).join(''); } }
+  ];
+  function renderFontResults(){
+    var raw = ($('#fontInput').value || 'cute');
+    var wrap = $('#fontResults');
+    wrap.innerHTML = '';
+    FONT_STYLES.forEach(function(st){
+      var out = st.fn(raw);
+      var row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'frow';
+      var lab = document.createElement('span');
+      lab.className = 'lab';
+      lab.textContent = st.label;
+      var val = document.createElement('span');
+      val.className = 'val';
+      val.textContent = out;
+      row.appendChild(lab); row.appendChild(val);
+      row.addEventListener('click', function(){ copyText(out); });
+      wrap.appendChild(row);
+    });
+  }
+  $('#fontInput').addEventListener('input', renderFontResults);
+
+  var DECO = {
+    'リボン': ['🎀','🎗','⋆','✿','❀','ꕤ','🫧','୨୧','♡','🎁'],
+    '星': ['★','☆','✩','✦','✧','⋆','✨','🌠','💫','*.✧'],
+    'ハート': ['♡','♥','💕','💗','🩷','❤️','💞','💓','🤍','💖'],
+    'きらきら': ['✧','⋆','∘','˚','✩','✨','🌟','💫','｡ﾟ','₊˚'],
+    '区切り線': ['୨୧┈┈┈┈┈┈┈┈┈┈୨୧','⋆｡˚✩ ˚｡⋆','♡ ┈ ┈ ┈ ┈ ┈ ♡','✧･ﾟ: *✧･ﾟ:*','▸▸▸▸▸▸▸▸','┈┈┈┈┈┈┈┈┈┈','₊˚⊹♡⊹˚₊','· · ─────── · ·'],
+    '顔文字': ['꒰ ՞•ﻌ•՞ ꒱','( ˶ˆᗜˆ˵ )','₍ᐢ. .ᐢ₎','(๑>◡<๑)','(*ˊᵕˋ*)','꒰ঌ( ˊᵕˋ )໒꒱','(´,,•ω•,,)','૮₍ ˶ᵔ ᵕ ᵔ˶ ₎ა','( ˃̶᷄ ˂̶᷅ )','꒰ ˘͈ ᵕ ˘͈꒱']
+  };
+  var activeDeco = 'リボン';
+  function renderDecoTabs(){
+    var t = $('#decoTabs');
+    t.innerHTML = '';
+    Object.keys(DECO).forEach(function(k){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip' + (k === activeDeco ? ' active' : '');
+      b.textContent = k;
+      b.addEventListener('click', function(){ activeDeco = k; renderDecoTabs(); renderDecoGrid(); });
+      t.appendChild(b);
+    });
+  }
+  function renderDecoGrid(){
+    var g = $('#decoGrid');
+    g.innerHTML = '';
+    DECO[activeDeco].forEach(function(sym){
+      var b = document.createElement('button');
+      b.type = 'button';
+      if(Array.from(sym).length > 9) b.classList.add('span3');
+      b.textContent = sym;
+      b.addEventListener('click', function(){ addTo($('#decoBox'), sym); });
+      g.appendChild(b);
+    });
+  }
+  $('#mixCopy').addEventListener('click', function(){ copyText($('#mixBox').value); });
+  $('#mixFav').addEventListener('click', function(){ saveTextFav($('#mixBox').value); });
+  $('#mixClear').addEventListener('click', function(){ $('#mixBox').value = ''; });
+  $('#decoCopy').addEventListener('click', function(){ copyText($('#decoBox').value); });
+  $('#decoFav').addEventListener('click', function(){ saveTextFav($('#decoBox').value); });
+  $('#decoClear').addEventListener('click', function(){ $('#decoBox').value = ''; });
+
+  /* ---------------- profile builder ---------------- */
+  var pfStyle = 'kirari';
+  var PF_STYLES = {
+    kirari: { label:'キラキラ' },
+    fuwari: { label:'ふんわり' },
+    simple: { label:'シンプル' }
+  };
+  function buildProfile(){
+    var name = ($('#pfName').value || '').trim() || 'なまえ';
+    var oshi = ($('#pfOshi').value || '').trim();
+    var area = ($('#pfArea').value || '').trim();
+    var memo = ($('#pfMemo').value || '').trim();
+    var lines = [];
+    if(pfStyle === 'kirari'){
+      lines.push('⋆｡˚✩ ' + name + ' ⋆｡˚✩');
+      lines.push('୨୧┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈୨୧');
+      if(oshi) lines.push('♡ 推し → ' + oshi);
+      if(area) lines.push('♡ ' + area);
+      if(memo) lines.push('♡ ' + memo);
+      lines.push('⋆｡˚✩ よろしくお願いします ⋆｡˚✩');
+    } else if(pfStyle === 'fuwari'){
+      lines.push('🫧 ' + name + ' 🫧');
+      lines.push('· · ─────── · ·');
+      if(oshi) lines.push('🎀 推し　' + oshi);
+      if(area) lines.push('☁ ' + area);
+      if(memo) lines.push('✿ ' + memo);
+      lines.push('のんびり仲良くしてください₍ᐢ. .ᐢ₎');
+    } else {
+      lines.push('♡ ' + name + ' ♡');
+      if(oshi) lines.push('推し：' + oshi);
+      if(area) lines.push(area);
+      if(memo) lines.push(memo);
+    }
+    return lines.join('\n');
+  }
+  function refreshProfile(){
+    $('#pfResult').textContent = buildProfile();
+  }
+  ['#pfName','#pfOshi','#pfArea','#pfMemo'].forEach(function(sel){
+    $(sel).addEventListener('input', refreshProfile);
+  });
+  $$('#pfStyleChips .chip').forEach(function(b){
+    b.addEventListener('click', function(){
+      $$('#pfStyleChips .chip').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+      pfStyle = b.dataset.pf;
+      refreshProfile();
+    });
+  });
+  $('#pfCopy').addEventListener('click', function(){ copyText(buildProfile()); });
+  $('#pfFav').addEventListener('click', function(){ saveTextFav(buildProfile()); });
+
+  /* ---------------- install ---------------- */
+  var deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+  $('#installBtn').addEventListener('click', function(){
+    if(deferredPrompt){
+      deferredPrompt.prompt();
+      deferredPrompt = null;
+    } else {
+      $('#installModal').classList.add('show');
+    }
+  });
+  $('#installClose').addEventListener('click', function(){ $('#installModal').classList.remove('show'); });
+  $('#installModal').addEventListener('click', function(e){
+    if(e.target === $('#installModal')) $('#installModal').classList.remove('show');
+  });
+
+  /* ---------------- init ---------------- */
+  function applyStateToUI(){
+    // text
+    txtInput.value = state.text.chars;
+    $$('#fontChips .chip').forEach(function(b){ b.classList.toggle('active', b.dataset.font === state.text.font); });
+    $('#fontSize').value = state.text.size;
+    $('#textColor').value = state.text.color;
+    $('#outlineOn').checked = !!state.text.outline;
+    $('#outlineColor').value = state.text.outlineColor;
+    $$('#bgChips .chip').forEach(function(b){ b.classList.toggle('active', b.dataset.bg === state.text.bg); });
+    $('#bg1').value = state.text.bg1;
+    $('#bg2').value = state.text.bg2;
+    syncBgUI();
+    $$('#shapeChips .chip').forEach(function(b){ b.classList.toggle('active', b.dataset.shape === state.text.shape); });
+    // dot
+    $('#dotColor').value = state.dot.color;
+    $$('#dotBgChips .chip').forEach(function(b){ b.classList.toggle('active', b.dataset.dotbg === state.dot.bg); });
+    // frame
+    $$('#frameChips .chip').forEach(function(b){ b.classList.toggle('active', b.dataset.frame === state.frame.type); });
+    $('#frameText').value = state.frame.text;
+    $('#frameSize').value = state.frame.size;
+    $('#frameColor').value = state.frame.color;
+  }
+
+  applyStateToUI();
+  renderPalette();
+  renderSymbols();
+  renderFontResults();
+  renderDecoTabs();
+  renderDecoGrid();
+  refreshProfile();
+  renderDotPalette();
+  syncDotTools();
+  drawDotGrid();
+  renderVault();
+  switchMode(state.mode);
+  render();
+})();
+</script>
+</body>
+</html>
