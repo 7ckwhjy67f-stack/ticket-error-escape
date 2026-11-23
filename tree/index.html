@@ -305,6 +305,49 @@
     ctx.arcTo(x,y,x+w,y,r);
     ctx.closePath();
   }
+  /* small 2D matrix helpers, so each tier of the tree can bend on its own pivot */
+  function matMul(a,b){
+    return [
+      a[0]*b[0] + a[2]*b[1],
+      a[1]*b[0] + a[3]*b[1],
+      a[0]*b[2] + a[2]*b[3],
+      a[1]*b[2] + a[3]*b[3],
+      a[0]*b[4] + a[2]*b[5] + a[4],
+      a[1]*b[4] + a[3]*b[5] + a[5]
+    ];
+  }
+  function matT(x,y){ return [1,0,0,1,x,y]; }
+  function matR(a){ var c = Math.cos(a), s = Math.sin(a); return [c,s,-s,c,0,0]; }
+  function matS(x,y){ return [x,0,0,y,0,0]; }
+  function applyMat(m,x,y){ return { x: m[0]*x + m[2]*y + m[4], y: m[1]*x + m[3]*y + m[5] }; }
+  function setMat(g,m){
+    g.setTransform(DPR*m[0], DPR*m[1], DPR*m[2], DPR*m[3], DPR*m[4], DPR*m[5]);
+  }
+
+  function hexA(hex,a){
+    var h = hex.replace('#','');
+    var r = parseInt(h.substring(0,2),16), g = parseInt(h.substring(2,4),16), b = parseInt(h.substring(4,6),16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+  }
+
+  // pre-rendered glow discs keep the per-frame cost low on phones
+  var glowSprites = {};
+  function glowSprite(col){
+    if(glowSprites[col]) return glowSprites[col];
+    var SZ = 64;
+    var cv = document.createElement('canvas');
+    cv.width = cv.height = SZ;
+    var g2 = cv.getContext('2d');
+    var rg = g2.createRadialGradient(SZ/2,SZ/2,0,SZ/2,SZ/2,SZ/2);
+    rg.addColorStop(0, hexA(col,1));
+    rg.addColorStop(0.42, hexA(col,0.75));
+    rg.addColorStop(1, hexA(col,0));
+    g2.fillStyle = rg;
+    g2.fillRect(0,0,SZ,SZ);
+    glowSprites[col] = cv;
+    return cv;
+  }
+
   function shapePath(ctx,cx,cy,R,shape){
     ctx.beginPath();
     if(shape === 'heart'){
@@ -313,7 +356,7 @@
       ctx.bezierCurveTo(cx + R*0.62, cy - R*1.22, cx + R*1.34, cy - R*0.18, cx, cy + R*0.78);
       ctx.closePath();
     } else if(shape === 'hoshi'){
-      var spikes = 5, outer = R*1.08, inner = R*0.48;
+      var spikes = 5, outer = R, inner = R*0.445;
       for(var i=0;i<spikes*2;i++){
         var rad = (i % 2 === 0) ? outer : inner;
         var ang = -Math.PI/2 + i * Math.PI/spikes;
@@ -358,13 +401,24 @@
     faceShape: 'maru',
     props: { glasses:false, sax:false, hat:false },
     dancers: [],
+    userFace: false,
     musicOn: false,
     paused: false,
     userStopped: false,
     beat: 0,
     t: 0,
     burst: [],
-    facePunch: 0
+    facePunch: 0,
+    fx: {
+      disco: 0, discoK: 0, discoCd: 6,
+      battery: 0, batteryCd: 15,
+      rarity: '',
+      starTaps: 0, starTapT: -99,
+      hearts: [],
+      ballSpin: 0
+    },
+    starHit: null,
+    faceHit: null
   };
 
   /* =========================================================
@@ -415,7 +469,8 @@
     c.width = c.height = size;
     var x = c.getContext('2d');
     x.save();
-    x.beginPath(); x.arc(256,256,250,0,TAU); x.clip();
+    // full-bleed face: the crop shape does the clipping, so no transparent corners
+    // (a circular clip here used to leave gaps that read as a white rim)
     var g = x.createRadialGradient(256,180,30,256,270,330);
     g.addColorStop(0,'#fffaf0');
     g.addColorStop(0.65,'#ffeccd');
@@ -565,25 +620,28 @@
   function applyCrop(){
     if(!crop.img) return;
     var OUT = 512;
-    var k = OUT / CR;
+    var cx = CR/2, cy = CR/2, R = CR*0.40;
+    // map the cut shape so it fills the whole square canvas (no transparent margin),
+    // which is what used to read as a white rim around the face
+    var k = OUT / (2*R);
     var out = document.createElement('canvas');
     out.width = out.height = OUT;
     var o = out.getContext('2d');
-    var cx = CR/2, cy = CR/2, R = CR*0.40;
     var scale = cropBaseScale()*crop.zoom;
 
     o.save();
-    shapePath(o,cx*k,cy*k,R*k,crop.shape);
+    shapePath(o, OUT/2, OUT/2, OUT/2, crop.shape);
     o.clip();
     o.imageSmoothingEnabled = true;
     o.imageSmoothingQuality = 'high';
-    o.translate((cx + crop.ox)*k, (cy + crop.oy)*k);
+    o.translate(OUT/2 + crop.ox*k, OUT/2 + crop.oy*k);
     o.scale(scale*k, scale*k);
     o.drawImage(crop.img, -crop.img.naturalWidth/2, -crop.img.naturalHeight/2);
     o.restore();
 
     S.face = out;
     S.faceShape = crop.shape;
+    S.userFace = true;
     S.facePunch = 1;
     $('#cropModal').classList.add('hidden');
     burst(W*0.5, H*0.55, 22);
@@ -657,7 +715,7 @@
   var PATTERN = ['rudolph','snowman','text','zigzag','tree'];
 
   function makeDancer(type, i){
-    var d = { type:type, i:i, ph: Math.random()*TAU, seed: Math.random() };
+    var d = { type:type, i:i, ph: Math.random()*TAU, seed: Math.random(), kneeL:0, kneeR:0 };
     if(type === 'reindeer'){
       d.fur = pick(['#8a5a3b','#9a6542','#7a4c31']);
       d.belly = pick(['#d8a97c','#e3b98f']);
@@ -668,6 +726,13 @@
       d.skirt = rand(2) === 0;
       d.hatTilt = (Math.random()-0.5)*0.5;
       d.boot = pick(['#2a1a12','#3a2a20']);
+    } else if(type === 'gift'){
+      d.box = pick(['#e8402f','#2f9c63','#3b6ea8','#d9822b','#7d4bb0']);
+      d.ribbon = pick(['#ffd257','#fff6e6','#ff8fb8','#7fe3ff']);
+    } else if(type === 'snowman'){
+      d.scarf = pick(['#e8402f','#2f9c63','#3b6ea8','#ff8fb8']);
+      d.hatCol = pick(['#2a2a33','#1d6b43','#b8241f']);
+      d.coal = '#2a2a33';
     } else {
       d.skin = pick(SKIN);
       d.hair = pick(HAIR);
@@ -683,16 +748,31 @@
     return d;
   }
 
+  // rare outfits show up now and then on 「ダンサー着替え」
   function makeDancers(){
     var types = ['reindeer','santa','sweater'];
+    var rare = '';
+    var r = Math.random();
+    if(r < 0.045) rare = 'gift';
+    else if(r < 0.09) rare = 'snowman';
+    else if(r < 0.12) rare = 'sweaterday';
+
     var picks;
-    var guard = 0;
-    do{
-      picks = [pick(types), pick(types), pick(types)];
-      guard++;
-    } while(new Set(picks).size < 2 && guard < 50);
-    // guarantee all three are never identical and usually a fun mix
+    if(rare === 'gift' || rare === 'snowman'){
+      picks = [pick(types), rare, pick(types)];
+      picks.sort(function(){ return Math.random() - 0.5; });
+    } else if(rare === 'sweaterday'){
+      picks = ['sweater','sweater','sweater'];
+    } else {
+      var guard = 0;
+      do{
+        picks = [pick(types), pick(types), pick(types)];
+        guard++;
+      } while(new Set(picks).size < 2 && guard < 50);
+    }
     S.dancers = picks.map(function(tp,i){ return makeDancer(tp,i); });
+    S.fx.rarity = rare;
+    return rare;
   }
 
   function dancerXs(){
@@ -701,13 +781,19 @@
 
   function drawDancer(g, d, groundY, scale, beat){
     var b = beat*TAU;
-    var bob = Math.abs(Math.sin(b + d.ph)) * (S.dance === 'bousou' ? 9 : 5);
-    var hip = Math.sin(b + d.ph) * 0.06;
-    var armSwing = Math.sin(b + d.ph) * 0.55;
+    var ph = d.ph;
+    var energy = S.dance === 'bousou' ? 1.35 : (S.dance === 'yuru' ? 0.55 : 1);
+    // smooth cosine bounce (no sharp cusps) + soft knee lifts, hip sway and arm swing
+    var bounce = 0.5 - 0.5*Math.cos(b*2 + ph*1.7);
+    var bob = bounce * (5 + 6*energy);
+    var hip = (Math.sin(b + ph)*0.075 + Math.sin(b*2 + ph + 0.7)*0.022) * energy;
+    var armSwing = (Math.sin(b + ph + 0.55)*0.55 + Math.sin(b*2 + ph)*0.13) * energy;
+    d.kneeL = Math.max(0, Math.sin(b + ph + 0.15));
+    d.kneeR = Math.max(0, Math.sin(b + ph + Math.PI + 0.15));
     g.save();
     g.translate(d.x, groundY - bob);
-    g.rotate(hip * (S.dance === 'bousou' ? 1.4 : 1));
-    g.scale(scale, scale);
+    g.rotate(hip);
+    g.scale(scale*(1 - 0.03*bounce), scale*(1 + 0.045*bounce));
 
     // shadow
     g.fillStyle = 'rgba(0,0,0,.18)';
@@ -715,19 +801,27 @@
 
     if(d.type === 'reindeer') drawReindeerBody(g,d,armSwing,beat);
     else if(d.type === 'santa') drawSantaBody(g,d,armSwing,beat);
+    else if(d.type === 'gift') drawGiftBody(g,d,armSwing,beat);
+    else if(d.type === 'snowman') drawSnowmanBody(g,d,armSwing,beat);
     else drawSweaterBody(g,d,armSwing,beat);
 
     g.restore();
   }
   function bobSafe(s){ return s || 1; }
+  function kneeLift(d, which){
+    var k = which ? d.kneeR : d.kneeL;
+    return (k || 0) * (S.dance === 'bousou' ? 7 : 4);
+  }
 
-  function drawLeg(g, x, y, h, w, col, shoeCol, bend){
+  function drawLeg(g, x, y, h, w, col, shoeCol, bend, lift){
+    lift = lift || 0;
+    y -= lift;
     g.strokeStyle = col;
     g.lineWidth = w;
     g.lineCap = 'round';
     g.beginPath();
     g.moveTo(x, y - h);
-    g.quadraticCurveTo(x + bend, y - h*0.45, x, y);
+    g.quadraticCurveTo(x + bend, y - h*0.45 - lift*0.4, x, y);
     g.stroke();
     g.fillStyle = shoeCol;
     g.beginPath(); g.ellipse(x + Math.sign(x || 1)*2, y + 2, w*0.62, w*0.46, 0, 0, TAU); g.fill();
@@ -736,8 +830,8 @@
   function drawReindeerBody(g,d,swing,beat){
     var fur = d.fur, belly = d.belly;
     // legs
-    drawLeg(g,-15,-28,30,12,fur,'#3a2618', 2);
-    drawLeg(g, 15,-28,30,12,fur,'#3a2618',-2);
+    drawLeg(g,-15,-28,30,12,fur,'#3a2618', 2, kneeLift(d,0));
+    drawLeg(g, 15,-28,30,12,fur,'#3a2618',-2, kneeLift(d,1));
     // body
     g.fillStyle = fur;
     rr(g,-27,-100,54,74,20); g.fill();
@@ -787,8 +881,8 @@
 
   function drawSantaBody(g,d,swing,beat){
     // legs
-    drawLeg(g,-14,-30,30,13,'#b8241f',d.boot, 2);
-    drawLeg(g, 14,-30,30,13,'#b8241f',d.boot,-2);
+    drawLeg(g,-14,-30,30,13,'#b8241f',d.boot, 2, kneeLift(d,0));
+    drawLeg(g, 14,-30,30,13,'#b8241f',d.boot,-2, kneeLift(d,1));
     // flirty skirt
     if(d.skirt){
       g.fillStyle = '#fff6e6';
@@ -866,8 +960,8 @@
 
   function drawSweaterBody(g,d,swing,beat){
     // legs
-    drawLeg(g,-13,-30,30,12,d.pants,'#2a1a12', 2);
-    drawLeg(g, 13,-30,30,12,d.pants,'#2a1a12',-2);
+    drawLeg(g,-13,-30,30,12,d.pants,'#2a1a12', 2, kneeLift(d,0));
+    drawLeg(g, 13,-30,30,12,d.pants,'#2a1a12',-2, kneeLift(d,1));
     // sweater body
     var grd = g.createLinearGradient(0,-100,0,-28);
     grd.addColorStop(0, d.sweater);
@@ -934,6 +1028,132 @@
     g.fillStyle = 'rgba(255,130,150,.35)';
     g.beginPath(); g.arc(-13,hy+5,4,0,TAU); g.fill();
     g.beginPath(); g.arc( 13,hy+5,4,0,TAU); g.fill();
+  }
+
+  /* --- rare outfit: プレゼント箱マン --- */
+  function drawGiftBody(g,d,swing,beat){
+    // legs
+    drawLeg(g,-15,-26,26,12,'#2a2a33','#1a1a22', 2, kneeLift(d,0));
+    drawLeg(g, 15,-26,26,12,'#2a2a33','#1a1a22',-2, kneeLift(d,1));
+    // ribbon arms
+    g.strokeStyle = d.ribbon; g.lineWidth = 9; g.lineCap='round';
+    g.beginPath(); g.moveTo(-24,-96); g.lineTo(-40 - Math.abs(swing)*3, -72 + swing*9); g.stroke();
+    g.beginPath(); g.moveTo( 24,-96); g.lineTo( 40 + Math.abs(swing)*3, -72 - swing*9); g.stroke();
+    g.fillStyle = d.ribbon;
+    g.beginPath(); g.arc(-42 - Math.abs(swing)*3, -70 + swing*9, 7,0,TAU); g.fill();
+    g.beginPath(); g.arc( 42 + Math.abs(swing)*3, -70 - swing*9, 7,0,TAU); g.fill();
+    // glossy box
+    var grd = g.createLinearGradient(-28,-112,28,-30);
+    grd.addColorStop(0, shade(d.box,0.2));
+    grd.addColorStop(0.55, d.box);
+    grd.addColorStop(1, shade(d.box,-0.16));
+    g.fillStyle = grd;
+    rr(g,-30,-112,60,86,9); g.fill();
+    g.strokeStyle = 'rgba(0,0,0,.2)'; g.lineWidth = 2; rr(g,-30,-112,60,86,9); g.stroke();
+    // ribbon cross
+    g.fillStyle = d.ribbon;
+    g.fillRect(-7,-112,14,86);
+    g.fillRect(-30,-78,60,12);
+    g.fillStyle = 'rgba(255,255,255,.22)';
+    g.fillRect(-5,-112,3,86);
+    // lid
+    g.fillStyle = shade(d.box,0.12);
+    rr(g,-34,-120,68,14,5); g.fill();
+    g.fillStyle = d.ribbon;
+    g.fillRect(-7,-120,14,14);
+    // bow
+    g.save();
+    g.translate(0,-124);
+    g.fillStyle = d.ribbon;
+    g.beginPath(); g.ellipse(-11,-6,11,7,-0.5,0,TAU); g.fill();
+    g.beginPath(); g.ellipse( 11,-6,11,7, 0.5,0,TAU); g.fill();
+    g.fillStyle = shade(d.ribbon,-0.14);
+    g.beginPath(); g.arc(0,-3,5,0,TAU); g.fill();
+    g.restore();
+    // cute face peeking through the ribbon
+    g.fillStyle = '#fff6e6';
+    rr(g,-20,-72,40,28,12); g.fill();
+    g.fillStyle = '#2b1a12';
+    g.beginPath(); g.arc(-7,-60,2.8,0,TAU); g.fill();
+    g.beginPath(); g.arc( 7,-60,2.8,0,TAU); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.9)';
+    g.beginPath(); g.arc(-6,-61,1,0,TAU); g.fill();
+    g.beginPath(); g.arc(8,-61,1,0,TAU); g.fill();
+    g.strokeStyle = '#8a4438'; g.lineWidth = 2.2; g.lineCap='round';
+    g.beginPath(); g.arc(0,-56,6,0.2*Math.PI,0.8*Math.PI); g.stroke();
+    g.fillStyle = 'rgba(255,130,150,.4)';
+    g.beginPath(); g.arc(-12,-55,3.4,0,TAU); g.fill();
+    g.beginPath(); g.arc( 12,-55,3.4,0,TAU); g.fill();
+    // ピカピカ
+    var tw = 0.6 + 0.4*Math.sin(S.t*6 + d.ph);
+    g.fillStyle = 'rgba(255,255,255,'+(0.55*tw)+')';
+    starPath(g,-22,-104,5,2,0); g.fill();
+    starPath(g, 22,-92,3.6,1.4,0.6); g.fill();
+    starPath(g, 18,-38,3,1.2,0.2); g.fill();
+  }
+
+  /* --- rare outfit: 雪だるま着ぐるみ --- */
+  function drawSnowmanBody(g,d,swing,beat){
+    // twig arms behind the body
+    g.strokeStyle = '#6b4a2c'; g.lineWidth = 3.4; g.lineCap='round';
+    g.beginPath(); g.moveTo(-24,-88); g.lineTo(-44, -96 + swing*8); g.stroke();
+    g.beginPath(); g.moveTo(-40,-100 + swing*8); g.lineTo(-47,-108); g.stroke();
+    g.beginPath(); g.moveTo( 24,-88); g.lineTo( 44, -96 - swing*8); g.stroke();
+    g.beginPath(); g.moveTo( 40,-100 - swing*8); g.lineTo( 47,-108); g.stroke();
+    // legs
+    drawLeg(g,-15,-26,26,13,'#f6f9f7','#2a2a33', 2, kneeLift(d,0));
+    drawLeg(g, 15,-26,26,13,'#f6f9f7','#2a2a33',-2, kneeLift(d,1));
+    // snowy body
+    var grd = g.createRadialGradient(-10,-80,6,0,-64,70);
+    grd.addColorStop(0,'#ffffff');
+    grd.addColorStop(0.7,'#f2f7f4');
+    grd.addColorStop(1,'#d8e6de');
+    g.fillStyle = grd;
+    rr(g,-31,-104,62,80,26); g.fill();
+    g.strokeStyle = 'rgba(160,190,175,.5)'; g.lineWidth = 1.6; rr(g,-31,-104,62,80,26); g.stroke();
+    // buttons
+    g.fillStyle = d.coal;
+    g.beginPath(); g.arc(0,-78,3.4,0,TAU); g.fill();
+    g.beginPath(); g.arc(0,-64,3.4,0,TAU); g.fill();
+    g.beginPath(); g.arc(0,-50,3.4,0,TAU); g.fill();
+    // striped scarf
+    g.fillStyle = d.scarf;
+    rr(g,-27,-110,54,10,5); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.75)';
+    for(var i=0;i<5;i++){ g.fillRect(-25+i*11,-110,4,10); }
+    g.fillStyle = d.scarf;
+    g.fillRect(9,-103,10,26);
+    g.fillStyle = 'rgba(255,255,255,.7)';
+    g.fillRect(9,-96,10,4);
+    // head
+    var hy = -128;
+    g.fillStyle = '#fbfdfc';
+    g.beginPath(); g.arc(0,hy,22,0,TAU); g.fill();
+    g.strokeStyle = 'rgba(160,190,175,.45)'; g.lineWidth = 1.4;
+    g.beginPath(); g.arc(0,hy,22,0,TAU); g.stroke();
+    // eyes + smile
+    g.fillStyle = d.coal;
+    g.beginPath(); g.arc(-7,hy-4,3,0,TAU); g.fill();
+    g.beginPath(); g.arc( 7,hy-4,3,0,TAU); g.fill();
+    g.fillStyle = '#fff';
+    g.beginPath(); g.arc(-6,hy-5,1.1,0,TAU); g.fill();
+    g.beginPath(); g.arc(8,hy-5,1.1,0,TAU); g.fill();
+    // carrot nose
+    g.fillStyle = '#f09a2e';
+    g.beginPath(); g.moveTo(0,hy+2); g.lineTo(14,hy+6); g.lineTo(0,hy+9); g.closePath(); g.fill();
+    // coal smile
+    g.fillStyle = d.coal;
+    for(var m=0;m<4;m++){
+      var ax = -6 + m*4;
+      g.beginPath(); g.arc(ax,hy+13 + (m===0||m===3?1:2.5), 1.4,0,TAU); g.fill();
+    }
+    // beanie
+    g.fillStyle = d.hatCol;
+    g.beginPath(); g.arc(0,hy-6,21,Math.PI*1.02,Math.PI*1.98); g.fill();
+    g.fillStyle = shade(d.hatCol,-0.16);
+    rr(g,-22,hy-14,44,8,4); g.fill();
+    g.fillStyle = '#fff6e6';
+    g.beginPath(); g.arc(0,hy-32,6,0,TAU); g.fill();
   }
 
   function drawHair(g,d,hy){
@@ -1070,7 +1290,7 @@
         var y = -(topF + (botF-topF)*f);
         var hw = halfWf * f;
         var side = (i % 2 === 0) ? -1 : 1;
-        arr.push({ y:y, x: hw*0.82*side, c: i%3, t: t*0.7 + i*1.3 });
+        arr.push({ y:y, x: hw*0.82*side, c: (i + t*2) % 5, t: t*0.7 + i*1.3 });
       }
     }
     return arr;
@@ -1083,14 +1303,12 @@
     var D = DANCE[S.dance];
     var b = S.beat * TAU;
 
-    var lean = Math.sin(b)*D.lean;
-    if(S.dance === 'bousou'){
-      lean += Math.sin(b*0.5 + 0.8) * 0.07;
-    }
+    var lean = Math.sin(b)*D.lean + Math.sin(b*0.5 + 0.8)*(S.dance === 'bousou' ? 0.045 : 0.012);
     var squash = Math.sin(b*2) * D.squash;
     var sy = 1 + squash;
     var sx = 1 - squash*0.55;
     var stepX = Math.sin(b*0.5) * D.step;
+    var faceD = Math.min(W*0.29, th*0.42);
 
     // ground shadow
     g.save();
@@ -1100,26 +1318,45 @@
     g.fill();
     g.restore();
 
-    g.save();
-    g.translate(cx + stepX, groundY);
-    g.rotate(lean);
-    g.scale(sx, sy);
-
-    var faceD = Math.min(W*0.29, th*0.42);
-
-    // ---- arms (behind tree body, hands stick out)
-    drawTreeArm(g, -1, th, b, D);
-    drawTreeArm(g,  1, th, b, D);
-
-    // ---- tree tiers
     var tiers = [
       { top:-0.98, bot:-0.55, hw:0.21, col:'#1f7a4d' },
       { top:-0.78, bot:-0.38, hw:0.27, col:'#248a56' },
       { top:-0.56, bot:-0.18, hw:0.33, col:'#2a9960' },
       { top:-0.34, bot:-0.01, hw:0.38, col:'#31a869' }
     ];
-    for(var i=0;i<tiers.length;i++){
-      var tr = tiers[i];
+
+    // whole body: base at the ground, hips lean + squash
+    var G = matMul(matT(cx + stepX, groundY), matMul(matR(lean), matS(sx, sy)));
+
+    // each tier bends a little around its own base, upper tiers lagging in phase,
+    // so it sways like a soft plush toy from the waist instead of one stiff plank
+    var bendAmp = (S.dance === 'bousou') ? 0.048 : (S.dance === 'yuru' ? 0.016 : 0.028);
+    if(S.fx.battery > 0 && S.fx.battery < 1.7) bendAmp *= 0.35;
+    var frames = [];
+    var cur = G;
+    for(var i=tiers.length-1; i>=0; i--){
+      var up = tiers.length-1-i;
+      var ang = bendAmp * (0.5 + 0.36*up) * Math.sin(b - 0.5*up + 0.22*Math.sin(b*0.5 + up*0.4));
+      var piv = tiers[i].bot*th;
+      cur = matMul(cur, matMul(matT(0,piv), matMul(matR(ang), matT(0,-piv))));
+      frames[i] = cur;
+    }
+
+    function frameAtY(yFrac){
+      for(var fi=0; fi<tiers.length; fi++){ if(yFrac <= tiers[fi].bot) return frames[fi]; }
+      return frames[tiers.length-1];
+    }
+    function useFrame(m){ setMat(g, m); }
+
+    // ---- arms (behind tree body, hands stick out)
+    useFrame(frames[3]);
+    drawTreeArm(g, -1, th, b, D);
+    drawTreeArm(g,  1, th, b, D);
+
+    // ---- tree tiers (top first so the lower skirt overlaps)
+    for(var i2=0;i2<tiers.length;i2++){
+      var tr = tiers[i2];
+      useFrame(frames[i2]);
       g.beginPath();
       g.moveTo(0, tr.top*th);
       g.lineTo(tr.hw*th, tr.bot*th);
@@ -1151,17 +1388,21 @@
       g.stroke();
     }
 
-    // ---- legs & boots (drawn after the tiers so they show in front of the skirt)
+    // ---- legs & boots
+    useFrame(frames[3]);
     var legSwing2 = Math.sin(b) * (S.dance === 'bousou' ? 5 : 3);
     drawTreeLeg(g, -th*0.085 + legSwing2, -th*0.10, th*0.058);
     drawTreeLeg(g,  th*0.085 - legSwing2, -th*0.10, th*0.058);
 
-    // ---- tinsel garland
-    g.strokeStyle = 'rgba(255,210,87,.55)';
-    g.lineWidth = 2.4;
+    // ---- tinsel garland (each strand rides its own tier)
+    var garlandY = [-0.62,-0.42,-0.22];
+    var garlandW = [0.30,0.37,0.44];
     for(var q=0;q<3;q++){
-      var gy = [-0.62,-0.42,-0.22][q]*th;
-      var gw = [0.30,0.37,0.44][q]*th;
+      useFrame(frameAtY(garlandY[q]));
+      var gy = garlandY[q]*th;
+      var gw = garlandW[q]*th;
+      g.strokeStyle = 'rgba(255,210,87,.55)';
+      g.lineWidth = 2.4;
       g.beginPath();
       for(var px=-gw; px<=gw; px+=8){
         var py = gy + Math.sin(px/gw*Math.PI*2.2 + q)*th*0.012;
@@ -1170,32 +1411,38 @@
       g.stroke();
     }
 
-    // ---- lights
+    // ---- lights (soft breathing glow instead of hard switching)
     var cols = ['#ff5a5a','#ffd257','#7fe3ff','#ff8fd0','#b9ff8a'];
     for(var li=0; li<LIGHTS.length; li++){
       var L = LIGHTS[li];
-      var pulse = 0.45 + 0.55*Math.abs(Math.sin(b*1.6 + L.t));
+      useFrame(frameAtY(L.y));
+      var pulse = 0.42 + 0.58*(0.5 + 0.5*Math.sin(S.t*(1.15 + (L.c%3)*0.22) + L.t));
+      if(S.fx.battery > 0 && S.fx.battery < 1.7) pulse *= 0.45;
       var lx = L.x*th, ly = L.y*th;
-      var col = cols[(L.c + Math.floor(S.t*2 + L.t)) % cols.length];
+      var col = cols[L.c % cols.length];
       g.save();
       g.globalAlpha = pulse;
-      var glow = g.createRadialGradient(lx,ly,0,lx,ly,th*0.055);
-      glow.addColorStop(0, col);
-      glow.addColorStop(1, 'rgba(255,255,255,0)');
-      g.fillStyle = glow;
-      g.beginPath(); g.arc(lx,ly,th*0.055,0,TAU); g.fill();
+      var spr = glowSprite(col);
+      var gsz = th*0.118;
+      g.drawImage(spr, lx-gsz/2, ly-gsz/2, gsz, gsz);
       g.globalAlpha = 1;
       g.fillStyle = col;
       g.beginPath(); g.arc(lx,ly,th*0.012,0,TAU); g.fill();
-      g.fillStyle = 'rgba(255,255,255,.85)';
+      g.fillStyle = 'rgba(255,255,255,'+(0.45 + 0.5*pulse)+')';
       g.beginPath(); g.arc(lx-1.2,ly-1.4,th*0.004,0,TAU); g.fill();
       g.restore();
     }
 
-    // ---- star on top
+    // ---- star on top (it lags behind the sway)
+    useFrame(frames[0]);
     var starR = th*0.085;
     var twinkle = 0.75 + 0.25*Math.sin(b*2);
+    var starLag = bendAmp*1.45*Math.sin(b - 1.05);
     g.save();
+    g.translate(0,-th*1.0);
+    g.rotate(starLag);
+    g.translate(0, th*1.0);
+    g.translate(0, Math.sin(b*2 + 0.4)*th*0.007);
     var sg = g.createRadialGradient(0,-th*1.0,0,0,-th*1.0,starR*3.2);
     sg.addColorStop(0,'rgba(255,230,140,'+(0.55*twinkle)+')');
     sg.addColorStop(1,'rgba(255,210,87,0)');
@@ -1209,57 +1456,64 @@
     starPath(g,-starR*0.22,-th*1.0-starR*0.2,starR*0.4,starR*0.18,0); g.fill();
     g.restore();
 
-    // ---- face plate
+    var starP = applyMat(frames[0], 0, -th*1.0 + Math.sin(b*2 + 0.4)*th*0.007);
+    S.starHit = { x: starP.x, y: starP.y, r: starR*1.5 };
+
+    // ---- face: the cropped photo goes straight onto the tree (no plate, no rim)
     var fy = -th*0.355;
     var punch = 1 + S.facePunch*0.12;
     var fd = faceD * punch;
-    g.save();
-    // ornament cap + little hanging ring (circle plate only)
-    if(S.faceShape === 'maru'){
-      var capY = fy - fd*0.5 - 1;
-      g.strokeStyle = '#c9a23f'; g.lineWidth = 3;
-      g.beginPath(); g.arc(0, capY - 9, 5.5, 0, TAU); g.stroke();
-      g.fillStyle = '#ffd257';
-      rr(g, -9, capY - 3, 18, 10, 4); g.fill();
-      g.strokeStyle = '#c9a23f'; g.lineWidth = 1.4; g.stroke();
-    }
-
-    // plate
-    shapePath(g, 0, fy, fd*0.5 + 7, S.faceShape);
-    g.fillStyle = '#fff8e8';
-    g.shadowColor = 'rgba(0,0,0,.35)'; g.shadowBlur = 14; g.shadowOffsetY = 4;
-    g.fill();
-    g.shadowColor = 'transparent'; g.shadowBlur = 0; g.shadowOffsetY = 0;
-
-    shapePath(g, 0, fy, fd*0.5 + 7, S.faceShape);
-    g.strokeStyle = '#e8c268'; g.lineWidth = 2.5; g.stroke();
-
+    useFrame(frameAtY(fy/th));
     if(S.face){
-      g.save();
-      shapePath(g, 0, fy, fd*0.5, S.faceShape);
-      g.clip();
-      g.drawImage(S.face, -fd/2, fy-fd/2, fd, fd);
-      g.restore();
-    }
+      if(S.userFace){
+        // the cut-out already carries its own shape alpha, so a soft shadow follows the
+        // exact silhouette (no plate, no rim, no dark ring)
+        g.save();
+        g.shadowColor = 'rgba(0,0,0,.32)';
+        g.shadowBlur = 14; g.shadowOffsetY = 4;
+        g.drawImage(S.face, -fd/2, fy-fd/2, fd, fd);
+        g.restore();
+        g.imageSmoothingEnabled = true;
+        g.imageSmoothingQuality = 'high';
+        g.drawImage(S.face, -fd/2, fy-fd/2, fd, fd);
+      } else {
+        // default face is full-bleed, so clip it to the chosen shape
+        g.save();
+        shapePath(g, 0, fy, fd*0.5, S.faceShape);
+        g.shadowColor = 'rgba(0,0,0,.28)';
+        g.shadowBlur = 13; g.shadowOffsetY = 4;
+        g.fillStyle = '#12382b';
+        g.fill();
+        g.restore();
 
-    // face shine
-    g.save();
-    shapePath(g,0,fy,fd*0.5,S.faceShape); g.clip();
-    var shine = g.createLinearGradient(-fd/2, fy-fd/2, fd/2, fy+fd/2);
-    shine.addColorStop(0,'rgba(255,255,255,.16)');
-    shine.addColorStop(0.45,'rgba(255,255,255,0)');
-    g.fillStyle = shine;
-    g.fillRect(-fd/2, fy-fd/2, fd, fd);
-    g.restore();
+        g.save();
+        shapePath(g, 0, fy, fd*0.5, S.faceShape);
+        g.clip();
+        g.imageSmoothingEnabled = true;
+        g.imageSmoothingQuality = 'high';
+        g.drawImage(S.face, -fd/2, fy-fd/2, fd, fd);
+        g.restore();
+
+        // gentle shine on the default face only
+        g.save();
+        shapePath(g,0,fy,fd*0.5,S.faceShape); g.clip();
+        var shine = g.createLinearGradient(-fd/2, fy-fd/2, fd/2, fy+fd/2);
+        shine.addColorStop(0,'rgba(255,255,255,.14)');
+        shine.addColorStop(0.45,'rgba(255,255,255,0)');
+        g.fillStyle = shine;
+        g.fillRect(-fd/2, fy-fd/2, fd, fd);
+        g.restore();
+      }
+    }
+    var fp = applyMat(frameAtY(fy/th), 0, fy);
+    S.faceHit = { x: fp.x, y: fp.y, r: fd*0.62 };
 
     // ---- props on face
     if(S.props.hat) drawSantaHatOn(g, fy, fd, lean);
     if(S.props.glasses) drawSunglasses(g, fy, fd);
     if(S.props.sax) drawSax(g, th, fy, b);
 
-    g.restore();
-    g.restore();
-
+    g.setTransform(DPR,0,0,DPR,0,0);
     S.facePunch *= 0.92;
     return { cx: cx + stepX, groundY: groundY, th: th, faceY: groundY - th*0.355 };
   }
@@ -1456,10 +1710,7 @@
         var pulse = 0.35 + 0.65*Math.abs(Math.sin(t*1.7 + i*1.1 + s));
         g.save();
         g.globalAlpha = pulse;
-        var gl = g.createRadialGradient(x2,y2,0,x2,y2,10);
-        gl.addColorStop(0,c); gl.addColorStop(1,'rgba(0,0,0,0)');
-        g.fillStyle = gl;
-        g.beginPath(); g.arc(x2,y2,10,0,TAU); g.fill();
+        g.drawImage(glowSprite(c), x2-11, y2-11, 22, 22);
         g.globalAlpha = pulse*0.95;
         g.fillStyle = c;
         g.beginPath(); g.ellipse(x2,y2,3,4.2,0,0,TAU); g.fill();
@@ -1537,23 +1788,244 @@
   }
 
   /* =========================================================
+     hidden fun: disco ball / low battery / star hearts
+  ========================================================= */
+  function spawnDisco(sec){
+    if(S.fx.disco > 1) return;
+    S.fx.disco = sec || 9.5;
+    S.fx.discoCd = 26;
+    toast('🪩 ミラーボール、降臨…！ディスコタイム！');
+    burst(W/2, H*0.25, 26);
+  }
+
+  function startBattery(){
+    if(S.fx.battery > 0) return;
+    S.fx.battery = 0.0001;
+    S.fx.batteryCd = 30;
+    toast('🔋 電池切れかけ…');
+  }
+
+  function heartShower(){
+    var fx = S.fx;
+    var c = S.faceHit || { x: W/2, y: H*0.55, r: 40 };
+    for(var i=0;i<30;i++){
+      fx.hearts.push({
+        x: c.x + (Math.random()-0.5)*c.r*2.2,
+        y: c.y + (Math.random()-0.5)*c.r*1.4,
+        vx: (Math.random()-0.5)*26,
+        vy: -22 - Math.random()*46,
+        size: 5 + Math.random()*9,
+        rot: (Math.random()-0.5)*0.6,
+        vr: (Math.random()-0.5)*1.4,
+        life: 1,
+        c: pick(['#ff8fb8','#ff5a7a','#ffd1dc','#ffd257','#fff6e6'])
+      });
+    }
+    for(var j=0;j<14;j++){
+      burst(c.x + (Math.random()-0.5)*c.r, c.y + (Math.random()-0.5)*c.r, 1);
+    }
+    S.facePunch = 1;
+    toast('💖 推しからハートの嵐…！');
+  }
+
+  function updateFx(raw){
+    var fx = S.fx;
+    // disco ball
+    fx.discoCd = Math.max(0, fx.discoCd - raw);
+    if(fx.disco > 0){
+      fx.disco -= raw;
+      fx.discoK = Math.min(1, fx.discoK + raw*1.8);
+    } else {
+      fx.discoK = Math.max(0, fx.discoK - raw*1.6);
+    }
+    if(fx.discoK > 0) fx.ballSpin += raw*(1.2 + fx.discoK*2.2);
+
+    // low-battery gag
+    if(fx.battery > 0){
+      var was = fx.battery;
+      fx.battery += raw;
+      if(was < 1.0 && fx.battery >= 1.0){ toast('…ｶﾞｸｯ'); }
+      if(was < 1.9 && fx.battery >= 1.9){ toast('💡 復活！もっと踊るよ！'); burst(W/2, H*0.5, 18); }
+      if(fx.battery > 2.8) fx.battery = 0;
+    } else {
+      fx.batteryCd = Math.max(0, fx.batteryCd - raw);
+      if(S.t > 10 && fx.batteryCd <= 0 && Math.random() < raw*0.06){
+        startBattery();
+      }
+    }
+
+    // floating hearts
+    for(var i=fx.hearts.length-1;i>=0;i--){
+      var h = fx.hearts[i];
+      h.x += (h.vx + Math.sin(S.t*2.4 + i)*14)*raw;
+      h.y += h.vy*raw;
+      h.vy -= 6*raw;
+      h.rot += h.vr*raw;
+      h.life -= raw*0.32;
+      if(h.life <= 0) fx.hearts.splice(i,1);
+    }
+  }
+
+  function fxTimeScale(){
+    var b = S.fx.battery;
+    if(b > 0){
+      if(b < 1.0) return 0.34;
+      if(b < 1.7) return 0.05;
+      if(b < 2.4) return 1.5;
+    }
+    return 1;
+  }
+
+  function drawDisco(g){
+    var k = S.fx.discoK;
+    if(k <= 0.01) return;
+    var bx = W/2, by = H*0.10;
+    var t = S.t;
+
+    // ambient colour wash
+    g.save();
+    var hue0 = (t*40) % 360;
+    var rg = g.createRadialGradient(bx, H*0.7, 10, bx, H*0.7, W*0.68);
+    rg.addColorStop(0,'hsla('+hue0+',90%,60%,'+(0.14*k)+')');
+    rg.addColorStop(1,'hsla('+hue0+',90%,60%,0)');
+    g.fillStyle = rg;
+    g.fillRect(0,0,W,H);
+
+    // rotating beams
+    g.globalCompositeOperation = 'lighter';
+    g.translate(bx, by);
+    for(var i=0;i<7;i++){
+      var a = t*0.55 + i*TAU/7;
+      var hue2 = (i*51 + t*50) % 360;
+      g.save();
+      g.rotate(a);
+      var lg = g.createLinearGradient(0,0,0,H*0.8);
+      lg.addColorStop(0,'hsla('+hue2+',100%,68%,'+(0.32*k)+')');
+      lg.addColorStop(0.55,'hsla('+hue2+',100%,62%,'+(0.08*k)+')');
+      lg.addColorStop(1,'hsla('+hue2+',95%,60%,0)');
+      g.fillStyle = lg;
+      g.beginPath();
+      g.moveTo(0,0);
+      g.lineTo(-W*0.13, H*0.8);
+      g.lineTo(W*0.13, H*0.8);
+      g.closePath();
+      g.fill();
+      g.restore();
+    }
+    g.restore();
+
+    // wire + mirror ball
+    g.save();
+    g.strokeStyle = 'rgba(220,235,245,.5)';
+    g.lineWidth = 1.2;
+    g.beginPath(); g.moveTo(bx, 0); g.lineTo(bx, by - Math.max(16, Math.min(W*0.065, H*0.038))); g.stroke();
+
+    var R = Math.max(16, Math.min(W*0.065, H*0.038));
+    var grd = g.createRadialGradient(bx - R*0.35, by - R*0.45, R*0.15, bx, by, R*1.15);
+    grd.addColorStop(0,'#ffffff');
+    grd.addColorStop(0.35,'#cfe6f5');
+    grd.addColorStop(0.7,'#8fb4cc');
+    grd.addColorStop(1,'#57788f');
+    g.fillStyle = grd;
+    g.beginPath(); g.arc(bx, by, R, 0, TAU); g.fill();
+
+    g.save();
+    g.beginPath(); g.arc(bx,by,R,0,TAU); g.clip();
+    for(var fy=-R; fy<R; fy+=R*0.28){
+      for(var fxx=-R; fxx<R; fxx+=R*0.28){
+        var sh = 0.5 + 0.5*Math.sin(fxx*0.5 + fy*0.4 + S.fx.ballSpin*2.4);
+        g.fillStyle = 'rgba(255,255,255,'+(0.10 + sh*0.55)+')';
+        g.fillRect(bx+fxx + Math.sin(S.fx.ballSpin + fy)*R*0.2, by+fy, R*0.24, R*0.24);
+      }
+    }
+    g.restore();
+    g.strokeStyle = 'rgba(255,255,255,.5)';
+    g.lineWidth = 1.4;
+    g.beginPath(); g.arc(bx,by,R,0,TAU); g.stroke();
+
+    // sparkles around the ball
+    for(var sp=0; sp<8; sp++){
+      var ang = S.fx.ballSpin*0.8 + sp*TAU/8;
+      var rr2 = R*(1.35 + 0.35*Math.sin(S.t*3 + sp));
+      var sxx = bx + Math.cos(ang)*rr2, syy = by + Math.sin(ang)*rr2*0.9;
+      var tw = 0.4 + 0.6*Math.abs(Math.sin(S.t*4 + sp*1.7));
+      g.fillStyle = 'rgba(255,255,255,'+(0.75*k*tw)+')';
+      starPath(g, sxx, syy, 3.4*tw + 1, 1.2, ang);
+      g.fill();
+    }
+    g.restore();
+  }
+
+  function drawHearts(g){
+    var list = S.fx.hearts;
+    for(var i=0;i<list.length;i++){
+      var h = list[i];
+      g.save();
+      g.globalAlpha = clamp(h.life,0,1);
+      g.translate(h.x, h.y);
+      g.rotate(h.rot);
+      g.fillStyle = h.c;
+      heartPath(g, 0, 0, h.size);
+      g.fill();
+      g.restore();
+    }
+  }
+
+  function drawBatteryBadge(g){
+    var b = S.fx.battery;
+    if(b <= 0) return;
+    var bw = 152, bx = W/2 - bw/2, by = H*0.052;
+    var blink = (Math.sin(S.t*9) > 0) ? 1 : 0.25;
+    var k = (b > 1.0 && b < 1.7) ? 0.3 : 1;
+    g.save();
+    g.globalAlpha = k;
+    g.fillStyle = 'rgba(6,14,11,.78)';
+    rr(g, bx, by, bw, 27, 9); g.fill();
+    g.strokeStyle = 'rgba(255,210,87,.55)'; g.lineWidth = 1.4; g.stroke();
+    g.strokeStyle = '#fff6e6'; g.lineWidth = 2;
+    rr(g, bx+10, by+7, 24, 13, 3); g.stroke();
+    g.fillStyle = '#fff6e6';
+    g.fillRect(bx+35, by+11, 3, 5);
+    g.fillStyle = '#ff5a5a';
+    g.globalAlpha = k*blink;
+    g.fillRect(bx+13, by+10, 6, 7);
+    g.globalAlpha = k;
+    g.font = '700 9.5px "Hiragino Sans",system-ui,sans-serif';
+    g.fillStyle = '#ffd7c9';
+    g.textAlign = 'left'; g.textBaseline = 'middle';
+    g.fillText('電池切れかけ…', bx+44, by+13.5);
+    g.restore();
+  }
+
+  /* =========================================================
      main loop
   ========================================================= */
   var last = 0;
   function loop(now){
     requestAnimationFrame(loop);
     if(!last) last = now;
-    var dt = Math.min((now-last)/1000, 0.05);
+    var raw = Math.min((now-last)/1000, 0.05);
     last = now;
+
+    updateFx(raw);
+    var ts = fxTimeScale();
+    var dt = raw * ts;
+
     S.t += dt;
     var bpm = DANCE[S.dance].bpm;
     S.beat += dt * bpm / 60;
 
+    // random disco moments (暴走中は出やすい)
+    if(S.fx.disco <= 0 && S.fx.discoCd <= 0){
+      if(S.dance === 'bousou' && Math.random() < raw*0.09) spawnDisco();
+      else if(Math.random() < raw*0.004) spawnDisco();
+    }
+
     // snow update
     for(var i=0;i<snow.length;i++){
       var s = snow[i];
-      s.y += s.v*dt;
-      s.x += Math.sin(S.t*1.1 + s.ph) * 10 * dt;
+      s.y += s.v*raw;
+      s.x += Math.sin(S.t*1.1 + s.ph) * 10 * raw;
       if(s.y > H+6){ s.y = -6; s.x = Math.random()*W; }
       if(s.x < -6) s.x = W+4;
       if(s.x > W+6) s.x = -4;
@@ -1565,7 +2037,6 @@
     drawBackground(ctx, S.t);
 
     var groundY = H*0.875;
-    var th = Math.min(H*0.575, W*0.95);
     var xs = dancerXs();
     var dScale = Math.min(H*0.285, W*0.42) / 150;
 
@@ -1577,10 +2048,15 @@
     }
 
     drawTree(ctx, S.t);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+
+    drawDisco(ctx);
+    drawHearts(ctx);
 
     // front snow
     drawSnow(ctx, true);
     drawBurst(ctx, dt);
+    drawBatteryBadge(ctx);
     drawFrameOverlay(ctx);
   }
 
@@ -1732,9 +2208,12 @@
   });
 
   $('#rerollBtn').addEventListener('click', function(){
-    makeDancers();
-    burst(W/2, H*0.6, 10);
-    toast('ダンサーが着替えたよ！🎲');
+    var rare = makeDancers();
+    burst(W/2, H*0.6, rare ? 26 : 10);
+    if(rare === 'gift') toast('🎁 レア！プレゼント箱マン乱入！');
+    else if(rare === 'snowman') toast('⛄️ レア！雪だるま着ぐるみ乱入！');
+    else if(rare === 'sweaterday') toast('🧶 今日は全員クソダサセーターの日…！');
+    else toast('ダンサーが着替えたよ！🎲');
   });
 
   $('#danceSeg').addEventListener('click', function(e){
@@ -1745,6 +2224,9 @@
       el.classList.toggle('on', el === b);
     });
     toast(DANCE[S.dance].label + 'モード🎵');
+    if(S.dance === 'bousou' && S.fx.disco <= 0 && Math.random() < 0.3){
+      setTimeout(function(){ spawnDisco(); }, 450);
+    }
   });
 
   $('#propRow').addEventListener('click', function(e){
@@ -1770,6 +2252,27 @@
     if(e.target.closest && e.target.closest('#musicBtn, #playBtn')) return;
     startMusic();
   }, true);
+
+  // hidden ④: tap the star three times
+  stage.addEventListener('pointerdown', function(e){
+    if(!S.starHit) return;
+    var r = stage.getBoundingClientRect();
+    var x = e.clientX - r.left, y = e.clientY - r.top;
+    var dx = x - S.starHit.x, dy = y - S.starHit.y;
+    var hr = S.starHit.r*1.9;   // generous: the star keeps swaying while they tap
+    if(Math.abs(dx) > hr || Math.abs(dy) > hr) return;
+    var nowSec = performance.now()/1000;
+    if(nowSec - S.fx.starTapT < 3.2) S.fx.starTaps += 1;
+    else S.fx.starTaps = 1;
+    S.fx.starTapT = nowSec;
+    burst(x, y, 7);
+    if(S.fx.starTaps >= 3){
+      S.fx.starTaps = 0;
+      heartShower();
+    } else {
+      toast(S.fx.starTaps === 1 ? '✨ てっぺんの星がきらり' : '✨ もう1回…！');
+    }
+  });
 
   /* ---------- capture ---------- */
   function shoot(){
@@ -1811,6 +2314,12 @@
     updateMusicUI();
     window.__dancingTree = S;
     window.__treeAudio = { get state(){ return actx ? actx.state : 'none'; }, get step(){ return stepIdx; }, get on(){ return S.musicOn; } };
+    window.__treeFx = {
+      disco: function(){ spawnDisco(); },
+      battery: function(){ startBattery(); },
+      hearts: function(){ heartShower(); },
+      state: function(){ return { discoK: S.fx.discoK, disco: S.fx.disco, battery: S.fx.battery, rarity: S.fx.rarity, hearts: S.fx.hearts.length }; }
+    };
     window.addEventListener('resize', function(){ setTimeout(function(){ W=0; resize(); initBokeh(); }, 60); });
     if(window.ResizeObserver){
       var ro = new ResizeObserver(function(){
