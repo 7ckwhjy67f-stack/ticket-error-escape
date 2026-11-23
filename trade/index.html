@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#fffafc">
+<title>お取引文章ジェネレーター｜推し活グッズの交換・譲渡・買取の文章をかんたん作成</title>
+<meta name="description" content="推し活グッズの交換・譲渡・買取で使える募集ポスト、最初のリプ、初回DM、連絡テンプレを選ぶだけで作成できる無料ツール。140字カウンター・ワンタップコピー・X投稿・マイ設定保存つき。スマホ縦画面対応。">
+<meta property="og:title" content="お取引文章ジェネレーター｜推し活グッズの交換・譲渡・買取">
+<meta property="og:description" content="募集ポスト・最初のリプ・初回DM・連絡テンプレを、選ぶだけで。140字カウンターとコピー、X投稿ボタン、マイ設定保存つき。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://7ckwhjy67f-stack.github.io/ticket-error-escape/trade/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="お取引文章ジェネレーター｜推し活グッズの交換・譲渡・買取">
+<meta name="twitter:description" content="募集ポスト・最初のリプ・初回DM・連絡テンプレを選ぶだけで作成。140字カウンター・コピー・X投稿・マイ設定つき。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23ffe4ef'/%3E%3Cpath d='M32 50C18 40 12 33 12 26a9 9 0 0116-5 9 9 0 0116 5c0 7-6 14-20 24z' fill='%23ff8fb8'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --pink:#ff8fb8;
+    --pink-deep:#e0568b;
+    --pink-soft:#ffe6f0;
+    --pink-line:#ffdceb;
+    --ink:#4a3a43;
+    --ink-soft:#8d7380;
+    --ink-mute:#b39aa6;
+    --bg:#fffafc;
+    --radius:18px;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    margin:0; padding:0; background:var(--bg); color:var(--ink);
+    font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:15px; line-height:1.6; min-height:100vh;
+    background-image:radial-gradient(120% 220px at 50% 0%, #ffeef6 0%, rgba(255,238,246,0) 70%);
+    background-repeat:no-repeat;
+  }
+  .app{ max-width:480px; margin:0 auto; padding-bottom:calc(env(safe-area-inset-bottom) + 28px); }
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:40;
+    background:rgba(255,250,252,.95);
+    -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--pink-line);
+  }
+  .hdr{ display:flex; align-items:center; gap:9px; padding:calc(env(safe-area-inset-top) + 9px) 14px 8px; }
+  .logo{
+    width:34px; height:34px; flex:0 0 auto; border-radius:11px;
+    background:linear-gradient(135deg,#ffd9e8,#ffaecd); display:grid; place-items:center;
+    font-size:17px; box-shadow:0 3px 9px rgba(255,143,184,.32);
+  }
+  .hdr-t{ flex:1; min-width:0; }
+  .hdr h1{ margin:0; font-size:14.5px; font-weight:800; line-height:1.25; letter-spacing:.01em; }
+  .hdr .sub{ display:block; font-size:10px; font-weight:700; color:var(--ink-mute); margin-top:1px; letter-spacing:.02em; }
+  .btn-settings{
+    flex:0 0 auto; font:inherit; font-size:11.5px; font-weight:800;
+    color:var(--pink-deep); background:#fff; border:1.5px solid var(--pink-line);
+    border-radius:999px; padding:7px 11px; line-height:1.2;
+  }
+  .btn-settings:active{ transform:scale(.96); }
+
+  /* ---------- tabs ---------- */
+  .tabs{ display:grid; grid-template-columns:repeat(4,1fr); gap:4px; padding:4px 8px 8px; }
+  .tab{
+    font:inherit; font-size:11.5px; font-weight:700; color:var(--ink-mute);
+    background:transparent; border:none; border-radius:12px;
+    padding:7px 2px 6px; display:flex; flex-direction:column; align-items:center; gap:3px;
+    cursor:pointer; transition:background .15s,color .15s;
+  }
+  .tab i{ font-style:normal; font-size:15px; line-height:1; }
+  .tab[aria-selected="true"]{ background:var(--pink-soft); color:var(--pink-deep); box-shadow:inset 0 0 0 1px #ffd0e2; }
+  .tab:active{ transform:scale(.97); }
+
+  /* ---------- panels ---------- */
+  .panel{ display:none; padding:12px 14px 0; }
+  .panel.active{ display:block; animation:fade .18s ease; }
+  @keyframes fade{ from{ opacity:.4; transform:translateY(4px); } to{ opacity:1; transform:none; } }
+  .lead{ margin:2px 2px 10px; font-size:11.5px; color:var(--ink-soft); line-height:1.65; }
+
+  .card{
+    background:#fff; border:1.5px solid var(--pink-line); border-radius:var(--radius);
+    padding:13px; margin-bottom:12px; box-shadow:0 3px 12px rgba(255,150,190,.06);
+  }
+  .field + .field{ margin-top:12px; }
+  .lbl{ display:flex; align-items:center; gap:6px; font-size:12px; font-weight:800; color:#9c7285; margin-bottom:6px; }
+  .req{ font-size:9.5px; font-weight:800; color:#fff; background:var(--pink); border-radius:5px; padding:1px 5px; letter-spacing:.04em; }
+  .opt{ font-size:9.5px; font-weight:700; color:var(--ink-mute); border:1px solid #efe2e8; border-radius:5px; padding:1px 5px; }
+
+  .chips{ display:flex; flex-wrap:wrap; gap:6px; }
+  .chip{ position:relative; display:inline-flex; }
+  .chip input{ position:absolute; opacity:0; width:1px; height:1px; margin:0; pointer-events:none; }
+  .chip span{
+    display:inline-flex; align-items:center; gap:3px; font-size:12.5px; font-weight:700;
+    color:#8d7380; background:#fff8fb; border:1.5px solid #ffe3ee; border-radius:999px;
+    padding:7px 11px; line-height:1.2; transition:.12s;
+  }
+  .chip span::before{ content:"＋"; font-size:10px; font-weight:800; color:#e8b7cb; }
+  .chip input:checked + span{
+    background:linear-gradient(135deg,#ffe4ef,#ffd3e4); border-color:#ff9dc4; color:#d4477f;
+    box-shadow:0 2px 6px rgba(255,143,184,.22);
+  }
+  .chip input:checked + span::before{ content:"✓"; color:#d4477f; }
+  .chip input:focus-visible + span{ outline:2px solid #ffb3d0; outline-offset:2px; }
+
+  input[type=text], input[type=date], textarea, select{
+    width:100%; font-family:inherit; font-size:16px; color:var(--ink);
+    background:#fffafc; border:1.5px solid #ffe3ee; border-radius:12px;
+    padding:10px 12px; outline:none; transition:border-color .15s, box-shadow .15s, background .15s;
+    -webkit-appearance:none; appearance:none;
+  }
+  textarea{ font-size:14px; line-height:1.7; resize:vertical; min-height:76px; }
+  select{
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d99ab4' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 11px center; background-size:16px 16px;
+    padding-right:34px;
+  }
+  input:focus, textarea:focus, select:focus{ border-color:#ffa8cb; background:#fff; box-shadow:0 0 0 3px #ffeef5; }
+  ::placeholder{ color:#cdb2bf; }
+  .mt8{ margin-top:8px; }
+
+  .switch{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:#fff8fb; border:1.5px solid #ffe3ee; border-radius:12px;
+    padding:10px 12px; font-size:12.5px; font-weight:700; color:#8d7380; cursor:pointer;
+  }
+  .switch input{ position:absolute; opacity:0; width:1px; height:1px; }
+  .switch .track{ width:44px; height:26px; flex:0 0 auto; border-radius:999px; background:#f0e0e8; position:relative; transition:.18s; }
+  .switch .track::after{
+    content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%;
+    background:#fff; transition:.18s; box-shadow:0 1px 3px rgba(0,0,0,.16);
+  }
+  .switch input:checked + .track{ background:linear-gradient(135deg,#ffa3c6,#ff7fae); }
+  .switch input:checked + .track::after{ transform:translateX(18px); }
+  .switch input:focus-visible + .track{ outline:2px solid #ffb3d0; outline-offset:2px; }
+
+  .row{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+
+  /* ---------- output ---------- */
+  .out{ background:linear-gradient(180deg,#fff6fa,#fff); border-color:#ffd0e2; margin-top:4px; }
+  .out-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
+  .out-title{ font-size:12.5px; font-weight:800; color:#c95a8c; display:flex; align-items:center; gap:5px; }
+  .count{
+    font-size:11.5px; font-weight:800; color:var(--ink-mute); background:#fff;
+    border:1px solid #ffe3ee; border-radius:999px; padding:2px 9px; font-variant-numeric:tabular-nums;
+  }
+  .count.over{ color:#e34f6d; border-color:#ffc2cf; background:#fff3f5; }
+  textarea.out-ta{ min-height:178px; border-style:dashed; background:#fff; }
+  .hint{ display:none; font-size:11px; font-weight:700; color:#d0678f; margin-top:6px; }
+  .hint.show{ display:block; }
+  .btns{ display:flex; flex-direction:column; gap:8px; margin-top:10px; }
+  .btn{
+    font:inherit; font-size:14px; font-weight:800; border-radius:14px; padding:12px;
+    width:100%; border:1.5px solid transparent; cursor:pointer; transition:transform .1s, box-shadow .15s;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .btn:active{ transform:scale(.985); }
+  .btn-primary{
+    background:linear-gradient(135deg,#ffa2c6,#ff7cae); color:#fff;
+    box-shadow:0 6px 15px rgba(255,124,174,.30);
+  }
+  .btn-sub{ background:#fff; border-color:#ffd3e4; color:#d9588c; font-size:12.5px; padding:10px; }
+  .btn-x{ background:#2b2b2b; color:#fff; font-size:12.5px; padding:10px; }
+  .btn-ghost{ background:#fff6fa; border-color:#ffe0ec; color:#b56a8e; font-size:12.5px; padding:10px; }
+
+  .flash{ animation:flash .45s ease; }
+  @keyframes flash{ 0%{ box-shadow:0 0 0 0 rgba(255,143,184,.55); } 100%{ box-shadow:0 0 0 14px rgba(255,143,184,0); } }
+
+  .foot{ margin:14px 6px 0; font-size:10.5px; line-height:1.7; color:var(--ink-mute); text-align:center; }
+
+  /* ---------- settings sheet ---------- */
+  .sheet{ position:fixed; inset:0; z-index:80; display:none; }
+  .sheet.open{ display:block; }
+  .sheet .bg{ position:absolute; inset:0; background:rgba(70,35,55,.35); animation:fade .18s ease; }
+  .sheet-body{
+    position:absolute; left:0; right:0; bottom:0; max-height:90dvh; overflow:auto;
+    -webkit-overflow-scrolling:touch; background:#fff;
+    border-radius:24px 24px 0 0; padding:16px 16px calc(env(safe-area-inset-bottom) + 18px);
+    animation:up .24s cubic-bezier(.2,.8,.3,1); box-shadow:0 -8px 40px rgba(120,60,90,.18);
+  }
+  @keyframes up{ from{ transform:translateY(30px); opacity:.5; } to{ transform:none; opacity:1; } }
+  .sheet-head{ display:flex; align-items:center; justify-content:space-between; margin:2px 0 4px; }
+  .sheet-head h2{ margin:0; font-size:15px; font-weight:800; color:#c95a8c; }
+  .sheet-note{ margin:0 0 12px; font-size:11px; color:var(--ink-mute); line-height:1.6; }
+  .btn-close{
+    border:none; background:#fff3f8; color:#c95a8c; font-size:18px; width:34px; height:34px;
+    border-radius:50%; line-height:1; cursor:pointer;
+  }
+  .sheet-actions{ display:flex; flex-direction:column; gap:8px; margin-top:16px; }
+
+  /* ---------- toast ---------- */
+  .toast{
+    position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom) + 26px);
+    transform:translate(-50%,14px); z-index:120;
+    background:rgba(58,38,49,.94); color:#fff; font-size:13px; font-weight:700;
+    padding:11px 20px; border-radius:999px; opacity:0; pointer-events:none;
+    transition:opacity .2s, transform .2s; white-space:nowrap; max-width:88vw;
+    box-shadow:0 8px 24px rgba(0,0,0,.2);
+  }
+  .toast.show{ opacity:1; transform:translate(-50%,0); }
+
+  @media (prefers-reduced-motion:reduce){
+    *{ animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <header class="hdr">
+      <div class="logo" aria-hidden="true">🩷</div>
+      <div class="hdr-t">
+        <h1>お取引文章ジェネレーター</h1>
+        <span class="sub">推し活グッズの交換・譲渡・買取に</span>
+      </div>
+      <button type="button" class="btn-settings" id="btnSettings" aria-haspopup="dialog">⚙️ マイ設定</button>
+    </header>
+    <nav class="tabs" role="tablist" aria-label="文章の種類">
+      <button type="button" class="tab" role="tab" id="tab-post" data-key="post" aria-selected="true" aria-controls="panel-post"><i aria-hidden="true">📝</i>募集ポスト</button>
+      <button type="button" class="tab" role="tab" id="tab-reply" data-key="reply" aria-selected="false" aria-controls="panel-reply" tabindex="-1"><i aria-hidden="true">💬</i>最初のリプ</button>
+      <button type="button" class="tab" role="tab" id="tab-dm" data-key="dm" aria-selected="false" aria-controls="panel-dm" tabindex="-1"><i aria-hidden="true">✉️</i>初回DM</button>
+      <button type="button" class="tab" role="tab" id="tab-msg" data-key="msg" aria-selected="false" aria-controls="panel-msg" tabindex="-1"><i aria-hidden="true">📮</i>連絡テンプレ</button>
+    </nav>
+  </div>
+
+  <main>
+    <!-- ============ 1. 募集ポスト ============ -->
+    <section class="panel active" id="panel-post" role="tabpanel" aria-labelledby="tab-post" data-key="post">
+      <p class="lead">募集ポスト用の文章をつくります。選ぶだけで自動で文章ができます。できあがった文章はそのまま編集できます。</p>
+
+      <div class="card">
+        <div class="field">
+          <div class="lbl">取引種別 <span class="req">必須</span></div>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="post-type" value="exchange" checked><span>交換</span></label>
+            <label class="chip"><input type="radio" name="post-type" value="give"><span>譲渡</span></label>
+            <label class="chip"><input type="radio" name="post-type" value="buy"><span>買取</span></label>
+            <label class="chip"><input type="radio" name="post-type" value="cross"><span>異種交換</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="lbl">グッズ種類 <span class="opt">いくつでも</span></div>
+          <div class="chips">
+            <label class="chip"><input type="checkbox" name="post-goods" value="缶バッジ"><span>缶バッジ</span></label>
+            <label class="chip"><input type="checkbox" name="post-goods" value="アクスタ"><span>アクスタ</span></label>
+            <label class="chip"><input type="checkbox" name="post-goods" value="ぱしゃっつ・トレカ"><span>ぱしゃっつ・トレカ</span></label>
+            <label class="chip"><input type="checkbox" name="post-goods" value="ぬいぐるみ"><span>ぬいぐるみ</span></label>
+            <label class="chip"><input type="checkbox" name="post-goods" value="ラバスト"><span>ラバスト</span></label>
+            <label class="chip"><input type="checkbox" name="post-goods" value="その他"><span>その他</span></label>
+          </div>
+        </div>
+
+        <div class="field" id="post-offer-wrap">
+          <label class="lbl" for="post-offer" id="post-offer-label">譲（出すもの）</label>
+          <input type="text" id="post-offer" placeholder="例：A（画像参照）">
+        </div>
+
+        <div class="field" id="post-want-wrap">
+          <label class="lbl" for="post-want" id="post-want-label">求（ほしいもの）</label>
+          <input type="text" id="post-want" placeholder="例：B（画像参照）">
+        </div>
+
+        <div class="field" id="post-price-wrap" hidden>
+          <label class="lbl" for="post-price">希望価格</label>
+          <input type="text" id="post-price" inputmode="numeric" placeholder="例：1500">
+        </div>
+
+        <div class="field" id="post-cross-wrap" hidden>
+          <label class="lbl" for="post-cross">交換の組み合わせ</label>
+          <input type="text" id="post-cross" placeholder="例：缶バッジ ⇄ アクスタ">
+        </div>
+
+        <div class="field">
+          <div class="lbl">取引方法</div>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="post-method" value="mail" checked><span>郵送</span></label>
+            <label class="chip"><input type="radio" name="post-method" value="hand"><span>手渡し</span></label>
+          </div>
+          <div class="mt8" id="post-place-wrap" hidden>
+            <input type="text" id="post-place" placeholder="手渡しの場所（例：新宿駅 東口改札前）">
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="lbl">追加条件 <span class="opt">いくつでも</span></div>
+          <div class="chips">
+            <label class="chip"><input type="checkbox" name="post-cond" value="search"><span>検索から歓迎</span></label>
+            <label class="chip"><input type="checkbox" name="post-cond" value="multi"><span>複数優先</span></label>
+            <label class="chip"><input type="checkbox" name="post-cond" value="fixed"><span>固定ツイ・プロフ必読</span></label>
+            <label class="chip"><input type="checkbox" name="post-cond" value="same"><span>同担歓迎</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card out">
+        <div class="out-head">
+          <span class="out-title">📝 できあがった文章</span>
+          <span class="count" id="post-count">0 / 140</span>
+        </div>
+        <textarea class="out-ta" id="post-out" aria-label="募集ポストの文章"></textarea>
+        <div class="hint" id="post-count-hint">140字を超えています。短くするか、スレッドで続きを書くのがおすすめです。</div>
+        <div class="btns">
+          <button type="button" class="btn btn-primary" data-copy="post">📋 コピーする</button>
+          <button type="button" class="btn btn-sub" data-regen="post">↺ 入力通りに再生成</button>
+          <button type="button" class="btn btn-x" id="post-x">𝕏 ポスト作成画面を開く</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 2. 最初のリプ ============ -->
+    <section class="panel" id="panel-reply" role="tabpanel" aria-labelledby="tab-reply" data-key="reply" hidden>
+      <p class="lead">相手の募集ポストへの最初のリプ用。名乗りと条件確認を入れて、失礼のない一文に。</p>
+
+      <div class="card">
+        <div class="field">
+          <label class="lbl" for="reply-to">宛名 <span class="opt">任意</span></label>
+          <input type="text" id="reply-to" placeholder="例：@xxxx / ○○さん">
+        </div>
+
+        <div class="field">
+          <div class="lbl">呼びかけ</div>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="reply-from" value="search" checked><span>検索より</span></label>
+            <label class="chip"><input type="radio" name="reply-from" value="ff"><span>FF外から</span></label>
+            <label class="chip"><input type="radio" name="reply-from" value="none"><span>特になし</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="reply-want">求（相手が探しているもの）</label>
+          <input type="text" id="reply-want" placeholder="例：A 缶バッジ">
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="reply-offer">譲（自分が出せるもの）</label>
+          <input type="text" id="reply-offer" placeholder="例：B 缶バッジ">
+        </div>
+
+        <div class="field">
+          <div class="lbl">取引方法</div>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="reply-method" value="mail" checked><span>郵送</span></label>
+            <label class="chip"><input type="radio" name="reply-method" value="hand"><span>手渡し</span></label>
+          </div>
+          <div class="mt8" id="reply-place-wrap" hidden>
+            <input type="text" id="reply-place" placeholder="手渡しの場所（例：渋谷駅 ハチ公前）">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="switch" for="reply-confirm">
+            <span>相手の条件を確認した一文を入れる</span>
+            <input type="checkbox" id="reply-confirm" checked>
+            <span class="track" aria-hidden="true"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card out">
+        <div class="out-head">
+          <span class="out-title">💬 できあがった文章</span>
+        </div>
+        <textarea class="out-ta" id="reply-out" aria-label="最初のリプの文章"></textarea>
+        <div class="btns">
+          <button type="button" class="btn btn-primary" data-copy="reply">📋 コピーする</button>
+          <button type="button" class="btn btn-sub" data-regen="reply">↺ 入力通りに再生成</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 3. 初回DM ============ -->
+    <section class="panel" id="panel-dm" role="tabpanel" aria-labelledby="tab-dm" data-key="dm" hidden>
+      <p class="lead">お取引の初回DM用。梱包・発送・身分証付き写真・送付先までまとめて伝えられます。</p>
+
+      <div class="card">
+        <div class="field">
+          <label class="lbl" for="dm-to">宛名 <span class="opt">任意</span></label>
+          <input type="text" id="dm-to" placeholder="例：@xxxx / ○○さん">
+        </div>
+
+        <div class="field">
+          <div class="lbl">種別</div>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="dm-type" value="exchange" checked><span>交換</span></label>
+            <label class="chip"><input type="radio" name="dm-type" value="give"><span>譲渡</span></label>
+            <label class="chip"><input type="radio" name="dm-type" value="buy"><span>買取</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="dm-summary">お取引内容まとめ</label>
+          <textarea id="dm-summary" placeholder="例：A 缶バッジ（譲）⇄ B 缶バッジ（求）／郵送・同日発送希望"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="dm-pack">梱包方法</label>
+          <select id="dm-pack">
+            <option value="badge">缶バッジ・ラバスト向け（マイ設定のテンプレ）</option>
+            <option value="paper">ぱしゃっつ・トレカなど紙類向け（マイ設定のテンプレ）</option>
+            <option value="plush">ぬいぐるみ向け</option>
+            <option value="none">テンプレを使わない</option>
+          </select>
+          <div class="mt8">
+            <input type="text" id="dm-pack-free" placeholder="補足があれば（例：防水対策済み・箱入れ）">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="dm-ship">発送方法</label>
+          <select id="dm-ship">
+            <option>普通郵便（定形外）</option>
+            <option>ゆうパケットポスト</option>
+            <option>ゆうパケット（窓口）</option>
+            <option>クリックポスト</option>
+            <option>レターパックライト</option>
+            <option>レターパックプラス</option>
+            <option>宅配便（ヤマト運輸）</option>
+            <option>宅配便（佐川急便）</option>
+            <option>手渡し</option>
+            <option>その他</option>
+          </select>
+          <div class="mt8">
+            <label class="lbl" for="dm-date">発送予定日 <span class="opt">任意</span></label>
+            <input type="date" id="dm-date">
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="lbl">身分証付き写真</div>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="dm-id" value="later" checked><span>これから送付</span></label>
+            <label class="chip"><input type="radio" name="dm-id" value="attached"><span>すでに添付</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="switch" for="dm-sameday">
+            <span>同日発送を希望する</span>
+            <input type="checkbox" id="dm-sameday">
+            <span class="track" aria-hidden="true"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="lbl">送付先テンプレート <span class="opt">任意</span></div>
+        <p class="lead" style="margin:0 0 8px;font-size:11px;">自分の送付先を入れると本文に反映されます。空欄のままなら、相手に記入してもらうテンプレとして使えます。</p>
+        <div class="field">
+          <label class="lbl" for="dm-zip">郵便番号</label>
+          <input type="text" id="dm-zip" inputmode="numeric" placeholder="例：123-4567" autocomplete="postal-code">
+        </div>
+        <div class="field">
+          <label class="lbl" for="dm-addr">住所</label>
+          <input type="text" id="dm-addr" placeholder="例：東京都〇〇区〇〇1-2-3 〇〇マンション101" autocomplete="street-address">
+        </div>
+        <div class="field">
+          <label class="lbl" for="dm-name">氏名</label>
+          <input type="text" id="dm-name" placeholder="例：山田 花子" autocomplete="name">
+        </div>
+        <div class="btns">
+          <button type="button" class="btn btn-ghost" id="dm-copy-addr">📋 送付先テンプレだけコピー</button>
+        </div>
+      </div>
+
+      <div class="card out">
+        <div class="out-head">
+          <span class="out-title">✉️ できあがった文章</span>
+        </div>
+        <textarea class="out-ta" id="dm-out" aria-label="初回DMの文章" style="min-height:240px"></textarea>
+        <div class="btns">
+          <button type="button" class="btn btn-primary" data-copy="dm">📋 コピーする</button>
+          <button type="button" class="btn btn-sub" data-regen="dm">↺ 入力通りに再生成</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 4. 連絡テンプレ ============ -->
+    <section class="panel" id="panel-msg" role="tabpanel" aria-labelledby="tab-msg" data-key="msg" hidden>
+      <p class="lead">シーンを選ぶだけで文章が出ます。金額・日付・追跡番号など、必要な言葉だけ差し替えてください。</p>
+
+      <div class="card">
+        <div class="field">
+          <div class="lbl">シーン <span class="req">必須</span></div>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="msg-scene" value="transfer" checked><span>振込・送金完了</span></label>
+            <label class="chip"><input type="radio" name="msg-scene" value="payment"><span>入金確認</span></label>
+            <label class="chip"><input type="radio" name="msg-scene" value="shipped"><span>発送完了</span></label>
+            <label class="chip"><input type="radio" name="msg-scene" value="arrived"><span>到着お礼</span></label>
+            <label class="chip"><input type="radio" name="msg-scene" value="decline"><span>ご辞退・見送り</span></label>
+          </div>
+        </div>
+
+        <div class="field" id="msg-amount-wrap">
+          <label class="lbl" for="msg-amount">金額</label>
+          <input type="text" id="msg-amount" inputmode="numeric" placeholder="例：1500">
+        </div>
+
+        <div class="field" id="msg-date-wrap" hidden>
+          <label class="lbl" for="msg-date" id="msg-date-label">発送予定日</label>
+          <input type="date" id="msg-date">
+        </div>
+
+        <div class="field" id="msg-ship-wrap" hidden>
+          <div class="lbl">発送方法</div>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="msg-ship" value="normal" checked><span>普通郵便（追跡なし）</span></label>
+            <label class="chip"><input type="radio" name="msg-ship" value="tracked"><span>追跡あり</span></label>
+          </div>
+        </div>
+
+        <div class="field" id="msg-tracking-wrap" hidden>
+          <label class="lbl" for="msg-tracking">追跡番号</label>
+          <input type="text" id="msg-tracking" placeholder="例：1234-5678-9012-34">
+        </div>
+
+        <div class="field" id="msg-goods-wrap" hidden>
+          <label class="lbl" for="msg-goods">届いたもの <span class="opt">任意</span></label>
+          <input type="text" id="msg-goods" placeholder="例：A 缶バッジ">
+        </div>
+
+        <div class="field" id="msg-reason-wrap" hidden>
+          <label class="lbl" for="msg-reason">理由・お詫び <span class="opt">任意</span></label>
+          <input type="text" id="msg-reason" placeholder="例：条件が合わず申し訳ありません">
+        </div>
+      </div>
+
+      <div class="card out">
+        <div class="out-head">
+          <span class="out-title">📮 できあがった文章</span>
+        </div>
+        <textarea class="out-ta" id="msg-out" aria-label="連絡テンプレの文章"></textarea>
+        <div class="btns">
+          <button type="button" class="btn btn-primary" data-copy="msg">📋 コピーする</button>
+          <button type="button" class="btn btn-sub" data-regen="msg">↺ 入力通りに再生成</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <p class="foot">入力した内容はこの端末のブラウザ内だけで処理されます（サーバーには送信されません）。<br>保存されるのは「マイ設定」だけです。</p>
+</div>
+
+<!-- ============ マイ設定 ============ -->
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
+  <div class="bg" id="sheetBg"></div>
+  <div class="sheet-body">
+    <div class="sheet-head">
+      <h2 id="sheetTitle">⚙️ マイ設定</h2>
+      <button type="button" class="btn-close" id="sheetClose" aria-label="閉じる">✕</button>
+    </div>
+    <p class="sheet-note">よく使う条件を保存しておくと、毎回選ばずに文章がつくれます。この端末のブラウザにだけ保存されます。</p>
+
+    <div class="field">
+      <div class="lbl">文章のトーン</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="set-tone" value="polite"><span>丁寧・絵文字なし</span></label>
+        <label class="chip"><input type="radio" name="set-tone" value="standard"><span>標準・控えめ絵文字</span></label>
+        <label class="chip"><input type="radio" name="set-tone" value="friendly"><span>親しみやすい・絵文字あり</span></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="lbl">デフォルトの取引方法</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="set-method" value="mail"><span>郵送</span></label>
+        <label class="chip"><input type="radio" name="set-method" value="hand"><span>手渡し</span></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="lbl" for="set-pack-badge">よく使う梱包テンプレ（缶バッジ系）</label>
+      <textarea id="set-pack-badge" rows="3"></textarea>
+    </div>
+
+    <div class="field">
+      <label class="lbl" for="set-pack-paper">よく使う梱包テンプレ（紙類系）</label>
+      <textarea id="set-pack-paper" rows="3"></textarea>
+    </div>
+
+    <div class="field">
+      <label class="lbl" for="set-ship">よく使う発送方法</label>
+      <select id="set-ship">
+        <option>普通郵便（定形外）</option>
+        <option>ゆうパケットポスト</option>
+        <option>ゆうパケット（窓口）</option>
+        <option>クリックポスト</option>
+        <option>レターパックライト</option>
+        <option>レターパックプラス</option>
+        <option>宅配便（ヤマト運輸）</option>
+        <option>宅配便（佐川急便）</option>
+        <option>手渡し</option>
+        <option>その他</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <div class="lbl">属性メモ <span class="opt">チェックした項目だけ文章に入ります</span></div>
+      <div class="chips">
+        <label class="chip"><input type="checkbox" name="set-attr" value="adult"><span>成人済</span></label>
+        <label class="chip"><input type="checkbox" name="set-attr" value="pet"><span>ペットなし</span></label>
+        <label class="chip"><input type="checkbox" name="set-attr" value="smoke"><span>喫煙者なし</span></label>
+      </div>
+    </div>
+
+    <div class="sheet-actions">
+      <button type="button" class="btn btn-primary" id="settingsSave">保存して閉じる</button>
+      <button type="button" class="btn btn-sub" id="settingsReset">初期設定に戻す</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite">コピーしました！</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var $ = function(id){ return document.getElementById(id); };
+  var KEY = 'tradeTextGen.v1';
+
+  var DEFAULT_SETTINGS = {
+    tone: 'standard',
+    method: 'mail',
+    packBadge: '缶バッジは1個ずつOPP袋に入れ、プチプチと厚紙で補強してから封筒に入れています。',
+    packPaper: 'ぱしゃっつ・トレカは1枚ずつスリーブに入れ、厚紙で挟んで水濡れ防止の袋に入れています。',
+    ship: 'ゆうパケットポスト',
+    attrs: { adult: false, pet: false, smoke: false }
+  };
+
+  var DEFAULT_PLUSH = 'ぬいぐるみは袋に入れ、プチプチで包んでから箱・封筒に入れています。';
+
+  var settings = loadSettings();
+  var dirty = { post: false, reply: false, dm: false, msg: false };
+
+  function clone(o){ return JSON.parse(JSON.stringify(o)); }
+
+  function loadSettings(){
+    try{
+      var raw = localStorage.getItem(KEY);
+      if(!raw) return clone(DEFAULT_SETTINGS);
+      var s = JSON.parse(raw) || {};
+      var a = s.attrs || {};
+      return {
+        tone: (s.tone === 'polite' || s.tone === 'standard' || s.tone === 'friendly') ? s.tone : DEFAULT_SETTINGS.tone,
+        method: s.method === 'hand' ? 'hand' : 'mail',
+        packBadge: typeof s.packBadge === 'string' && s.packBadge.trim() ? s.packBadge : DEFAULT_SETTINGS.packBadge,
+        packPaper: typeof s.packPaper === 'string' && s.packPaper.trim() ? s.packPaper : DEFAULT_SETTINGS.packPaper,
+        ship: typeof s.ship === 'string' && s.ship ? s.ship : DEFAULT_SETTINGS.ship,
+        attrs: { adult: !!a.adult, pet: !!a.pet, smoke: !!a.smoke }
+      };
+    }catch(e){
+      return clone(DEFAULT_SETTINGS);
+    }
+  }
+
+  function saveSettings(){
+    try{
+      localStorage.setItem(KEY, JSON.stringify(settings));
+      return true;
+    }catch(e){
+      return false;
+    }
+  }
+
+  /* ---------- small helpers ---------- */
+  function radioVal(name){
+    var el = document.querySelector('input[name="' + name + '"]:checked');
+    return el ? el.value : '';
+  }
+  function chipVals(name){
+    return Array.prototype.map.call(document.querySelectorAll('input[name="' + name + '"]:checked'), function(el){ return el.value; });
+  }
+  function checked(id){ var el = $(id); return !!(el && el.checked); }
+  function tv(id){ var el = $(id); return el ? el.value.trim() : ''; }
+  function fmtMoney(v){
+    if(!v) return '';
+    var digits = String(v).replace(/[^\d]/g, '');
+    if(!digits) return v;
+    return Number(digits).toLocaleString('ja-JP') + '円';
+  }
+  function fmtDate(v){
+    if(!v) return '';
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+    if(!m) return v;
+    return Number(m[2]) + '月' + Number(m[3]) + '日';
+  }
+  function withSan(s){
+    if(!s) return '';
+    return /(さん|様|ちゃん|くん)$/.test(s) ? s : s + 'さん';
+  }
+
+  function attrsLine(){
+    var p = [];
+    if(settings.attrs.adult) p.push('成人済');
+    if(settings.attrs.pet) p.push('ペットなし');
+    if(settings.attrs.smoke) p.push('喫煙者なし');
+    return p.join('・');
+  }
+
+  /* ---------- generators ---------- */
+  function genPost(){
+    var type = radioVal('post-type') || 'exchange';
+    var goods = chipVals('post-goods');
+    var offer = tv('post-offer');
+    var want = tv('post-want');
+    var price = tv('post-price');
+    var cross = tv('post-cross');
+    var method = radioVal('post-method') || 'mail';
+    var place = tv('post-place');
+    var conds = chipVals('post-cond');
+    var tone = settings.tone;
+    var L = [];
+
+    var typeName = { exchange: '交換募集', give: '譲渡', buy: '買取募集', cross: '異種交換募集' }[type] || '交換募集';
+    var head = '【' + typeName + '】' + goods.join('・');
+    var sep = goods.length ? ' ' : '';
+    if(tone === 'standard') head += sep + (type === 'buy' ? '🛒' : '📦');
+    if(tone === 'friendly') head += sep + (type === 'buy' ? '🛒✨' : '📦✨');
+    L.push(head);
+
+    if(type === 'give'){
+      L.push('譲：' + (offer || '（画像参照）'));
+      L.push(tone === 'friendly' ? 'お譲りいただける方を探しています🌸' : 'お譲り先を探しています。');
+    }else if(type === 'buy'){
+      L.push('求：' + (want || '（画像参照）'));
+      if(price) L.push('希望価格：' + fmtMoney(price) + '（応相談）');
+    }else{
+      if(offer) L.push('譲：' + offer);
+      if(want) L.push('求：' + want);
+      if(!offer && !want) L.push('譲：画像参照 ／ 求：画像参照');
+      if(type === 'cross' && cross) L.push('組み合わせ：' + cross);
+    }
+
+    var methodTxt = (method === 'hand') ? ('手渡し' + (place ? '（' + place + '）' : '')) : '郵送';
+    L.push('取引方法：' + methodTxt);
+
+    if(conds.length){
+      var map = { search: '検索から歓迎', multi: '複数優先', fixed: '固定ツイ・プロフ必読', same: '同担歓迎' };
+      L.push(conds.map(function(c){ return map[c] || c; }).join('／'));
+    }
+
+    var attrs = attrsLine();
+    if(attrs) L.push(attrs);
+
+    if(tone === 'polite') L.push(type === 'give' ? 'お声がけいただけると嬉しいです。' : 'ご検討いただけますと幸いです。');
+    else if(tone === 'standard') L.push('ご検討よろしくお願いします🙏');
+    else L.push('お気軽にリプ・DMください🌸よろしくお願いします🙇‍♀️💕');
+
+    return L.join('\n');
+  }
+
+  function genReply(){
+    var to = tv('reply-to');
+    var from = radioVal('reply-from') || 'none';
+    var want = tv('reply-want');
+    var offer = tv('reply-offer');
+    var method = radioVal('reply-method') || 'mail';
+    var place = tv('reply-place');
+    var confirm = checked('reply-confirm');
+    var tone = settings.tone;
+    var L = [];
+
+    if(to) L.push(withSan(to));
+
+    var greet = { search: '検索から', ff: 'FF外から', none: '' }[from] || '';
+    var wantTxt = want || 'ご募集のグッズ';
+    var offerTxt = offer ? (offer + 'をお譲りできます') : 'お声がけさせていただきました';
+    var methodTxt = (method === 'hand') ? ('手渡し' + (place ? '（' + place + '）' : '')) : '郵送';
+
+    if(tone === 'polite'){
+      L.push('はじめまして。' + (greet ? greet + '失礼します。' : 'ご連絡失礼します。'));
+      L.push(wantTxt + 'をお探しとのこと、' + offerTxt + '。');
+      if(confirm) L.push('プロフィール・固定ツイートを確認のうえ、ご連絡しています。');
+      L.push(methodTxt + 'でのお取引は可能でしょうか？');
+      L.push('ご検討いただけますと幸いです。');
+    }else if(tone === 'standard'){
+      L.push('はじめまして。' + (greet ? greet + '失礼します✨' : 'ご連絡失礼します✨'));
+      L.push(wantTxt + 'をお探しとのこと、' + offerTxt + '。');
+      if(confirm) L.push('プロフィール・固定ツイートも確認しました👀');
+      L.push(methodTxt + 'でのお取引はいかがでしょうか？');
+      L.push('ご検討よろしくお願いします🙏');
+    }else{
+      L.push('はじめまして！' + (greet ? greet + '失礼します🌸' : 'ご連絡失礼します🌸'));
+      L.push(wantTxt + 'を探されているとのこと、' + offerTxt + '！');
+      if(confirm) L.push('プロフィール・固定ツイも確認しました👀');
+      L.push(methodTxt + 'でのお取引いかがでしょうか？');
+      L.push('ご検討よろしくお願いします🙇‍♀️💕');
+    }
+
+    return L.join('\n');
+  }
+
+  function genDM(){
+    var to = tv('dm-to');
+    var type = radioVal('dm-type') || 'exchange';
+    var summary = tv('dm-summary');
+    var pack = $('dm-pack').value;
+    var packFree = tv('dm-pack-free');
+    var ship = $('dm-ship').value;
+    var date = tv('dm-date');
+    var idp = radioVal('dm-id') || 'later';
+    var same = checked('dm-sameday');
+    var zip = tv('dm-zip'), addr = tv('dm-addr'), name = tv('dm-name');
+    var tone = settings.tone;
+    var typeName = { exchange: '交換', give: '譲渡', buy: '買取' }[type] || '交換';
+
+    var packing = '';
+    if(pack === 'badge') packing = settings.packBadge;
+    else if(pack === 'paper') packing = settings.packPaper;
+    else if(pack === 'plush') packing = DEFAULT_PLUSH;
+    if(packFree) packing = packing ? (packing + '\n' + packFree) : packFree;
+    if(!packing) packing = '内容に合わせて丁寧に梱包いたします。';
+
+    var idTxt = (idp === 'attached')
+      ? 'グッズと身分証を一緒に写した写真を添付しました。ご確認をお願いします。'
+      : 'グッズと身分証を一緒に写した写真は、これからお送りします。';
+
+    var L = [];
+    if(to) L.push(withSan(to));
+
+    if(tone === 'polite'){
+      L.push('はじめまして。' + typeName + 'のお取引のご相談でご連絡しました。');
+      L.push('下記の内容でお取引をお願いしたく、ご確認いただけますと幸いです。');
+    }else if(tone === 'standard'){
+      L.push('はじめまして✨' + typeName + 'のお取引のご相談でご連絡しました。');
+      L.push('下記の内容でお取引をお願いしたく、ご確認をお願いします。');
+    }else{
+      L.push('はじめまして！🌸' + typeName + 'のお取引のご相談でご連絡しました。');
+      L.push('下記の内容でお取引をお願いしたいです！ご確認お願いします🙏');
+    }
+
+    L.push('');
+    L.push('■お取引内容');
+    L.push(summary || '（取引内容をご記入ください）');
+    L.push('');
+    L.push('■梱包方法');
+    L.push(packing);
+    L.push('');
+    L.push('■発送方法');
+    L.push(ship + (date ? '（' + fmtDate(date) + '発送予定）' : '（発送日は追ってご連絡します）'));
+    L.push('');
+    L.push('■身分証付き写真');
+    L.push(idTxt);
+
+    if(same){
+      L.push('');
+      L.push('■同日発送');
+      L.push(tone === 'polite' ? '可能でしたら、同日発送をお願いいたします。' : '可能でしたら、同日発送をお願いします🙏');
+    }
+
+    L.push('');
+    var anyAddr = zip || addr || name;
+    L.push('■送付先' + (anyAddr ? '' : '（ご記入ください）'));
+    L.push('郵便番号：' + zip);
+    L.push('住所：' + addr);
+    L.push('氏名：' + name);
+    L.push('');
+
+    if(tone === 'polite') L.push('ご確認のほど、よろしくお願いいたします。');
+    else if(tone === 'standard') L.push('ご確認よろしくお願いします🙏');
+    else L.push('ご確認よろしくお願いします🙇‍♀️💕');
+
+    return L.join('\n');
+  }
+
+  function genMsg(){
+    var scene = radioVal('msg-scene') || 'transfer';
+    var amount = tv('msg-amount');
+    var date = tv('msg-date');
+    var ship = radioVal('msg-ship') || 'normal';
+    var tracking = tv('msg-tracking');
+    var goods = tv('msg-goods');
+    var reason = tv('msg-reason');
+    var tone = settings.tone;
+
+    var amountTxt = amount ? fmtMoney(amount) : '';
+    var amountWo = amountTxt ? amountTxt + 'を' : '';
+    var amountNo = amountTxt ? amountTxt + 'の' : '';
+    var dateTxt = date ? fmtDate(date) + 'に' : '本日、';
+    var tracked = ship === 'tracked';
+    var trackTxt = tracking || '（追跡番号は確認中です）';
+    var goodsTxt = goods || 'お品物';
+    var L = [];
+
+    if(scene === 'transfer'){
+      if(tone === 'polite'){
+        L.push('お世話になっております。');
+        L.push('本日、' + amountWo + 'お振込みいたしました。ご確認をお願いいたします。');
+        L.push('（振込明細のスクリーンショットを添付しています。）');
+        L.push('発送をお待ちしております。よろしくお願いいたします。');
+      }else if(tone === 'standard'){
+        L.push('お世話になっております✨');
+        L.push('本日、' + amountWo + 'お振込みしました。ご確認をお願いします。');
+        L.push('（振込明細のスクショも添付しています📎）');
+        L.push('発送を楽しみにお待ちしています🙏');
+      }else{
+        L.push('お世話になっております🌸');
+        L.push('本日、' + amountWo + 'お振込みしました！ご確認お願いします🙏');
+        L.push('振込明細のスクショも添付しています📎');
+        L.push('発送楽しみに待ってます〜！よろしくお願いします💕');
+      }
+    }else if(scene === 'payment'){
+      var when = date ? (fmtDate(date) + 'に発送予定です。') : '近日中に発送予定です。';
+      if(tone === 'polite'){
+        L.push('お世話になっております。');
+        L.push(amountNo + 'ご入金を確認いたしました。');
+        L.push(when + '発送が完了しましたら、追跡番号をお知らせします。');
+        L.push('よろしくお願いいたします。');
+      }else if(tone === 'standard'){
+        L.push('お世話になっております✨');
+        L.push(amountNo + 'ご入金を確認しました。');
+        L.push(when + '発送が完了したら、追跡番号をお知らせします📦');
+        L.push('よろしくお願いします🙏');
+      }else{
+        L.push('お世話になっております🌸');
+        L.push(amountNo + 'ご入金、確認できました！ありがとうございます🙏');
+        L.push(when + '発送できたら追跡番号をお知らせします📦✨');
+        L.push('楽しみにお待ちください〜💕');
+      }
+    }else if(scene === 'shipped'){
+      if(tone === 'polite'){
+        L.push('お世話になっております。');
+        L.push(dateTxt + (tracked ? '追跡ありの方法にて' : '普通郵便にて') + '発送いたしました。');
+        if(tracked) L.push('追跡番号：' + trackTxt);
+        else L.push('追跡番号はございませんので、到着まで今しばらくお待ちください。');
+        L.push('到着しましたら、ご連絡いただけますと幸いです。');
+      }else if(tone === 'standard'){
+        L.push('お世話になっております📦');
+        L.push(dateTxt + (tracked ? '追跡ありの方法で' : '普通郵便で') + '発送しました✨');
+        if(tracked) L.push('追跡番号：' + trackTxt);
+        else L.push('追跡番号はないので、到着まで今しばらくお待ちください。');
+        L.push('到着したらご連絡いただけると嬉しいです🙏');
+      }else{
+        L.push('お世話になっております🌸');
+        L.push(dateTxt + (tracked ? '追跡ありの方法で' : '普通郵便で') + '発送しました📮');
+        if(tracked) L.push('追跡番号：' + trackTxt);
+        else L.push('追跡番号はないので、到着まで今しばらくお待ちください〜');
+        L.push('届いたらご連絡いただけると嬉しいです🙏💕');
+      }
+    }else if(scene === 'arrived'){
+      if(tone === 'polite'){
+        L.push('お世話になっております。');
+        L.push(goodsTxt + 'が無事に届きました。素敵なお品物をありがとうございます。');
+        L.push('このたびはお取引いただき、ありがとうございました。');
+        L.push('またご縁がありましたら、よろしくお願いいたします。');
+      }else if(tone === 'standard'){
+        L.push('お世話になっております✨');
+        L.push(goodsTxt + 'が無事に届きました！素敵なお品物をありがとうございます💕');
+        L.push('このたびはお取引いただき、ありがとうございました🙏');
+        L.push('またご縁がありましたらよろしくお願いします✨');
+      }else{
+        L.push('お世話になっております🌸');
+        L.push(goodsTxt + 'が無事に届きました！素敵なお品物をありがとうございます💕');
+        L.push('このたびはお取引いただき本当にありがとうございました🙏');
+        L.push('またご縁があったらよろしくお願いします✨');
+      }
+    }else{
+      if(tone === 'polite'){
+        L.push('お世話になっております。');
+        L.push('せっかくお声がけいただいたのですが、今回は見送らせていただきます。');
+        if(reason) L.push(reason);
+        L.push('ご縁がありましたら、またよろしくお願いいたします。');
+      }else if(tone === 'standard'){
+        L.push('お世話になっております。');
+        L.push('せっかくお声がけいただいたのに、今回は見送らせていただきます🙏');
+        if(reason) L.push(reason);
+        L.push('またご縁がありましたらよろしくお願いします✨');
+      }else{
+        L.push('お世話になっております🌸');
+        L.push('せっかくお声がけいただいたのに、今回は見送らせていただきます🙏');
+        if(reason) L.push(reason);
+        L.push('またご縁があったらよろしくお願いします✨💕');
+      }
+    }
+
+    return L.join('\n');
+  }
+
+  var PANELS = {
+    post:  { panel: 'panel-post',  out: 'post-out',  gen: genPost },
+    reply: { panel: 'panel-reply', out: 'reply-out', gen: genReply },
+    dm:    { panel: 'panel-dm',    out: 'dm-out',    gen: genDM },
+    msg:   { panel: 'panel-msg',   out: 'msg-out',   gen: genMsg }
+  };
+
+  /* ---------- rendering ---------- */
+  function updatePostCount(){
+    var out = $('post-out');
+    var n = Array.from(out.value).length;
+    var c = $('post-count');
+    c.textContent = n + ' / 140';
+    c.classList.toggle('over', n > 140);
+    $('post-count-hint').classList.toggle('show', n > 140);
+  }
+
+  function updateCount(key){
+    if(key === 'post') updatePostCount();
+  }
+
+  function render(key, flash){
+    var cfg = PANELS[key];
+    var out = $(cfg.out);
+    out.value = cfg.gen();
+    dirty[key] = false;
+    updateCount(key);
+    if(flash){
+      out.classList.remove('flash');
+      void out.offsetWidth;
+      out.classList.add('flash');
+    }
+  }
+
+  function renderAll(){
+    Object.keys(PANELS).forEach(function(k){ render(k); });
+  }
+
+  /* ---------- field visibility ---------- */
+  function updatePostFields(){
+    var type = radioVal('post-type') || 'exchange';
+    $('post-offer-wrap').hidden = (type === 'buy');
+    $('post-want-wrap').hidden = (type === 'give');
+    $('post-price-wrap').hidden = (type !== 'buy');
+    $('post-cross-wrap').hidden = (type !== 'cross');
+
+    var offerLabel = $('post-offer-label');
+    var wantLabel = $('post-want-label');
+    if(type === 'give'){
+      offerLabel.textContent = '譲（お譲りするもの）';
+    }else if(type === 'cross'){
+      offerLabel.textContent = '譲（出すもの）';
+      wantLabel.textContent = '求（ほしいもの）';
+    }else{
+      offerLabel.textContent = '譲（出すもの）';
+      wantLabel.textContent = '求（ほしいもの）';
+    }
+  }
+
+  function updatePostPlace(){
+    $('post-place-wrap').hidden = (radioVal('post-method') !== 'hand');
+  }
+  function updateReplyPlace(){
+    $('reply-place-wrap').hidden = (radioVal('reply-method') !== 'hand');
+  }
+
+  function updateMsgFields(){
+    var scene = radioVal('msg-scene') || 'transfer';
+    $('msg-amount-wrap').hidden = !(scene === 'transfer' || scene === 'payment');
+    $('msg-date-wrap').hidden = !(scene === 'payment' || scene === 'shipped');
+    $('msg-ship-wrap').hidden = (scene !== 'shipped');
+    $('msg-tracking-wrap').hidden = !(scene === 'shipped' && radioVal('msg-ship') === 'tracked');
+    $('msg-goods-wrap').hidden = (scene !== 'arrived');
+    $('msg-reason-wrap').hidden = (scene !== 'decline');
+    $('msg-date-label').textContent = (scene === 'payment') ? '発送予定日' : '発送日';
+  }
+
+  /* ---------- settings UI ---------- */
+  function applySettingsToForm(){
+    var tone = document.querySelector('input[name="set-tone"][value="' + settings.tone + '"]');
+    if(tone) tone.checked = true;
+    var m = document.querySelector('input[name="set-method"][value="' + settings.method + '"]');
+    if(m) m.checked = true;
+    $('set-pack-badge').value = settings.packBadge;
+    $('set-pack-paper').value = settings.packPaper;
+    if(settings.ship){
+      var opts = $('set-ship').options;
+      for(var i = 0; i < opts.length; i++){
+        if(opts[i].value === settings.ship || opts[i].text === settings.ship) opts[i].selected = true;
+      }
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="set-attr"]'), function(el){
+      el.checked = !!settings.attrs[el.value];
+    });
+  }
+
+  function syncMethodDefaults(){
+    ['post-method', 'reply-method'].forEach(function(name){
+      var el = document.querySelector('input[name="' + name + '"][value="' + settings.method + '"]');
+      if(el) el.checked = true;
+    });
+    var sel = $('dm-ship');
+    var found = false;
+    for(var i = 0; i < sel.options.length; i++){
+      if(sel.options[i].value === settings.ship || sel.options[i].text === settings.ship){ sel.selectedIndex = i; found = true; break; }
+    }
+    if(!found) sel.selectedIndex = sel.options.length - 1;
+  }
+
+  function openSheet(){
+    $('sheet').classList.add('open');
+    $('sheet').hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSheet(){
+    $('sheet').classList.remove('open');
+    $('sheet').hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  /* ---------- toast ---------- */
+  var toastTimer = null;
+  function toast(msg){
+    var t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 1900);
+  }
+
+  /* ---------- copy ---------- */
+  function fallbackCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', 'readonly');
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    var ok = false;
+    try{ ok = document.execCommand('copy'); }catch(e){ ok = false; }
+    document.body.removeChild(ta);
+    if(!ok) throw new Error('copy failed');
+  }
+
+  function copyText(text){
+    if(!text.trim()){ toast('文章が空です'); return; }
+    var done = function(){ toast('コピーしました！'); };
+    var fail = function(){
+      try{ fallbackCopy(text); done(); }
+      catch(e){ toast('コピーできませんでした。長押しでコピーしてください'); }
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done, fail);
+    }else{
+      fail();
+    }
+  }
+
+  /* ---------- tabs ---------- */
+  function selectTab(key){
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(t){
+      var on = t.getAttribute('data-key') === key;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      if(on) t.removeAttribute('tabindex'); else t.setAttribute('tabindex', '-1');
+    });
+    Object.keys(PANELS).forEach(function(k){
+      var p = $(PANELS[k].panel);
+      var on = (k === key);
+      p.classList.toggle('active', on);
+      if(on) p.removeAttribute('hidden'); else p.setAttribute('hidden', '');
+    });
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }
+
+  /* ---------- wiring ---------- */
+  document.addEventListener('DOMContentLoaded', function(){
+    // tabs
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(t){
+      t.addEventListener('click', function(){ selectTab(t.getAttribute('data-key')); });
+      t.addEventListener('keydown', function(ev){
+        if(ev.key !== 'ArrowRight' && ev.key !== 'ArrowLeft') return;
+        var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+        var i = tabs.indexOf(t);
+        var n = (ev.key === 'ArrowRight') ? (i + 1) % tabs.length : (i - 1 + tabs.length) % tabs.length;
+        selectTab(tabs[n].getAttribute('data-key'));
+        tabs[n].focus();
+        ev.preventDefault();
+      });
+    });
+
+    // per-panel auto regeneration
+    Object.keys(PANELS).forEach(function(key){
+      var cfg = PANELS[key];
+      var panel = $(cfg.panel);
+      var out = $(cfg.out);
+
+      panel.addEventListener('input', function(ev){
+        if(ev.target === out){ dirty[key] = true; updateCount(key); return; }
+        if(ev.target.name === 'post-type') updatePostFields();
+        if(ev.target.name === 'post-method') updatePostPlace();
+        if(ev.target.name === 'reply-method') updateReplyPlace();
+        if(ev.target.name === 'msg-scene' || ev.target.name === 'msg-ship') updateMsgFields();
+        if(!dirty[key]) render(key);
+      });
+
+      panel.addEventListener('change', function(ev){
+        if(ev.target === out) return;
+        if(!dirty[key]) render(key);
+      });
+    });
+
+    // copy buttons
+    Array.prototype.forEach.call(document.querySelectorAll('[data-copy]'), function(btn){
+      btn.addEventListener('click', function(){
+        var key = btn.getAttribute('data-copy');
+        copyText($(PANELS[key].out).value);
+      });
+    });
+
+    // regenerate buttons
+    Array.prototype.forEach.call(document.querySelectorAll('[data-regen]'), function(btn){
+      btn.addEventListener('click', function(){
+        render(btn.getAttribute('data-regen'), true);
+        toast('入力内容から作り直しました');
+      });
+    });
+
+    // X intent
+    $('post-x').addEventListener('click', function(){
+      var text = $('post-out').value;
+      var url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
+      window.open(url, '_blank', 'noopener');
+    });
+
+    // DM address template copy
+    $('dm-copy-addr').addEventListener('click', function(){
+      var zip = tv('dm-zip'), addr = tv('dm-addr'), name = tv('dm-name');
+      copyText('郵便番号：' + zip + '\n住所：' + addr + '\n氏名：' + name);
+    });
+
+    // settings open / close
+    $('btnSettings').addEventListener('click', function(){ applySettingsToForm(); openSheet(); });
+    $('sheetClose').addEventListener('click', closeSheet);
+    $('sheetBg').addEventListener('click', closeSheet);
+    document.addEventListener('keydown', function(ev){
+      if(ev.key === 'Escape' && $('sheet').classList.contains('open')) closeSheet();
+    });
+
+    // save settings
+    $('settingsSave').addEventListener('click', function(){
+      settings.tone = radioVal('set-tone') || DEFAULT_SETTINGS.tone;
+      settings.method = radioVal('set-method') || 'mail';
+      settings.packBadge = $('set-pack-badge').value.trim() || DEFAULT_SETTINGS.packBadge;
+      settings.packPaper = $('set-pack-paper').value.trim() || DEFAULT_SETTINGS.packPaper;
+      settings.ship = $('set-ship').value || DEFAULT_SETTINGS.ship;
+      settings.attrs = {
+        adult: !!document.querySelector('input[name="set-attr"][value="adult"]:checked'),
+        pet: !!document.querySelector('input[name="set-attr"][value="pet"]:checked'),
+        smoke: !!document.querySelector('input[name="set-attr"][value="smoke"]:checked')
+      };
+      var ok = saveSettings();
+      syncMethodDefaults();
+      updatePostPlace();
+      updateReplyPlace();
+      renderAll();
+      closeSheet();
+      toast(ok ? 'マイ設定を保存しました' : '保存できませんでした（ブラウザの設定をご確認ください）');
+    });
+
+    // reset settings
+    $('settingsReset').addEventListener('click', function(){
+      settings = clone(DEFAULT_SETTINGS);
+      try{ localStorage.removeItem(KEY); }catch(e){}
+      applySettingsToForm();
+      syncMethodDefaults();
+      updatePostPlace();
+      updateReplyPlace();
+      renderAll();
+      toast('初期設定に戻しました');
+    });
+
+    // initial state
+    updatePostFields();
+    updatePostPlace();
+    updateReplyPlace();
+    updateMsgFields();
+    syncMethodDefaults();
+    renderAll();
+  });
+})();
+</script>
+</body>
+</html>
