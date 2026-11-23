@@ -181,12 +181,36 @@
   .zoomRow input[type=range]::-moz-range-thumb{ width:22px; height:22px; border:0; border-radius:50%; background:#ffd257; }
 
   #shotImg{
-    display:block; width:100%; max-height:46dvh; object-fit:contain;
+    display:block; width:100%; max-height:38dvh; object-fit:contain;
     margin:0 auto 6px; border-radius:14px; background:#06100d;
     box-shadow:0 6px 18px rgba(0,0,0,.5), 0 0 0 2px rgba(255,210,87,.35);
     -webkit-touch-callout:default;
   }
   .hint{ margin:0 0 9px; text-align:center; font-size:10px; color:#9ec9b2; }
+
+  /* 審査員の一言カード */
+  .judge{
+    display:flex; gap:9px; align-items:center; text-align:left;
+    padding:8px 10px; margin:0 0 8px;
+    background:linear-gradient(180deg, rgba(255,246,230,.11), rgba(255,246,230,.035));
+    border:1.5px solid rgba(255,210,87,.45); border-radius:15px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.10), 0 3px 12px rgba(0,0,0,.22);
+    animation:judgePop .3s ease-out;
+  }
+  .judge .av{
+    flex:0 0 auto; width:38px; height:38px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-size:21px; line-height:1;
+    background:radial-gradient(circle at 35% 30%, #2f9c63, #10291f);
+    box-shadow:inset 0 0 0 1.5px rgba(255,210,87,.5);
+  }
+  .judge .meta{ flex:1 1 auto; min-width:0; }
+  .judge .who{ display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; }
+  .judge .nm{ font-size:10.8px; font-weight:800; color:#cfe7d9; letter-spacing:.02em; }
+  .judge .st{ font-size:12.5px; line-height:1; letter-spacing:.1em; }
+  .judge .st b{ color:#ffd257; font-weight:400; text-shadow:0 0 8px rgba(255,210,87,.55); }
+  .judge .st i{ color:rgba(255,246,230,.32); font-style:normal; }
+  .judge .cm{ margin:2px 0 0; font-size:11.4px; line-height:1.35; font-weight:700; color:#fff6e6; }
+  @keyframes judgePop{ from{ transform:scale(.94); opacity:0; } to{ transform:none; opacity:1; } }
 
   .sheet .btn{ min-height:44px; font-size:13px; }
   .stack{ display:flex; flex-direction:column; gap:6px; }
@@ -275,6 +299,16 @@
   <div class="sheet">
     <h2 id="shotTitle">パシャッと撮れました！</h2>
     <p class="sub">長押しで保存もできます</p>
+    <div class="judge" id="judgeCard">
+      <div class="av" id="judgeAv">🎅</div>
+      <div class="meta">
+        <div class="who">
+          <span class="nm" id="judgeName">サンタの評価</span>
+          <span class="st" id="judgeStars"></span>
+        </div>
+        <p class="cm" id="judgeComment"></p>
+      </div>
+    </div>
     <img id="shotImg" alt="撮影したダンシングクリスマスツリー" />
     <p class="hint">画像を長押し →「写真に追加」でも保存できます</p>
     <div class="stack">
@@ -2284,9 +2318,77 @@
   var shotBlob = null;   // the PNG as a Blob, ready for the native share sheet
   var SHARE_URL = 'https://7ckwhjy67f-stack.github.io/ticket-error-escape/tree/';
 
+  /* ---------- 審査員キャラによるランダム評価 ---------- */
+  var JUDGES = [
+    { key:'santa', emoji:'🎅', name:'サンタ', w:26, lines:{
+      3:['腰のキレが今年のベストプレゼントじゃ！','このツリー、わしの袋に入れたいくらいじゃ🎁','トナカイより速い腰つき…グッジョブじゃ！'],
+      2:['ツリーは完璧じゃが、サンタ帽がちょっとズレておるぞ','なかなかじゃ！あとは腹の出具合で満点じゃった','わるくないぞ。プレゼントは…半分にしておこう'],
+      1:['今ちょっと目をつぶってたかのう…もう1枚撮るべし！','ソリの運転中でよく見えんかった。撮り直しじゃ','わしのひげに隠れてて見えん！もう1枚どうぞ']
+    }},
+    { key:'reindeer', emoji:'🦌', name:'トナカイ', w:24, lines:{
+      3:['赤鼻も負けるくらいの輝き…狂気も完璧！','このダンス、そりに乗せて走りたいくらいだ！','鼻血が出るほどキレてる。褒めてる！'],
+      2:['赤鼻も負けるくらいの輝き…惜しいのはあと一歩の狂気！','かわいい。でも走り出すには少しだけ足りない','わるくないけど、ニンジンは半分ね'],
+      1:['今日は人参を食べてから出直してこよう…','ツリーが恥ずかしがって揺れてる…撮り直し！','目が回っててよく見えない…もう1回！']
+    }},
+    { key:'sweater', emoji:'🧶', name:'クソダサセーターの人', w:24, lines:{
+      3:['このダサセーターに負けない存在感、最高かよ','そのキレ、うちのセーター屋に来てほしい','★3つ。ダサさとキレの黄金比だ'],
+      2:['ダサさは満点。あとは腰のクセだけだな','セーターより目立ってる…半分くらいは褒めてる','悪くない。でも毛糸の方が強い'],
+      1:['その写真、セーターが売れなくなるからやめて','ダサいのはセーターだけでいいんだよ…撮り直し！','編み目しか見えなかった。もう1枚！']
+    }},
+    { key:'gift', emoji:'🎁', name:'プレゼント箱マン', w:9, lines:{
+      3:['開けたら君が出てきた…今日いちばんのプレゼントだ','リボンを解く前に、もう★3つあげちゃう','箱ごと持って帰りたい衝動を抑えてる'],
+      2:['中身はいい感じ。リボンの結びが惜しい！','プレゼント級…まではあと1テープ','箱の角がもう少しキレてたら満点'],
+      1:['空箱かと思った…もう1回中身を入れておいで','テープが剥がれてるぞ…撮り直し！','緩衝材しか入ってなかった']
+    }},
+    { key:'snowman', emoji:'⛄', name:'雪だるま', w:9, lines:{
+      3:['溶ける前に保存決定！★3つ！','このキレ、氷点下でも熱い…！','ニンジン鼻が震えるほどのダンスだった'],
+      2:['雪だるま的には合格！あと一歩で春が来る','いいね。でももう少し冷たい目線が欲しい','雪の玉がもう1個あれば満点だった'],
+      1:['…ちょっと溶けてきてて、よく見えない','今日は陽が出てるから撮り直し！','バケツがずれてる！もう1枚！']
+    }}
+  ];
+  var shotJudge = null;
+
+  function rollJudge(){
+    // 審査員を重み付きで抽選
+    var total = 0, i;
+    for(i=0;i<JUDGES.length;i++) total += JUDGES[i].w;
+    var r = Math.random()*total, j = JUDGES[0];
+    for(i=0;i<JUDGES.length;i++){ r -= JUDGES[i].w; if(r <= 0){ j = JUDGES[i]; break; } }
+    // 星は★3がちょいレア
+    var sr = Math.random();
+    var stars = sr < 0.26 ? 1 : (sr < 0.70 ? 2 : 3);
+    var lines = j.lines[stars];
+    var comment = pick(lines);
+    return {
+      emoji: j.emoji,
+      name: j.name,
+      stars: stars,
+      badge: '★'.repeat(stars) + '☆'.repeat(3-stars),
+      comment: comment
+    };
+  }
+
+  function showJudge(v){
+    $('#judgeAv').textContent = v.emoji;
+    $('#judgeName').textContent = v.name + 'の評価';
+    $('#judgeStars').innerHTML = '<b>' + '★'.repeat(v.stars) + '</b><i>' + '☆'.repeat(3-v.stars) + '</i>';
+    $('#judgeComment').textContent = '「' + v.comment + '」';
+    var card = $('#judgeCard');
+    card.style.animation = 'none';
+    void card.offsetWidth;
+    card.style.animation = '';
+  }
+
+  function judgeLine(){
+    if(!shotJudge) return '';
+    return shotJudge.emoji + shotJudge.name + 'の評価：' + shotJudge.badge + '「' + shotJudge.comment + '」';
+  }
+
   function shoot(){
     var url = stage.toDataURL('image/png');
     $('#shotImg').src = url;
+    shotJudge = rollJudge();
+    showJudge(shotJudge);
     $('#shotModal').classList.remove('hidden');
     shotBlob = null;
     try{
@@ -2309,7 +2411,9 @@
   }
 
   function doShare(){
+    var rating = judgeLine();
     var shareText = '推しと踊る！ダンシングクリスマスツリー🎄✨\n'
+      + (rating ? rating + '\n' : '')
       + '#推しダンシングツリー #クリスマス #推し活\n'
       + SHARE_URL;
     function unsupported(){
@@ -2357,7 +2461,9 @@
   });
   $('#tweetBtn').addEventListener('click', function(){
     var url = SHARE_URL;
+    var rating = judgeLine();
     var text = '推しと踊る！ダンシングクリスマスツリー🎄✨\n'
+      + (rating ? rating + '\n' : '')
       + '推しの顔をツリーにのせたら、バックダンサーと一緒にくねくねダンスしてる…！\n'
       + '#推しダンシングツリー #クリスマス #推し活\n'
       + url;
@@ -2373,6 +2479,19 @@
     updateMusicUI();
     window.__dancingTree = S;
     window.__treeAudio = { get state(){ return actx ? actx.state : 'none'; }, get step(){ return stepIdx; }, get on(){ return S.musicOn; } };
+    window.__treeJudge = {
+      current: function(){ return shotJudge; },
+      roll: function(n){
+        var seen = [], counts = {1:0,2:0,3:0}, names = {}, i;
+        for(i=0;i<(n||200);i++){
+          var v = rollJudge();
+          counts[v.stars]++;
+          names[v.name] = true;
+          if(seen.length < 3) seen.push(v);
+        }
+        return { counts: counts, names: Object.keys(names), samples: seen };
+      }
+    };
     window.__treeFx = {
       disco: function(){ spawnDisco(); },
       battery: function(){ startBattery(); },
