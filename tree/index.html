@@ -197,6 +197,10 @@
     opacity:0; pointer-events:none; transition:opacity .22s ease, transform .22s ease; max-width:94vw; overflow:hidden; text-overflow:ellipsis;
     box-shadow:0 8px 26px rgba(0,0,0,.5); white-space:nowrap;
   }
+  .toast.wrap{
+    white-space:normal; text-align:center; line-height:1.4;
+    border-radius:16px; padding:10px 14px; overflow:visible; text-overflow:clip;
+  }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
   @media (max-height:700px){ #hd p{ display:none; } .btn{ min-height:38px; padding:8px 6px; } }
 </style>
@@ -274,6 +278,7 @@
     <img id="shotImg" alt="撮影したダンシングクリスマスツリー" />
     <p class="hint">画像を長押し →「写真に追加」でも保存できます</p>
     <div class="stack">
+      <button type="button" class="btn primary" id="shareBtn">📤 写真ごとシェアする（Xなど）</button>
       <button type="button" class="btn gold" id="saveBtn">💾 画像を保存</button>
       <button type="button" class="btn" id="tweetBtn" style="background:linear-gradient(180deg,#3a4a58,#1d2733)">𝕏 でポストする</button>
       <button type="button" class="btn ghost" id="backBtn">もどる / 撮り直す</button>
@@ -2196,6 +2201,7 @@
   function toast(msg){
     var el = $('#toast');
     el.textContent = msg;
+    el.classList.toggle('wrap', msg.length > 22);
     el.classList.add('show');
     clearTimeout(toast._t);
     toast._t = setTimeout(function(){ el.classList.remove('show'); }, 1800);
@@ -2275,13 +2281,66 @@
   });
 
   /* ---------- capture ---------- */
+  var shotBlob = null;   // the PNG as a Blob, ready for the native share sheet
+  var SHARE_URL = 'https://7ckwhjy67f-stack.github.io/ticket-error-escape/tree/';
+
   function shoot(){
     var url = stage.toDataURL('image/png');
     $('#shotImg').src = url;
     $('#shotModal').classList.remove('hidden');
+    shotBlob = null;
+    try{
+      stage.toBlob(function(b){ if(b) shotBlob = b; }, 'image/png');
+    }catch(err){ shotBlob = null; }
     burst(W/2, H*0.5, 16);
   }
   $('#shotBtn').addEventListener('click', shoot);
+
+  function dataURLtoBlob(dataURL){
+    try{
+      var parts = String(dataURL).split(',');
+      var mime = (parts[0].match(/:(.*?);/) || [,'image/png'])[1];
+      var bin = atob(parts[1]);
+      var len = bin.length;
+      var bytes = new Uint8Array(len);
+      for(var i=0;i<len;i++) bytes[i] = bin.charCodeAt(i);
+      return new Blob([bytes], { type: mime });
+    }catch(err){ return null; }
+  }
+
+  function doShare(){
+    var shareText = '推しと踊る！ダンシングクリスマスツリー🎄✨\n'
+      + '#推しダンシングツリー #クリスマス #推し活\n'
+      + SHARE_URL;
+    function unsupported(){
+      toast('この端末では直接シェア非対応のため、下の「画像を保存」から保存してね！');
+    }
+    function withBlob(blob){
+      if(!blob || typeof File === 'undefined'){ unsupported(); return; }
+      var file;
+      try{
+        file = new File([blob], 'dancing-xmas-tree.png', { type:'image/png' });
+      }catch(err){ unsupported(); return; }
+      if(navigator.share && navigator.canShare && navigator.canShare({ files: [file] })){
+        try{
+          navigator.share({ files: [file], text: shareText }).catch(function(err){
+            // the person closed the sheet themselves: say nothing
+            if(err && err.name === 'AbortError') return;
+            unsupported();
+          });
+        }catch(err){
+          unsupported();
+        }
+      } else {
+        unsupported();
+      }
+    }
+    if(shotBlob){ withBlob(shotBlob); return; }
+    var src = $('#shotImg').getAttribute('src');
+    if(src && src.indexOf('data:') === 0){ withBlob(dataURLtoBlob(src)); return; }
+    unsupported();
+  }
+  $('#shareBtn').addEventListener('click', doShare);
   $('#backBtn').addEventListener('click', function(){
     $('#shotModal').classList.add('hidden');
   });
@@ -2297,7 +2356,7 @@
     toast('画像を保存したよ💾');
   });
   $('#tweetBtn').addEventListener('click', function(){
-    var url = 'https://7ckwhjy67f-stack.github.io/ticket-error-escape/tree/';
+    var url = SHARE_URL;
     var text = '推しと踊る！ダンシングクリスマスツリー🎄✨\n'
       + '推しの顔をツリーにのせたら、バックダンサーと一緒にくねくねダンスしてる…！\n'
       + '#推しダンシングツリー #クリスマス #推し活\n'
