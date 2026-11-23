@@ -1456,8 +1456,8 @@
     starPath(g,-starR*0.22,-th*1.0-starR*0.2,starR*0.4,starR*0.18,0); g.fill();
     g.restore();
 
-    var starP = applyMat(frames[0], 0, -th*1.0 + Math.sin(b*2 + 0.4)*th*0.007);
-    S.starHit = { x: starP.x, y: starP.y, r: starR*1.5 };
+    // tap target: the star's resting spot, a bit generous because it keeps swaying
+    S.starHit = { x: cx + stepX, y: groundY - th*1.0, r: th*0.18 };
 
     // ---- face: the cropped photo goes straight onto the tree (no plate, no rim)
     var fy = -th*0.355;
