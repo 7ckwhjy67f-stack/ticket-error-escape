@@ -274,35 +274,35 @@
 
         <label class="fl">
           <span class="flabel">キャラ名</span>
-          <input type="text" id="charName" maxlength="20" placeholder="例：茨木、先生、はる" autocomplete="off">
+          <input type="text" id="charName" maxlength="20" placeholder="例：茨木、先生、はる" autocomplete="off" aria-label="キャラ名">
         </label>
 
         <div class="fl">
           <span class="flabel">表記（本文での呼ばれ方）</span>
-          <input type="text" id="charLabel" maxlength="12" placeholder="例：彼、izm" autocomplete="off">
+          <input type="text" id="charLabel" maxlength="12" placeholder="例：彼、izm" autocomplete="off" aria-label="表記（本文での呼ばれ方）">
           <div class="chips" id="labelChips"></div>
         </div>
 
         <div class="fl">
           <span class="flabel">夢主がキャラを呼ぶとき</span>
-          <input type="text" id="callName" maxlength="14" placeholder="例：〇〇くん、先輩" autocomplete="off">
+          <input type="text" id="callName" maxlength="14" placeholder="例：〇〇くん、先輩" autocomplete="off" aria-label="夢主がキャラを呼ぶときの呼び方">
           <div class="chips" id="callChips"></div>
         </div>
 
         <div class="fl">
           <span class="flabel">キャラの一人称</span>
-          <input type="text" id="firstPerson" maxlength="10" placeholder="例：俺、ぼく、己" autocomplete="off">
+          <input type="text" id="firstPerson" maxlength="10" placeholder="例：俺、ぼく、己" autocomplete="off" aria-label="キャラの一人称">
           <div class="chips" id="fpChips"></div>
         </div>
       </div>
 
       <div class="card">
         <div class="cardhead"><span class="num">2</span><h2>夢主（きみ）</h2></div>
-        <label class="fl">
+        <div class="fl">
           <span class="flabel">夢主の呼ばれ方（キャラが名前を呼ぶときに使うよ）</span>
-          <input type="text" id="dreamerName" maxlength="12" placeholder="空欄なら口調に合わせて「お前」「きみ」など" autocomplete="off">
+          <input type="text" id="dreamerName" maxlength="12" placeholder="空欄なら口調に合わせて「お前」「きみ」など" autocomplete="off" aria-label="夢主の呼ばれ方">
           <div class="chips" id="dnChips"></div>
-        </label>
+        </div>
       </div>
 
       <div class="card">
@@ -338,11 +338,11 @@
             <div class="swhint">Xのツリー1本目にタグを入れます</div>
           </div>
         </div>
-        <label class="fl">
+        <div class="fl">
           <span class="flabel">タグ（自由に編集）</span>
-          <input type="text" id="tags" maxlength="80" placeholder="#enstプラス #夢小説" autocomplete="off">
+          <input type="text" id="tags" maxlength="80" placeholder="#enstプラス #夢小説" autocomplete="off" aria-label="ハッシュタグ（自由に編集）">
           <div class="chips" id="tagChips"></div>
-        </label>
+        </div>
       </div>
 
       <button class="btn primary big" id="generateBtn" type="button">✨ 夢小説をつくる</button>
@@ -643,7 +643,7 @@
         '沈黙が、気まずくない。むしろ、心地いい。',
         'ふと見上げた横顔が、こちらのほうを向いていた。',
         '言いかけた言葉が、肩に触れた手のせいで、消えてしまった。',
-        'ふいに、足が止まった。'
+        'ふいに、ふたりとも、黙った。'
       ],
       beat:[
         'その声が、耳の奥でゆっくり溶けていく。',
@@ -661,13 +661,13 @@
       ],
       extra:[
         '「はい」と差し出された温かい飲みものを、両手で包む。なぜか、こちらの好みどおりだった。',
-        'いつもより、少しだけ、世界が明るく見える。そんな夜だった。',
+        'いつもより、少しだけ、世界が明るく見える。そんな気がした。',
         'さっきまで話していた内容を、ひとつも覚えていない。覚えているのは、その声の温度だけ。'
       ],
       event:[
         '時計の針が、思ったより進んでいた。',
         '「まだ帰りたくない」——口に出したのは、どちらだっただろう。',
-        '「もう少しだけ」と、どちらからともなく、足を止めた。'
+        '「もう少しだけ」と、どちらからともなく、その場を離れなかった。'
       ],
       react:[
         'その声に、頬がゆるむのが止められない。',
@@ -723,7 +723,7 @@
       ],
       event:[
         '遠くで、誰かの声がした。世界には、ふたり以外もいる。',
-        '「風邪ひくなよ」——それだけ言って、先に歩き出してしまった。',
+        '「風邪ひくなよ」——それだけ言って、先に背を向けてしまった。',
         'スマホが震えた。画面には、名前だけが表示されている。'
       ],
       react:[
@@ -756,7 +756,7 @@
         '触れそうで触れない、その数センチが、いちばん苦しい。',
         '友達、という言葉に何度も救われて、何度も傷つく。',
         '冗談みたいに言えたら、どんなに楽だろう。',
-        '視線に気づかれて、あわてて窓の外を見た。',
+        '視線に気づかれて、あわてて目を逸らした。',
         'ふたりきりになると、思ったより静かだった。'
       ],
       beat:[
@@ -836,7 +836,7 @@
         '窓の外は、もう暗くなりかけていた。こんなに長い一日は、久しぶりだ。'
       ],
       event:[
-        '冷たい風が吹いて、思わず肩が縮こまった。',
+        'ふいに、冷たい空気が流れてきた。',
         'そのとき、向こうからも、足音が近づいてきた。',
         '「あのさ」——ふたりの声が、重なった。'
       ],
