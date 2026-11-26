@@ -1346,7 +1346,7 @@
   var CM_ENDS = [
     [
       {
-        t:'甘くとろけるハッピーエンド', s:'指と指が、絡んだまま', mood:'amai',
+        t:'甘くとろけるハッピーエンド', s:'指と指が、絡んだまま',
         nar:'その一言が、ゆっくり、胸の奥まで届く。この人の言葉を、ひとつも聞き逃したくないと思った。',
         dlg:{
           tsun:'「……好きだ。……逃がさねえから、覚悟しろ。」',
@@ -1359,7 +1359,7 @@
         titles:['きみの隣が、いちばんあたたかい','その手を、離さないで','特別じゃない日に、いちばん愛しい']
       },
       {
-        t:'胸がぎゅっとする、切ない余韻', s:'言えない言葉が、ひとつ増える', mood:'setsunai',
+        t:'胸がぎゅっとする、切ない余韻', s:'言えない言葉が、ひとつ増える',
         nar:'その言葉の、先を、待ってしまった。けれど、続きは、来なかった。',
         dlg:{
           tsun:'「……言えてたら、なにか変わったのかな。……なんて、今さらだよな。」',
@@ -1374,7 +1374,7 @@
     ],
     [
       {
-        t:'ふたりで、これからの約束', s:'「来週も」と、軽い約束', mood:'amai',
+        t:'ふたりで、これからの約束', s:'「来週も」と、軽い約束',
         nar:'「これから、どうする？」——言葉にしたら、なんだか、少しだけ笑えた。その言い方が、なぜか、うれしかった。',
         dlg:{
           tsun:'「……来週も、空けとけよ。……断るな。」',
@@ -1387,7 +1387,7 @@
         titles:['これからの、ふたり','来週も、その次も','約束の、続き']
       },
       {
-        t:'今だけの、ふたりの秘密', s:'「内緒ね」と笑って', mood:'yonaka',
+        t:'今だけの、ふたりの秘密', s:'「内緒ね」と笑って',
         nar:'気づけば、もう、こんな時間だった。名残惜しさを、隠すように笑った。',
         dlg:{
           tsun:'「……今日のこと、誰にも言うなよ。……ふたりだけの、秘密だ。」',
@@ -1939,8 +1939,7 @@
   /* ---------- text page ---------- */
   function metaLine(){
     if(current && current.mode === 'choice'){
-      return getTone(cfg.tone).name + ' ｜ ' + (MOOD_NAMES[current.mood] || '') + ' ｜ '
-        + REL_NAMES[cfg.rel] + ' ｜ 二択で作成';
+      return getTone(cfg.tone).name + ' ｜ ' + REL_NAMES[cfg.rel] + ' ｜ 二択で作成';
     }
     var mood = (current && current.mood) ? MOOD_NAMES[current.mood]
       : (cfg.mood === 'random' ? 'おまかせ' : MOOD_NAMES[cfg.mood]);
@@ -2140,7 +2139,7 @@
     if(step === 3){
       cmState.title = rnd(opt.titles);
       var text = cmParagraphs().join('\n');
-      current = { title: cmState.title, text: text, mood: opt.mood || 'amai', mode: 'choice', at: Date.now() };
+      current = { title: cmState.title, text: text, mood: '', mode: 'choice', at: Date.now() };
       $('#workTitle').textContent = current.title;
       $('#workMeta').textContent = metaLine();
       $('#novelText').value = current.text;
