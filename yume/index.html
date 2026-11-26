@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>オリジナル夢小説メーカー｜推しとの夢小説が140字ツリーでつくれる</title>
-<meta name="description" content="キャラと夢主を選ぶだけで、オリジナルの夢小説が完成。口調（ツンデレ・甘々・クールなど）×雰囲気×関係性から自動生成して、140字ずつのXツリーに自動分割。コピー＆ポストもワンタップ。保存庫つき・無料・スマホ縦画面対応。">
+<meta name="description" content="キャラと夢主を選ぶだけで、オリジナルの夢小説が完成。二択を4回えらぶだけで1本の物語になるモードも。口調（ツンデレ・甘々・クールなど）×雰囲気×関係性から自動生成して、140字ずつのXツリーに自動分割。コピー＆ポストもワンタップ。保存庫つき・無料・スマホ縦画面対応。">
 <meta name="theme-color" content="#fff2f8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta property="og:title" content="オリジナル夢小説メーカー｜選ぶだけで夢小説ができる">
-<meta property="og:description" content="口調×雰囲気×関係性を選ぶだけで夢小説を自動生成。140字ずつのXツリーに自動分割して、コピー＆ポストもワンタップ。">
+<meta property="og:description" content="口調×雰囲気×関係性を選ぶだけで夢小説を自動生成。二択を4回えらぶだけで1本になるモードも。140字ずつのXツリーに自動分割して、コピー＆ポストもワンタップ。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://7ckwhjy67f-stack.github.io/ticket-error-escape/yume/">
 <meta name="twitter:card" content="summary">
@@ -275,10 +275,116 @@
   #toast{
     position:fixed; left:50%; bottom:calc(88px + env(safe-area-inset-bottom)); transform:translate(-50%,14px);
     background:rgba(74,59,82,.94); color:#fff; font-size:12.5px; font-weight:700;
-    padding:10px 16px; border-radius:999px; opacity:0; pointer-events:none; transition:all .22s; z-index:60;
+    padding:10px 16px; border-radius:999px; opacity:0; pointer-events:none; transition:all .22s; z-index:95;
     max-width:80vw; text-align:center;
   }
   #toast.show{opacity:1; transform:translate(-50%,0)}
+
+  /* ---------- 二択でつくる ---------- */
+  .modebtns{display:flex; flex-direction:column; gap:9px}
+  .btn.choice{
+    position:relative; width:100%; border:none; border-radius:18px; padding:15px 14px 14px;
+    display:flex; flex-direction:column; align-items:center; gap:2px; color:#fff;
+    background:linear-gradient(135deg,#9b7bf0 0%,#c58ce8 52%,#ef6aa6 100%);
+    box-shadow:0 10px 26px rgba(143,116,232,.36);
+    font-size:15.5px; letter-spacing:.01em;
+  }
+  .btn.choice small{font-size:10.5px; font-weight:700; opacity:.95; letter-spacing:.02em}
+  .btn.choice .new{
+    position:absolute; top:-9px; right:13px; font-size:9px; font-weight:800; letter-spacing:.08em;
+    color:#c33a7e; background:#fff; border-radius:999px; padding:3px 8px;
+    box-shadow:0 3px 10px rgba(239,90,158,.28);
+  }
+  .btn.choice:active{transform:scale(.985)}
+
+  .cm{position:fixed; inset:0; z-index:80; display:none; justify-content:center; background:rgba(58,42,70,.44)}
+  .cm.open{display:flex; animation:cmFade .18s ease-out}
+  @keyframes cmFade{from{opacity:0} to{opacity:1}}
+  .cm-sheet{
+    width:100%; max-width:480px; height:100%; display:flex; flex-direction:column;
+    background:linear-gradient(180deg,#fff9fc 0%,#f7f2ff 100%);
+    animation:cmUp .24s ease-out;
+  }
+  @keyframes cmUp{from{transform:translateY(20px); opacity:.5} to{transform:none; opacity:1}}
+  body.cm-lock{overflow:hidden}
+  .cm-top{
+    padding:calc(9px + env(safe-area-inset-top)) 14px 10px; flex:0 0 auto;
+    background:rgba(255,255,255,.82); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    border-bottom:1px solid #f2e8fa;
+  }
+  .cm-row{display:flex; align-items:center; gap:8px}
+  .cm-tag{font-size:12.5px; font-weight:800; color:#7d55a8; background:linear-gradient(135deg,#ffe6f3,#ece4ff); border-radius:999px; padding:5px 11px}
+  .cm-count{margin-left:auto; font-size:12px; font-weight:800; color:#c33a7e}
+  .cm-x{width:31px; height:31px; border-radius:50%; border:1px solid #efe4fa; background:#fff; color:#a892bd; font-size:13px; font-family:inherit; line-height:1}
+  .cm-x:active{transform:scale(.94)}
+  .cm-pills{display:flex; flex-wrap:wrap; gap:5px; margin-top:8px}
+  .cm-pill{font-size:10.5px; font-weight:800; color:#8a5fb0; background:#f6f1ff; border-radius:999px; padding:3px 8px}
+  .cm-dots{display:flex; gap:4px; margin-top:10px}
+  .cm-dot{
+    flex:1; text-align:center; font-size:9px; font-weight:800; color:#b9abcd; letter-spacing:0;
+    padding:5px 0 0; border-top:3px solid #ece2f7; transition:all .16s;
+  }
+  .cm-dot.done{color:#a173cf; border-color:#c9b0ff}
+  .cm-dot.now{color:#d63d8b; border-color:var(--pink)}
+  .cm-scroll{flex:1 1 auto; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:12px 14px 16px; display:flex; flex-direction:column}
+  .cm-prev{background:#fff; border:1.5px solid #f5ecfb; border-radius:16px; padding:10px 12px 11px; margin-bottom:12px; box-shadow:0 4px 14px rgba(183,156,255,.07)}
+  .cm-prevhead{display:flex; align-items:center; font-size:10.5px; font-weight:800; color:#a892bd; letter-spacing:.04em}
+  .cm-prevhead span:last-child{margin-left:auto; color:#c9b8d8}
+  .cm-prevbody{
+    font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;
+    font-size:12px; line-height:1.9; color:#5b4a67; white-space:normal;
+    max-height:104px; overflow-y:auto; margin-top:5px;
+  }
+  .cm-prevbody .cm-p{margin:0 0 9px}
+  .cm-prevbody .cm-p:last-child{margin-bottom:0}
+  .cm-prev.big{flex:1 1 auto; min-height:140px; display:flex; flex-direction:column}
+  .cm-prev.big .cm-prevbody{
+    max-height:none; flex:1 1 auto; min-height:90px;
+    -webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 16px),transparent 100%);
+    mask-image:linear-gradient(to bottom,#000 calc(100% - 16px),transparent 100%);
+  }
+  .cm-prevhint{font-size:9.5px; color:#c2b2d2; text-align:right; margin-top:4px}
+  .cm-tip{font-size:10px; color:#b3a3c2; line-height:1.6; text-align:center; margin:12px 4px 0}
+  .cm-q{font-size:16px; font-weight:800; color:#463552; margin:2px 2px 3px; line-height:1.5}
+  .cm-qh{font-size:11px; color:#9a8fa6; margin:0 2px 11px; line-height:1.5}
+  .cm-opts{display:flex; flex-direction:column; gap:9px}
+  .cm-opt{
+    display:flex; align-items:center; gap:11px; width:100%; min-height:72px;
+    text-align:left; font-family:inherit; color:var(--ink); cursor:pointer;
+    background:#fff; border:2px solid #efe6fa; border-radius:18px; padding:13px 13px;
+    box-shadow:0 5px 16px rgba(183,156,255,.10); transition:transform .12s, border-color .12s, box-shadow .12s;
+  }
+  .cm-opt:active{transform:scale(.98); border-color:var(--pink); box-shadow:0 4px 12px rgba(255,143,199,.22)}
+  .cm-optmark{
+    width:30px; height:30px; flex:0 0 30px; border-radius:10px; display:grid; place-items:center;
+    font-size:12.5px; font-weight:800; color:#fff;
+    background:linear-gradient(135deg,#ffa8d2,#b79cff);
+  }
+  .cm-optbody{min-width:0; flex:1}
+  .cm-optbody b{display:block; font-size:14px; font-weight:800; line-height:1.45}
+  .cm-optbody small{display:block; font-size:10.8px; color:#9a8fa6; margin-top:3px; line-height:1.45}
+  .cm-arrow{flex:0 0 auto; color:#cbb8de; font-size:20px; line-height:1; font-weight:700}
+  .cm-done{text-align:center; padding:4px 0 0}
+  .cm-donemark{font-size:34px; line-height:1.2}
+  .cm-donetitle{font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif; font-size:17px; font-weight:800; color:#463552; margin-top:4px; line-height:1.5}
+  .cm-donemeta{font-size:10.8px; color:#9a8fa6; margin-top:4px}
+  .cm-again{
+    width:100%; margin-top:12px; font-family:inherit; font-size:12.5px; font-weight:800; color:#8f5fb8;
+    background:#fff; border:1.5px dashed #d9c6f5; border-radius:14px; padding:12px;
+  }
+  .cm-again:active{transform:scale(.98)}
+  .cm-foot{
+    flex:0 0 auto; padding:8px 14px calc(8px + env(safe-area-inset-bottom));
+    background:rgba(255,255,255,.9); border-top:1px solid #f2e8fa;
+    display:flex; flex-direction:column; gap:4px; align-items:center;
+  }
+  .cm-back{
+    width:100%; font-family:inherit; font-size:12.5px; font-weight:800; color:#6b5b78;
+    background:#fff; border:1.5px solid #eee6fa; border-radius:13px; padding:11px;
+  }
+  .cm-back:disabled{opacity:.38}
+  .cm-back:active{transform:scale(.98)}
+  .cm-footnote{font-size:10px; color:#b3a3c2; text-align:center}
 
   .links{display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin:16px 0 6px}
   .links a{
@@ -389,11 +495,18 @@
         </div>
       </div>
 
-      <button class="btn primary big" id="generateBtn" type="button">✨ 夢小説をつくる</button>
+      <div class="modebtns">
+        <button class="btn choice" id="choiceModeBtn" type="button">
+          <span class="new">NEW</span>
+          ✨ 二択でつくる
+          <small>場面を4回えらぶだけで、1本の夢小説に</small>
+        </button>
+        <button class="btn primary big" id="generateBtn" type="button">🎲 おまかせで生成</button>
+      </div>
       <div class="btnrow">
         <button class="btn" id="saveCharBtn" type="button">💾 このキャラ設定を保存</button>
       </div>
-      <p class="hint">生成のたびに展開が変わります。「🔄 別の展開」で何度でも作り直せるよ。</p>
+      <p class="hint">「✨ 二択でつくる」は、選んだ場面が積み上がって1本の物語に。<br>「🎲 おまかせで生成」は、毎回ちがう展開でつくれるよ。</p>
 
       <div class="links">
         <a href="../emoji/">ホビ垢ツイートメーカー</a>
@@ -406,7 +519,7 @@
     <section class="page" id="page-text">
       <div id="textEmpty" class="empty">
         <div style="font-size:30px; margin-bottom:6px">📖</div>
-        まだ物語がないよ。<br>「つくる」タブで設定して、<br>「✨ 夢小説をつくる」を押してみてね。
+        まだ物語がないよ。<br>「つくる」タブで設定して、<br>「🎲 おまかせで生成」か「✨ 二択でつくる」を<br>押してみてね。
       </div>
 
       <div id="textBody" style="display:none">
@@ -467,6 +580,51 @@
       <p class="hint">保存したものは、このスマホの中（ブラウザのlocalStorage）に残ります。<br>ブラウザのデータを消すと一緒に消えるので気をつけてね。</p>
     </section>
   </main>
+</div>
+
+<!-- ============ 二択でつくる モーダル ============ -->
+<div class="cm" id="choiceModal">
+  <div class="cm-sheet" role="dialog" aria-modal="true" aria-labelledby="cmTitle">
+    <div class="cm-top">
+      <div class="cm-row">
+        <span class="cm-tag" id="cmTitle">✨ 二択でつくる</span>
+        <span class="cm-count" id="cmCount">1 / 4</span>
+        <button class="cm-x" id="cmClose" type="button" aria-label="二択でつくるを閉じる">✕</button>
+      </div>
+      <div class="cm-pills" id="cmPills"></div>
+      <div class="cm-dots" id="cmDots"></div>
+    </div>
+
+    <div class="cm-scroll" id="cmScroll">
+      <div class="cm-prev" id="cmPrevBox">
+        <div class="cm-prevhead"><span id="cmPrevLabel">いまのあらすじ</span><span id="cmPrevLen"></span></div>
+        <div class="cm-prevbody" id="cmPrev"></div>
+        <div class="cm-prevhint" id="cmPrevHint" hidden>↕ スクロールで全文読めるよ</div>
+      </div>
+      <div class="cm-q" id="cmQ"></div>
+      <p class="cm-qh" id="cmQh"></p>
+      <div class="cm-opts" id="cmOpts"></div>
+      <p class="cm-tip" id="cmTip">A・B どちらを選んでも、口調と関係性に合わせて文章がつながるよ</p>
+
+      <div class="cm-done" id="cmDone" hidden>
+        <div class="cm-donemark">🎉</div>
+        <div class="cm-donetitle" id="cmDoneTitle"></div>
+        <div class="cm-donemeta" id="cmDoneMeta"></div>
+        <button class="btn primary big" id="cmToText" type="button" style="margin-top:14px">📖 本文を見る・編集する</button>
+        <div class="btnrow">
+          <button class="btn" id="cmToTree" type="button">🧵 140字ツリー</button>
+          <button class="btn" id="cmToSave" type="button">📁 保存庫へ保存</button>
+        </div>
+        <p class="hint" style="margin-top:9px">タイトルは自動でついてるよ。本文タブで自由に直せるよ。</p>
+        <button class="cm-again" id="cmAgain" type="button">✨ 別の二択でつくり直す</button>
+      </div>
+    </div>
+
+    <div class="cm-foot">
+      <button class="cm-back" id="cmBack" type="button">← ひとつ戻る</button>
+      <div class="cm-footnote" id="cmFootNote">選んだぶんだけ、物語が積み上がっていくよ</div>
+    </div>
+  </div>
 </div>
 
 <nav class="tabbar" id="tabbar">
@@ -991,6 +1149,276 @@
   };
 
   /* ------------------------------------------------------------------
+     二択でつくる モード用データ
+     ------------------------------------------------------------------ */
+  var CM_STEPS = [
+    { mark:'①', label:'場面',    q:'どんな場面から、はじめる？', h:'ふたりの距離が、いちばん近いところから。' },
+    { mark:'②', label:'できごと', q:'そこで、なにが起こる？',     h:'この場面に、自然につながる流れで。' },
+    { mark:'③', label:'あなた',   q:'あなたは、どうする？',       h:'素直な自分と、強がる自分。どっちにする？' },
+    { mark:'④', label:'結末',     q:'どんな結末にする？',         h:'最後の一言で、物語の色が決まるよ。' }
+  ];
+
+  /* 関係性ごとの地の文（場所・時間に依存しない） */
+  var CM_RELLINES = {
+    koibito:[
+      '付き合って、もうすぐ一年。特別なことをしなくても、隣にいるだけで落ち着く。',
+      '恋人、という言葉に、まだ少しだけ照れる。こういう時間が、いちばん贅沢だと思う。'
+    ],
+    kataomoi_rel:[
+      'ご近所さん、というには少し親しすぎる距離。挨拶から始まった関係は、まだ名前を持たない。',
+      'ひとつ隣の部屋に住んでいる。会おうと思えばいつでも会えるのに、なぜか、勇気がいる。'
+    ],
+    osananajimi:[
+      '物心ついたときから、隣にいた。知らない時代がないくらい、長い付き合いだ。',
+      '幼馴染、という便利な言葉に、何度も逃げてきた。'
+    ],
+    shigoto:[
+      '仕事の話なら、いくらでもできる。……仕事の話しかできないのが、もどかしい。',
+      '同僚、という立場が、近いのか遠いのか。まだ、自分でも分からない。'
+    ]
+  };
+
+  /* ステップ1：関係性に合う「導入の場面」（ここだけが場所・時間を持つ） */
+  var CM_SCENES = {
+    koibito:[
+      [
+        { t:'夜の部屋で、ふたりきり', s:'テレビの音も、もう聞こえない',
+          nar:'夜の部屋。テレビの音を、ふたりとも、もう聞いていなかった。ソファの端と端、手のひらひとつぶんの距離。' },
+        { t:'帰り道、少し遠回りして', s:'足音だけが、響く道',
+          nar:'帰り道、いつもの角を曲がらずに、少しだけ遠回りした。昼間の喧騒が嘘みたいに、ふたりの足音だけが響いている。' }
+      ],
+      [
+        { t:'休日のカフェで、のんびり', s:'窓ぎわの、やわらかい光',
+          nar:'休日のカフェ。窓から差す光が、テーブルの上でゆっくり溶けていく。向かいの席で、{c}がカップを両手で包んでいる。' },
+        { t:'待ち合わせの駅前、夕方', s:'見つけた瞬間、足が速くなる',
+          nar:'待ち合わせの駅前。夕方の風が、行き交う人の間を抜けていく。改札を出てきた{c}が、こちらの姿を見つけて、少しだけ足を速めた。' }
+      ]
+    ],
+    kataomoi_rel:[
+      [
+        { t:'夜、隣の部屋に呼ばれて', s:'控えめな、ノックの音',
+          nar:'夜、隣の部屋のドアが、控えめにノックされた。「ちょっと、いい？」——その声だけで、心臓が返事より先に跳ねる。' },
+        { t:'帰り道、少し遠回りして', s:'今日は、影が長い',
+          nar:'帰り道、{c}と並んで歩く。今日は、少しだけ遠回りしてくれたみたいで、ふたりの影が、いつもより長く並んでいた。' }
+      ],
+      [
+        { t:'共用の廊下、ポストの前で', s:'ばったり会って、言葉に詰まる',
+          nar:'共用の廊下。ポストの前でばったり会って、ふたりとも、少しだけ言葉に詰まった。' },
+        { t:'夜の商店街を、並んで帰る', s:'シャッター街に、ふたりの足音',
+          nar:'夜の商店街。シャッターの下りた店の前を、ふたりで歩いていく。並んで歩くのが、まだ少しだけ、くすぐったい。' }
+      ]
+    ],
+    osananajimi:[
+      [
+        { t:'夜の部屋で、古いアルバムを広げて', s:'押し入れから出てきた、昔の写真',
+          nar:'夜の部屋。押し入れから出てきた古いアルバムを、ふたりで床に広げている。' },
+        { t:'帰り道、いつもの道を遠回り', s:'子どものころ、毎日通った道',
+          nar:'帰り道。子どものころ、毎日通った道を、今日はふたりで遠回りしていく。' }
+      ],
+      [
+        { t:'実家の近くの公園で', s:'ブランコの、錆びた音',
+          nar:'実家の近くの公園。ブランコの錆びた音が、昔と少しも変わらない。' },
+        { t:'夕方の河川敷、自転車を押して', s:'風と、ふたりの歩幅',
+          nar:'夕方の河川敷。自転車を押して、ふたりでゆっくり歩いていく。' }
+      ]
+    ],
+    shigoto:[
+      [
+        { t:'残業後のオフィス、ふたりだけ', s:'半分だけ落ちた、蛍光灯',
+          nar:'残業後のオフィス。蛍光灯の半分が落ちて、ふたりの席の周りだけが、ぽつんと明るい。' },
+        { t:'仕事の帰り道、少し遠回り', s:'駅までの道を、ゆっくり',
+          nar:'仕事の帰り道。駅までの道を、今日は少しだけ遠回りして歩いている。' }
+      ],
+      [
+        { t:'打ち合わせのあとの会議室', s:'ホワイトボードを消す、背中',
+          nar:'打ち合わせが終わった会議室。ホワイトボードの字を消している背中に、声をかけるタイミングを、まだ計っている。' },
+        { t:'出張先のホテルのロビー', s:'ソファに、ふたりだけ',
+          nar:'出張先のホテルのロビー。チェックインの列が途切れて、ふたりだけが、ソファに残された。' }
+      ]
+    ]
+  };
+
+  /* ステップ2：できごと（どの場面・どの口調にも合うよう、場所と時間を名指ししない） */
+  var CM_EVENTS = [
+    [
+      {
+        t:'距離が縮まるハプニング', s:'肩が触れて、動けない',
+        nar:'ふとした拍子に、肩が触れた。避ける間もなく、そのまま、ふたりとも動けなくなる。触れたところから、体温がうつっていくみたいだった。',
+        dlg:{
+          tsun:'「……っ、急に動くなよ。……ほら、またぶつかんだろ。」',
+          sweet:'「……動かないで。このままで、いい。」',
+          bright:'「わ、ごめん！ ……えへへ、でも、ちょっと得したかも。」',
+          cool:'「……失礼しました。……すぐ、離れます。」',
+          myst:'「……動かないで。……今、離れたら、もったいない。」'
+        }
+      },
+      {
+        t:'ちょっと拗ねたり、照れたりのすれ違い', s:'言葉が、かみ合わない',
+        nar:'言葉が、少しだけ、かみ合わない。気づけば、{c}が、こちらを見ないようにしていた。言いかけた言葉が、宙に浮いたままになる。',
+        dlg:{
+          tsun:'「……べつに。なんでもねえよ。……そういう顔、すんな。」',
+          sweet:'「……ごめん。うまく、言えなかった。……怒ってる？」',
+          bright:'「あれ？ ……もしかして、怒ってる？ ……ごめんってば！」',
+          cool:'「……いえ、なんでもありません。……お気になさらず。」',
+          myst:'「……今のは、なし。……うまく、言えなかった。」'
+        }
+      }
+    ],
+    [
+      {
+        t:'不意に、名前を呼ばれる', s:'振り向いたら、すぐ近くに',
+        nar:'不意に、名前を呼ばれた。振り向いた拍子に、目が、すぐ近くで合う。呼ばれた名前が、耳の奥で、ゆっくり溶けていく。',
+        dlg:{
+          tsun:'「……なに、その顔。……名前、呼んだだけだろ。」',
+          sweet:'「……{d}。……うん、やっぱり、いい声だね。」',
+          bright:'「{d}って呼んだだけなのに、なんでそんな顔するの〜！」',
+          cool:'「……{dさん}。……いえ、呼んでみただけです。」',
+          myst:'「……{d}。……その名前、呼ぶのは、ずるいな。」'
+        }
+      },
+      {
+        t:'昔の話や、ちょっとした秘密がこぼれる', s:'ぽつり、とこぼれた本音',
+        nar:'ぽつり、と。{c}が、子どものころのことを、ひとつだけ、こぼした。いつもの軽い声とちがう、少しだけ低い声だった。',
+        dlg:{
+          tsun:'「……誰にも言うなよ。……お前になら、まあ、いいけど。」',
+          sweet:'「……こんなこと、{fp}、誰にも言ったことないんだ。……{d}だから、かな。」',
+          bright:'「……えっと、これ、内緒ね？ {fp}、けっこう、恥ずかしいやつ。」',
+          cool:'「……今の話は、ここだけのことに。……信用していますので。」',
+          myst:'「……こういう話、{fp}は、あまりしない。……{d}には、別だけど。」'
+        }
+      }
+    ]
+  ];
+
+  /* ステップ3：夢主のアクション（直前に何が起きていても通じる書き方にする） */
+  var CM_ACTS = [
+    [
+      {
+        t:'素直に甘える・本音を聞く', s:'袖をつまんで、もう一歩',
+        nar:'その空気のまま、ゆっくり息をつく。素直に、その袖をつまんだ。「もっと、聞かせて」——うまく笑えたかは、分からない。自分でも、驚くくらい、まっすぐな声が出た。',
+        dlg:{
+          tsun:'「……は？ ……お前、そういうこと、真顔で言うなよ。……ずりぃ。」',
+          sweet:'「……いいよ。いくらでも。……{d}が聞きたいなら、全部。」',
+          bright:'「うん！ ……なんか、うれしいな。{fp}、調子出てきた！」',
+          cool:'「……そう、ですか。……では、少しだけ。……あなたに、なら。」',
+          myst:'「……ふ、そう来るんだ。……いいよ。……{d}になら、全部。」'
+        }
+      },
+      {
+        t:'強がって、照れ隠しをする', s:'「別に」と、そらす',
+        nar:'照れくさくて、つい、そらした。「……別に、なんでもない」——声が、少しだけ裏返った。言ったそばから、後悔した。',
+        dlg:{
+          tsun:'「……なんだよ、その言い方。……ばれっばれだぞ。」',
+          sweet:'「……ふふ、強がらなくていいのに。……{d}、顔、赤いよ。」',
+          bright:'「あはは、今の、ぜんぜん平気じゃないじゃん！ かわい〜！」',
+          cool:'「……そうですか。……では、{fp}も、なにも見なかったことに。」',
+          myst:'「……嘘、つくの下手だね。……{d}。」'
+        }
+      }
+    ],
+    [
+      {
+        t:'自分から、手を伸ばす', s:'指先から、ふれる',
+        nar:'自分から、手を伸ばした。指先が、その手に触れて、少しだけ、止まる。この一歩が、こわくて、うれしい。',
+        dlg:{
+          tsun:'「……っ、お前から、来るのかよ。……そういうのは、ずるいって言ってんだろ。」',
+          sweet:'「……うん。……こういうの、待ってた。」',
+          bright:'「わ、……えへへ、{fp}から行くよ。……つかまえた。」',
+          cool:'「……驚きました。……でも、嫌では、ありません。」',
+          myst:'「……{fp}から行くべきだったね。……遅れた、{d}。」'
+        }
+      },
+      {
+        t:'何も言えずに、うつむく', s:'袖の端を、握るだけ',
+        nar:'言いたいことが、喉の奥で止まっている。結局、うつむいたまま、袖の端を握っただけだった。言いたいのに、言えない。',
+        dlg:{
+          tsun:'「……なに、黙ってんだよ。……言いたいこと、あるなら、言えよ。……待つから。」',
+          sweet:'「……いいよ。急がなくて。……{d}のペースで、話して。」',
+          bright:'「……どうしたの？ ……ね、{fp}、待ってるから。ゆっくりでいいよ。」',
+          cool:'「……無理に、話さなくて大丈夫です。……ここにいますので。」',
+          myst:'「……そのままでもいい。……{d}が話すまで、待つよ。」'
+        }
+      }
+    ]
+  ];
+
+  /* ステップ4：結末（締めの地の文は場所・時間を名指ししない） */
+  var CM_ENDS = [
+    [
+      {
+        t:'甘くとろけるハッピーエンド', s:'指と指が、絡んだまま', mood:'amai',
+        nar:'その一言が、ゆっくり、胸の奥まで届く。この人の言葉を、ひとつも聞き逃したくないと思った。',
+        dlg:{
+          tsun:'「……好きだ。……逃がさねえから、覚悟しろ。」',
+          sweet:'「……もう離さない。……{d}、ずっと、{fp}のそばにいて。」',
+          bright:'「……{fp}、本気だからね！ ……{d}のこと、離したくないんだ。」',
+          cool:'「……愛しています。……離したくない。……そう言ったら、困りますか。」',
+          myst:'「……{d}。……{fp}のものになって。……それだけが、願い。」'
+        },
+        end:'気づけば、指と指が絡んでいた。離したくなくて、離さなかった。この人の隣が、これから先も、ずっと。',
+        titles:['きみの隣が、いちばんあたたかい','その手を、離さないで','特別じゃない日に、いちばん愛しい']
+      },
+      {
+        t:'胸がぎゅっとする、切ない余韻', s:'言えない言葉が、ひとつ増える', mood:'setsunai',
+        nar:'その言葉の、先を、待ってしまった。けれど、続きは、来なかった。',
+        dlg:{
+          tsun:'「……言えてたら、なにか変わったのかな。……なんて、今さらだよな。」',
+          sweet:'「……言いたいことは、山ほどあるよ。……でも、今は、やめておく。」',
+          bright:'「……なんでもない！ ……ほんとに、なんでもないんだ。……たぶん。」',
+          cool:'「……言葉にすると、壊れてしまいそうで。……今は、まだ。」',
+          myst:'「……言わない。……言ったら、{d}、困るだろ。」'
+        },
+        end:'「またね」と、小さく手を振った。言えなかった言葉は、ひとつ増えたまま、今日が終わる。それでも、この時間だけは、確かに、ふたりのものだった。',
+        titles:['言えなかった、ひとこと','その先の、言葉','余韻だけが、残る']
+      }
+    ],
+    [
+      {
+        t:'ふたりで、これからの約束', s:'「来週も」と、軽い約束', mood:'amai',
+        nar:'「これから、どうする？」——言葉にしたら、なんだか、少しだけ笑えた。その言い方が、なぜか、うれしかった。',
+        dlg:{
+          tsun:'「……来週も、空けとけよ。……断るな。」',
+          sweet:'「これから先の予定、ぜんぶ、{d}と一緒に決めたい。」',
+          bright:'「じゃあ、来週はどこ行く？ ……{fp}、もう考えてあるんだ！」',
+          cool:'「……次のご予定も、{fp}に、入れさせてください。」',
+          myst:'「……これからの話を、しようか。……{d}の予定に、{fp}を混ぜて。」'
+        },
+        end:'「じゃあ、来週も」と、軽い約束をした。それだけで、世界が少しだけ明るくなる。楽しみが、ひとつ増えただけなのに。',
+        titles:['これからの、ふたり','来週も、その次も','約束の、続き']
+      },
+      {
+        t:'今だけの、ふたりの秘密', s:'「内緒ね」と笑って', mood:'yonaka',
+        nar:'気づけば、もう、こんな時間だった。名残惜しさを、隠すように笑った。',
+        dlg:{
+          tsun:'「……今日のこと、誰にも言うなよ。……ふたりだけの、秘密だ。」',
+          sweet:'「今日のことは、ふたりの秘密にしよう。……ね、{d}。」',
+          bright:'「ねえ、今日のこと、内緒にしよ？ ……{fp}だけの、宝物！」',
+          cool:'「……今日のことは、ここだけに。……{fp}の、大事な記憶です。」',
+          myst:'「……今日のことは、秘密だよ。……{d}と、{fp}だけの。」'
+        },
+        end:'秘密は、人に言えないだけで、消えはしない。胸の奥で、ずっと、あたたかいままだ。',
+        titles:['ふたりだけの、秘密','内緒の、今日','誰にも言えない、今日のこと']
+      }
+    ]
+  ];
+
+  /* 場面と場面をつなぐ、短い心の声 */
+  var CM_BEATS = [
+    '胸の奥が、ざわついた。',
+    'この距離が、もどかしくて、愛しい。',
+    '言葉にできないものが、喉の奥で渦を巻いている。',
+    'この時間が、ずっと続けばいいのに。',
+    '鼓動が、ひとつ、大きくなった。'
+  ];
+
+  /* 結末の直前、余韻をつくる短い一文 */
+  var CM_BEATS2 = [
+    'ふたりの間に、しばらく、やわらかい沈黙が流れた。',
+    'うまく返せないまま、くすりと笑ってしまった。',
+    'この人と話している時間は、どうしてこんなに早いんだろう。'
+  ];
+
+  /* ------------------------------------------------------------------
      utils
      ------------------------------------------------------------------ */
   var $ = function(s, r){ return (r || document).querySelector(s); };
@@ -1510,6 +1938,10 @@
 
   /* ---------- text page ---------- */
   function metaLine(){
+    if(current && current.mode === 'choice'){
+      return getTone(cfg.tone).name + ' ｜ ' + (MOOD_NAMES[current.mood] || '') + ' ｜ '
+        + REL_NAMES[cfg.rel] + ' ｜ 二択で作成';
+    }
     var mood = (current && current.mood) ? MOOD_NAMES[current.mood]
       : (cfg.mood === 'random' ? 'おまかせ' : MOOD_NAMES[cfg.mood]);
     return getTone(cfg.tone).name + ' ｜ ' + mood + ' ｜ ' + REL_NAMES[cfg.rel] + ' ｜ ' + (cfg.length === 'long' ? '長編' : '短編');
@@ -1531,7 +1963,7 @@
 
   function doGenerate(isRegen){
     var g = generate(cfg);
-    current = { title: g.title, text: g.text, mood: g.mood, at: Date.now() };
+    current = { title: g.title, text: g.text, mood: g.mood, mode: '', at: Date.now() };
     $('#workTitle').textContent = current.title;
     $('#workMeta').textContent = metaLine();
     $('#novelText').value = current.text;
@@ -1543,6 +1975,216 @@
     showPage('text');
     toast(isRegen ? '別の展開にしたよ✨' : 'できたよ✨');
     window.scrollTo({ top:0 });
+  }
+
+  /* ---------- 二択でつくる ---------- */
+  var cmState = null, cmSaved = false;
+
+  function cmNewRun(){
+    var rel = CM_SCENES[cfg.rel] ? cfg.rel : 'koibito';
+    cmState = {
+      rel: rel,
+      pairs: [ rnd(CM_SCENES[rel]), rnd(CM_EVENTS), rnd(CM_ACTS), rnd(CM_ENDS) ],
+      relLine: rnd(CM_RELLINES[rel] || CM_RELLINES.koibito),
+      beat: rnd(CM_BEATS),
+      beat2: rnd(CM_BEATS2),
+      picks: [null, null, null, null],
+      title: ''
+    };
+    cmSaved = false;
+  }
+
+  function cmStepIndex(){
+    if(!cmState) return 0;
+    for(var i = 0; i < 4; i++){ if(!cmState.picks[i]) return i; }
+    return 4;
+  }
+
+  function cmParagraphs(){
+    var R = resolveNames(cfg), tone = getTone(cfg.tone), out = [], p = cmState.picks;
+    function line(opt){ return fill(opt.dlg[tone.id] || opt.dlg.tsun, R); }
+    if(p[0]){
+      out.push(fill(p[0].nar, R));
+      out.push(fill(cmState.relLine, R));
+    }
+    if(p[1]){
+      out.push(fill(p[1].nar, R) + line(p[1]));
+      out.push(fill(cmState.beat, R));
+    }
+    if(p[2]){
+      out.push(fill(p[2].nar, R) + line(p[2]));
+    }
+    if(p[3]){
+      out.push(fill(p[3].nar, R) + line(p[3]));
+      out.push(fill(cmState.beat2, R));
+      out.push(fill(p[3].end, R));
+    }
+    return out;
+  }
+
+  function cmRender(){
+    var step = cmStepIndex(), done = (step >= 4);
+    var paras = cmParagraphs(), text = paras.join('\n');
+
+
+    $('#cmCount').textContent = (done ? 4 : step + 1) + ' / 4';
+
+    var pills = $('#cmPills');
+    pills.innerHTML = '';
+    var pl = [], nm = (cfg.charName || '').trim();
+    if(nm) pl.push(nm);
+    pl.push(getTone(cfg.tone).name);
+    pl.push(REL_NAMES[cfg.rel] || '恋人');
+    pl.push('全4ステップ');
+    pl.forEach(function(t){
+      var s = document.createElement('span');
+      s.className = 'cm-pill';
+      s.textContent = t;
+      pills.appendChild(s);
+    });
+
+    var dots = $('#cmDots');
+    dots.innerHTML = '';
+    CM_STEPS.forEach(function(st, i){
+      var d = document.createElement('div');
+      d.className = 'cm-dot' + (cmState.picks[i] ? ' done' : '') + (!done && i === step ? ' now' : '');
+      d.textContent = st.mark + ' ' + st.label;
+      dots.appendChild(d);
+    });
+
+    var prev = $('#cmPrev'), box = $('#cmPrevBox');
+    var prevLabel = $('#cmPrevLabel');
+    if(prevLabel) prevLabel.textContent = done ? 'できあがった物語' : 'いまのあらすじ';
+    prev.innerHTML = '';
+    if(paras.length){
+      paras.forEach(function(t){
+        var d = document.createElement('div');
+        d.className = 'cm-p';
+        d.textContent = t;
+        prev.appendChild(d);
+      });
+      box.classList.toggle('big', done);
+    } else {
+      prev.textContent = 'まだ何も選んでいないよ。下の二択から、すきな方を選んでね。';
+      box.classList.remove('big');
+    }
+    $('#cmPrevLen').textContent = paras.length ? cpLen(text) + '字' : '';
+    var ph = $('#cmPrevHint');
+    if(ph) ph.hidden = !done;
+
+    var q = $('#cmQ'), qh = $('#cmQh'), opts = $('#cmOpts'), doneBox = $('#cmDone');
+
+    if(done){
+      q.style.display = 'none';
+      qh.style.display = 'none';
+      opts.style.display = 'none';
+      opts.innerHTML = '';
+      doneBox.hidden = false;
+      doneBox.style.order = '-1';
+      $('#cmDoneTitle').textContent = cmState.title || '無題';
+      $('#cmDoneMeta').textContent = getTone(cfg.tone).name + ' ｜ ' + (REL_NAMES[cfg.rel] || '') + ' ｜ ' + cpLen(text) + '字';
+      var sb = $('#cmToSave');
+      sb.textContent = cmSaved ? '📁 保存済み' : '📁 保存庫へ保存';
+      sb.disabled = !!cmSaved;
+    } else {
+      doneBox.hidden = true;
+      doneBox.style.order = '';
+      q.style.display = 'block';
+      opts.style.display = 'flex';
+      q.textContent = CM_STEPS[step].q;
+      qh.style.display = 'block';
+      qh.textContent = CM_STEPS[step].h;
+      opts.innerHTML = '';
+      cmState.pairs[step].forEach(function(opt, i){
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'cm-opt';
+        b.setAttribute('aria-label', (i === 0 ? 'A' : 'B') + ' ' + opt.t);
+        var mk = document.createElement('span'); mk.className = 'cm-optmark'; mk.textContent = i === 0 ? 'A' : 'B';
+        var bd = document.createElement('span'); bd.className = 'cm-optbody';
+        var t = document.createElement('b'); t.textContent = opt.t;
+        var s = document.createElement('small'); s.textContent = opt.s || '';
+        bd.appendChild(t); bd.appendChild(s);
+        var ar = document.createElement('span'); ar.className = 'cm-arrow'; ar.textContent = '›';
+        b.appendChild(mk); b.appendChild(bd); b.appendChild(ar);
+        b.addEventListener('click', function(){ cmChoose(step, opt); });
+        opts.appendChild(b);
+      });
+    }
+
+    var back = $('#cmBack');
+    back.disabled = (!done && step === 0);
+    back.textContent = done ? '← 結末を選び直す' : '← ひとつ戻る';
+    $('#cmFootNote').textContent = done
+      ? '選んだ4つの場面が、1本の物語になったよ'
+      : '雰囲気と長さは、選んだ二択で決まるよ';
+    var tip = $('#cmTip');
+    if(tip) tip.style.display = done ? 'none' : 'block';
+
+    if(done) $('#cmScroll').scrollTop = 0;
+    setTimeout(function(){
+      if(done){ prev.scrollTop = 0; return; }
+      var kids = prev.children, pr = prev.getBoundingClientRect(), top = prev.scrollHeight;
+      for(var i = kids.length - 1; i >= 0; i--){
+        var relTop = kids[i].getBoundingClientRect().top - pr.top + prev.scrollTop;
+        if(prev.scrollHeight - relTop <= prev.clientHeight){ top = relTop - 2; } else { break; }
+      }
+      prev.scrollTop = Math.max(0, top);
+    }, 0);
+  }
+
+  function cmChoose(step, opt){
+    var i;
+    cmState.picks[step] = opt;
+    for(i = step + 1; i < 4; i++){ cmState.picks[i] = null; }
+    if(step === 3){
+      cmState.title = rnd(opt.titles);
+      var text = cmParagraphs().join('\n');
+      current = { title: cmState.title, text: text, mood: opt.mood || 'amai', mode: 'choice', at: Date.now() };
+      $('#workTitle').textContent = current.title;
+      $('#workMeta').textContent = metaLine();
+      $('#novelText').value = current.text;
+      updateTextCount();
+      autoGrow();
+      updateTextState();
+      saveJSON('current', current);
+      updateTree();
+      cmSaved = false;
+    }
+    cmRender();
+  }
+
+  function cmBack(){
+    var step = cmStepIndex();
+    var target = (step >= 4) ? 3 : (step - 1);
+    if(target < 0) return;
+    for(var i = target; i < 4; i++){ cmState.picks[i] = null; }
+    cmState.title = '';
+    cmRender();
+  }
+
+  function cmOpen(){
+    cmNewRun();
+    $('#choiceModal').classList.add('open');
+    document.body.classList.add('cm-lock');
+    cmRender();
+    $('#cmScroll').scrollTop = 0;
+  }
+  function cmClose(){
+    $('#choiceModal').classList.remove('open');
+    document.body.classList.remove('cm-lock');
+  }
+  function cmAgain(){
+    cmNewRun();
+    $('#cmScroll').scrollTop = 0;
+    cmRender();
+  }
+  function cmSave(){
+    if(!current || current.mode !== 'choice' || !current.text){ toast('保存する物語がまだないよ'); return; }
+    if(cmSaved){ toast('もう保存庫に入ってるよ📁'); return; }
+    doSaveWork();
+    cmSaved = true;
+    cmRender();
   }
 
   /* ---------- tree ---------- */
@@ -1625,7 +2267,7 @@
         it.className = 'item';
         var t = document.createElement('div'); t.className = 'it'; t.textContent = w.title || '無題';
         var m = document.createElement('div'); m.className = 'im';
-        m.textContent = (w.mood ? MOOD_NAMES[w.mood] + '｜' : '') + fmtDate(w.at) + '・' + cpLen(w.text) + '字';
+        m.textContent = (w.mode === 'choice' ? '二択｜' : '') + (w.mood ? MOOD_NAMES[w.mood] + '｜' : '') + fmtDate(w.at) + '・' + cpLen(w.text) + '字';
         var ex = document.createElement('div'); ex.className = 'iex'; ex.textContent = w.text;
         var btns = document.createElement('div'); btns.className = 'ibtns';
         var open = document.createElement('button');
@@ -1683,7 +2325,7 @@
   }
 
   function loadWork(w){
-    current = { title: w.title, text: w.text, mood: w.mood, at: w.at };
+    current = { title: w.title, text: w.text, mood: w.mood, mode: w.mode || '', at: w.at };
     var base = Object.assign({}, DEFAULTS, w.cfg || {});
     cfg = base;
     saveJSON('cfg', cfg);
@@ -1715,6 +2357,7 @@
       title: (current.title || '').trim() || '無題',
       text: current.text,
       mood: current.mood,
+      mode: current.mode || '',
       cfg: { charName:cfg.charName, charLabel:cfg.charLabel, callName:cfg.callName,
              firstPerson:cfg.firstPerson, dreamerName:cfg.dreamerName, tone:cfg.tone,
              mood:cfg.mood, rel:cfg.rel, length:cfg.length, tagOn:cfg.tagOn, tags:cfg.tags },
@@ -1794,6 +2437,21 @@
     $('#copyTagBtn').addEventListener('click', function(){ copyText(cfg.tags || ''); });
     $('#goTreeBtn').addEventListener('click', function(){ showPage('tree'); });
     $('#treeEditBtn').addEventListener('click', function(){ showPage('text'); });
+
+    $('#choiceModeBtn').addEventListener('click', cmOpen);
+    $('#cmClose').addEventListener('click', cmClose);
+    $('#cmBack').addEventListener('click', cmBack);
+    $('#cmAgain').addEventListener('click', cmAgain);
+    $('#cmToSave').addEventListener('click', cmSave);
+    $('#cmToText').addEventListener('click', function(){
+      cmClose(); showPage('text'); toast('本文タブに開いたよ📖');
+    });
+    $('#cmToTree').addEventListener('click', function(){
+      cmClose(); showPage('tree'); toast('140字ツリーにしたよ🧵');
+    });
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape' && $('#choiceModal').classList.contains('open')) cmClose();
+    });
 
     $$('#tabbar button').forEach(function(b){
       b.addEventListener('click', function(){ showPage(b.getAttribute('data-tab')); });
