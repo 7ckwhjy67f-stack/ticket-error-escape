@@ -335,7 +335,7 @@
           <button class="sw on" id="tagSw" type="button" role="switch" aria-checked="true" aria-label="ハッシュタグをつける"></button>
           <div>
             <div class="swlbl" id="tagSwLbl">1本目の頭につける</div>
-            <div class="swhint">Xのツリー1本目にタグを入れます</div>
+            <div class="swhint" id="tagHint">Xのツリー1本目にタグを入れます</div>
           </div>
         </div>
         <div class="fl">
@@ -1114,13 +1114,18 @@
   function sentencesOf(text){
     var arr = Array.from(String(text)), out = [], buf = '', depth = 0;
     var closers = '」』）)】';
+    var keep = 'ともはがをにでへやかねよな、，,';
     for(var i = 0; i < arr.length; i++){
       var ch = arr[i];
       buf += ch;
       if(ch === '「' || ch === '『'){ depth++; continue; }
       if(ch === '」' || ch === '』'){
         depth = Math.max(0, depth - 1);
-        if(depth === 0){ out.push(buf); buf = ''; }
+        if(depth === 0){
+          /* セリフのあとに続く「と言って」などを切らない */
+          var nx = arr[i + 1];
+          if(nx === undefined || '。！？!?、，, '.indexOf(nx) >= 0){ out.push(buf); buf = ''; }
+        }
         continue;
       }
       if(depth === 0 && '。！？!?'.indexOf(ch) >= 0){
@@ -1326,6 +1331,8 @@
     sw.classList.toggle('on', !!cfg.tagOn);
     sw.setAttribute('aria-checked', cfg.tagOn ? 'true' : 'false');
     $('#tagSwLbl').textContent = cfg.tagOn ? '1本目の頭につける' : 'つけない';
+    var hint = $('#tagHint');
+    if(hint){ hint.textContent = cfg.tagOn ? 'Xのツリー1本目にタグを入れます' : '今回はタグを入れずに分割します'; }
   }
 
   function renderAll(){
