@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>オリジナル夢小説メーカー｜推しとの夢小説が140字ツリーでつくれる</title>
+<meta name="description" content="キャラと夢主を選ぶだけで、オリジナルの夢小説が完成。口調（ツンデレ・甘々・クールなど）×雰囲気×関係性から自動生成して、140字ずつのXツリーに自動分割。コピー＆ポストもワンタップ。保存庫つき・無料・スマホ縦画面対応。">
+<meta name="theme-color" content="#fff2f8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta property="og:title" content="オリジナル夢小説メーカー｜選ぶだけで夢小説ができる">
+<meta property="og:description" content="口調×雰囲気×関係性を選ぶだけで夢小説を自動生成。140字ずつのXツリーに自動分割して、コピー＆ポストもワンタップ。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://7ckwhjy67f-stack.github.io/ticket-error-escape/yume/">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23ffe4ef'/%3E%3Cpath d='M20 18h20a6 6 0 016 6v26H26a6 6 0 01-6-6V18z' fill='%23ff8fb8'/%3E%3Cpath d='M26 18v32' stroke='%23fff' stroke-width='3'/%3E%3Cpath d='M33 28h8M33 34h8' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --pink:#ff8fc7; --pink-d:#ef5a9e; --pink-soft:#fff2f8; --pink-line:#ffe0ee;
+    --lav:#b79cff; --lav-d:#8f74e8; --lav-soft:#f4f0ff;
+    --ink:#4a3b52; --ink2:#6b5b78; --muted:#9a8fa6; --line:#f0e6f6; --card:#ffffff;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;
+    color:var(--ink);
+    background:radial-gradient(120% 70% at 8% 0%,#ffe9f6 0%,#f4efff 46%,#fdf9ff 100%) fixed;
+    overflow-x:hidden;
+    padding-bottom:calc(78px + env(safe-area-inset-bottom));
+    -webkit-text-size-adjust:100%;
+    font-size:15px; line-height:1.6;
+  }
+  .app{max-width:480px; margin:0 auto}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:30; display:flex; align-items:center; gap:10px;
+    padding:calc(9px + env(safe-area-inset-top)) 14px 9px;
+    background:rgba(255,255,255,.86); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid rgba(183,156,255,.18);
+  }
+  .logo{
+    width:38px; height:38px; flex:0 0 38px; border-radius:13px; display:grid; place-items:center; font-size:20px;
+    background:linear-gradient(135deg,#ffd0e6,#d9ccff); box-shadow:0 4px 12px rgba(255,143,199,.3);
+  }
+  .titles{min-width:0; flex:1}
+  .titles h1{margin:0; font-size:14px; font-weight:800; letter-spacing:.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .titles p{margin:2px 0 0; font-size:10.5px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .dice{
+    flex:0 0 auto; border:1px solid #ffd5e8; background:#fff6fb; color:#d63d8b;
+    font-family:inherit; font-size:11.5px; font-weight:800; padding:8px 10px; border-radius:999px;
+    display:flex; align-items:center; gap:3px;
+  }
+  .dice:active{transform:scale(.96)}
+
+  main{padding:12px 12px 4px}
+  .page{display:none}
+  .page.active{display:block; animation:fade .18s ease-out}
+  @keyframes fade{from{opacity:.35; transform:translateY(5px)} to{opacity:1; transform:none}}
+
+  /* ---------- cards ---------- */
+  .card{
+    background:var(--card); border:1px solid #f6effc; border-radius:20px;
+    padding:13px 13px 14px; margin:0 0 11px;
+    box-shadow:0 6px 20px rgba(183,156,255,.10);
+  }
+  .cardhead{display:flex; align-items:center; gap:8px; margin-bottom:4px}
+  .num{
+    width:22px; height:22px; flex:0 0 22px; border-radius:8px; display:grid; place-items:center;
+    font-size:11.5px; font-weight:800; color:#8a5fb0;
+    background:linear-gradient(135deg,#ffd0e6,#d9ccff);
+  }
+  .cardhead h2{margin:0; font-size:13.5px; font-weight:800; letter-spacing:.01em}
+  .cardhead .sub{margin-left:auto; font-size:10.5px; color:var(--muted)}
+
+  .fl{display:block; margin-top:11px}
+  .flabel{display:block; font-size:11px; color:var(--muted); font-weight:700; margin-bottom:5px; letter-spacing:.02em}
+  input[type=text]{
+    width:100%; font-family:inherit; font-size:14px; color:var(--ink);
+    background:#fcfaff; border:1.5px solid #eee6fa; border-radius:12px; padding:10px 12px; outline:none;
+    transition:border-color .15s, background .15s;
+  }
+  input[type=text]::placeholder{color:#c3b7cf}
+  input[type=text]:focus{border-color:#dcc9ff; background:#fff}
+  textarea{
+    width:100%; font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;
+    font-size:14.5px; line-height:2.0; color:#3f3347; background:#fffdfe;
+    border:1.5px solid #efe6f8; border-radius:14px; padding:12px; outline:none; resize:vertical;
+    min-height:240px;
+  }
+  textarea:focus{border-color:#e2d3f8; background:#fff}
+
+  /* ---------- chips ---------- */
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:6px}
+  .chip{
+    font-family:inherit; font-size:12.5px; font-weight:700; color:var(--ink2);
+    background:#fff; border:1.5px solid #eee6fa; border-radius:999px; padding:7px 11px; line-height:1;
+    transition:all .12s;
+  }
+  .chip:active{transform:scale(.96)}
+  .chip.on{
+    border-color:var(--pink); color:#c33a7e;
+    background:linear-gradient(135deg,#ffe6f3,#f2ecff);
+    box-shadow:0 2px 8px rgba(255,143,199,.22);
+  }
+
+  /* ---------- tone list ---------- */
+  .tones{display:flex; flex-direction:column; gap:7px; margin-top:6px}
+  .tone{
+    display:flex; gap:9px; align-items:flex-start; text-align:left; font-family:inherit;
+    background:#fff; border:1.5px solid #eee6fa; border-radius:14px; padding:9px 11px; color:var(--ink);
+    transition:all .12s;
+  }
+  .tone:active{transform:scale(.99)}
+  .tone.on{border-color:var(--pink); background:linear-gradient(135deg,#fff7fb,#f7f3ff); box-shadow:0 3px 12px rgba(255,143,199,.18)}
+  .tone .tno{
+    width:18px; height:18px; flex:0 0 18px; border-radius:6px; display:grid; place-items:center;
+    font-size:10.5px; font-weight:800; color:#9a7bc4; background:#f5f0ff; margin-top:1px;
+  }
+  .tone.on .tno{background:linear-gradient(135deg,#ffb8dd,#c9b0ff); color:#fff}
+  .tone .tx b{display:block; font-size:12.8px; font-weight:800}
+  .tone .tx small{display:block; font-size:10.8px; color:var(--muted); margin-top:2px; line-height:1.45}
+
+  /* ---------- toggle ---------- */
+  .swrow{display:flex; align-items:center; gap:10px; margin-top:6px}
+  .sw{position:relative; width:46px; height:27px; flex:0 0 46px; border-radius:999px; background:#ece4f6; border:none; padding:0; transition:background .18s}
+  .sw::after{content:""; position:absolute; top:3px; left:3px; width:21px; height:21px; border-radius:50%; background:#fff; box-shadow:0 2px 5px rgba(120,90,160,.25); transition:transform .18s}
+  .sw.on{background:linear-gradient(135deg,#ffa8d2,#b79cff)}
+  .sw.on::after{transform:translateX(19px)}
+  .swlbl{font-size:12.5px; font-weight:700; color:var(--ink2)}
+  .swhint{font-size:10.5px; color:var(--muted); margin-top:2px}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    font-family:inherit; font-size:13.5px; font-weight:800; color:var(--ink2);
+    background:#fff; border:1.5px solid #eee6fa; border-radius:14px; padding:12px; line-height:1;
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .btn:active{transform:scale(.98)}
+  .btn.primary{
+    color:#fff; border:none;
+    background:linear-gradient(135deg,#ff9fd0,#c39dff);
+    box-shadow:0 7px 20px rgba(255,143,199,.35);
+  }
+  .btn.big{padding:15px; font-size:14.5px; border-radius:16px; width:100%}
+  .btn.w100{width:100%}
+  .btnrow{display:flex; gap:8px; margin:9px 0 0}
+  .btnrow .btn{flex:1}
+  .hint{font-size:10.8px; color:var(--muted); line-height:1.55; margin:9px 0 0; text-align:center}
+
+  /* ---------- summary ---------- */
+  .sumline{
+    display:flex; flex-wrap:wrap; gap:5px; margin:2px 0 10px;
+  }
+  .sumpill{font-size:10.5px; font-weight:800; color:#8a5fb0; background:#f6f1ff; border-radius:999px; padding:4px 9px}
+
+  /* ---------- text page ---------- */
+  .workhead{margin:2px 2px 10px}
+  .wtitle{
+    font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;
+    font-size:17px; font-weight:800; line-height:1.5; color:#463552;
+    outline:none; border-radius:8px; padding:1px 3px; margin:-1px -3px;
+  }
+  .wtitle:focus{ background:#fff7fc; box-shadow:0 0 0 2px #ffe0ee inset; }
+  .wmeta{font-size:10.8px; color:var(--muted); margin-top:4px}
+  .cntrow{display:flex; align-items:center; justify-content:space-between; margin-top:7px; font-size:11px; color:var(--muted)}
+  .cntrow b{color:#a87fd0; font-size:12px}
+
+  /* ---------- tree parts ---------- */
+  .ph{display:flex; align-items:center; gap:8px; margin:0 2px 8px}
+  .ph h2{margin:0; font-size:13.5px; font-weight:800}
+  .ph .tail{margin-left:auto; font-size:11px; color:var(--muted); font-weight:700}
+  .part{
+    background:#fff; border:1.5px solid #f2e9fa; border-radius:16px; padding:11px 12px 11px;
+    margin-bottom:9px; box-shadow:0 3px 12px rgba(183,156,255,.07);
+  }
+  .phead{display:flex; align-items:center; gap:7px; margin-bottom:7px}
+  .pno{font-size:10.5px; font-weight:800; color:#9b7ccc; background:#f5f0ff; border-radius:999px; padding:3px 9px}
+  .badge{font-size:10.5px; font-weight:800; border-radius:999px; padding:3px 8px; margin-left:auto; background:#eafaf1; color:#26936a}
+  .badge.warn{background:#fff6e5; color:#c1871b}
+  .badge.over{background:#ffeaf0; color:#d63d6b}
+  .ptext{
+    font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;
+    font-size:14px; line-height:1.95; color:#3f3347; white-space:pre-wrap; word-break:break-word;
+  }
+  .ptext .tag{color:#b07ad6; font-weight:700}
+  .pbtns{display:flex; gap:7px; margin-top:9px}
+  .pbtn{
+    flex:1; font-family:inherit; font-size:12px; font-weight:800; padding:9px; line-height:1;
+    border-radius:11px; border:1.5px solid #eee6fa; background:#fdfbff; color:var(--ink2);
+    display:inline-flex; align-items:center; justify-content:center; gap:4px;
+  }
+  .pbtn:active{transform:scale(.97)}
+  .pbtn.x{border-color:#e3dcf5; background:#f7f4ff; color:#4b3d63}
+
+  /* ---------- vault ---------- */
+  .sect{display:flex; align-items:center; gap:8px; margin:4px 2px 8px}
+  .sect h2{margin:0; font-size:13.5px; font-weight:800}
+  .sect .n{margin-left:auto; font-size:10.8px; color:var(--muted)}
+  .item{
+    background:#fff; border:1.5px solid #f4ecfb; border-radius:15px; padding:11px 12px; margin-bottom:9px;
+  }
+  .item .it{font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif; font-size:13.5px; font-weight:800; line-height:1.45; color:#463552}
+  .item .im{font-size:10.5px; color:var(--muted); margin-top:3px}
+  .item .iex{font-size:11.5px; color:#7c6b88; margin-top:6px; line-height:1.6; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+  .item .ibtns{display:flex; gap:6px; margin-top:9px}
+  .mini{
+    width:34px; height:31px; flex:0 0 34px; border-radius:10px; border:1.5px solid #eee6fa; background:#fdfbff;
+    font-size:13px; display:grid; place-items:center; color:var(--ink2); font-family:inherit;
+  }
+  .mini.wide{width:auto; flex:1; font-size:11.5px; font-weight:800; padding:0 10px; gap:4px; display:flex; align-items:center; justify-content:center}
+  .mini:active{transform:scale(.96)}
+  .empty{
+    text-align:center; color:var(--muted); font-size:12px; line-height:1.9; padding:24px 14px;
+    background:#fff; border:1.5px dashed #f0e4fa; border-radius:16px;
+  }
+
+  /* ---------- tabbar ---------- */
+  .tabbar{
+    position:fixed; left:0; right:0; bottom:0; z-index:40;
+    display:flex; padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+    background:rgba(255,255,255,.92); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border-top:1px solid rgba(183,156,255,.16);
+  }
+  .tabbar button{
+    flex:1; border:none; background:none; font-family:inherit; color:#a89cb4;
+    font-size:10px; font-weight:800; padding:5px 0 3px; display:flex; flex-direction:column; align-items:center; gap:2px;
+  }
+  .tabbar button .ti{font-size:19px; line-height:1.1; filter:grayscale(.55); opacity:.8}
+  .tabbar button.active{color:#d04a92}
+  .tabbar button.active .ti{filter:none; opacity:1; transform:translateY(-1px)}
+  .tabbar .cnt{
+    position:absolute; top:2px; right:22%; font-size:9px; font-weight:800; color:#fff;
+    background:var(--pink); border-radius:999px; padding:1px 5px; display:none;
+  }
+  .tabbar .cnt.show{display:block}
+
+  /* ---------- toast ---------- */
+  #toast{
+    position:fixed; left:50%; bottom:calc(88px + env(safe-area-inset-bottom)); transform:translate(-50%,14px);
+    background:rgba(74,59,82,.94); color:#fff; font-size:12.5px; font-weight:700;
+    padding:10px 16px; border-radius:999px; opacity:0; pointer-events:none; transition:all .22s; z-index:60;
+    max-width:80vw; text-align:center;
+  }
+  #toast.show{opacity:1; transform:translate(-50%,0)}
+
+  .links{display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin:16px 0 6px}
+  .links a{
+    font-size:10.5px; font-weight:700; color:#9a7bc4; text-decoration:none;
+    background:#fff; border:1px solid #f0e6fa; border-radius:999px; padding:6px 10px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="logo">🌙</div>
+    <div class="titles">
+      <h1>オリジナル夢小説メーカー</h1>
+      <p>選ぶだけで、きみとあの人の物語。</p>
+    </div>
+    <button class="dice" id="diceBtn" type="button">🎲<span>おまかせ</span></button>
+  </header>
+
+  <main>
+    <!-- ============ つくる ============ -->
+    <section class="page active" id="page-make">
+      <div class="sumline" id="sumLine"></div>
+
+      <div class="card">
+        <div class="cardhead"><span class="num">1</span><h2>キャラクター</h2><span class="sub">プリセット or 自由入力</span></div>
+
+        <label class="fl">
+          <span class="flabel">キャラ名</span>
+          <input type="text" id="charName" maxlength="20" placeholder="例：茨木、先生、はる" autocomplete="off">
+        </label>
+
+        <div class="fl">
+          <span class="flabel">表記（本文での呼ばれ方）</span>
+          <input type="text" id="charLabel" maxlength="12" placeholder="例：彼、izm" autocomplete="off">
+          <div class="chips" id="labelChips"></div>
+        </div>
+
+        <div class="fl">
+          <span class="flabel">夢主がキャラを呼ぶとき</span>
+          <input type="text" id="callName" maxlength="14" placeholder="例：〇〇くん、先輩" autocomplete="off">
+          <div class="chips" id="callChips"></div>
+        </div>
+
+        <div class="fl">
+          <span class="flabel">キャラの一人称</span>
+          <input type="text" id="firstPerson" maxlength="10" placeholder="例：俺、ぼく、己" autocomplete="off">
+          <div class="chips" id="fpChips"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="cardhead"><span class="num">2</span><h2>夢主（きみ）</h2></div>
+        <label class="fl">
+          <span class="flabel">夢主の呼ばれ方（キャラが名前を呼ぶときに使うよ）</span>
+          <input type="text" id="dreamerName" maxlength="12" placeholder="空欄なら口調に合わせて「お前」「きみ」など" autocomplete="off">
+          <div class="chips" id="dnChips"></div>
+        </label>
+      </div>
+
+      <div class="card">
+        <div class="cardhead"><span class="num">3</span><h2>口調タイプ</h2></div>
+        <div class="tones" id="toneList"></div>
+      </div>
+
+      <div class="card">
+        <div class="cardhead"><span class="num">4</span><h2>シチュエーション</h2></div>
+
+        <div class="fl">
+          <span class="flabel">雰囲気</span>
+          <div class="chips" id="moodChips"></div>
+        </div>
+
+        <div class="fl">
+          <span class="flabel">関係性</span>
+          <div class="chips" id="relChips"></div>
+        </div>
+
+        <div class="fl">
+          <span class="flabel">長さ</span>
+          <div class="chips" id="lenChips"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="cardhead"><span class="num">5</span><h2>ハッシュタグ</h2></div>
+        <div class="swrow">
+          <button class="sw on" id="tagSw" type="button" role="switch" aria-checked="true" aria-label="ハッシュタグをつける"></button>
+          <div>
+            <div class="swlbl" id="tagSwLbl">1本目の頭につける</div>
+            <div class="swhint">Xのツリー1本目にタグを入れます</div>
+          </div>
+        </div>
+        <label class="fl">
+          <span class="flabel">タグ（自由に編集）</span>
+          <input type="text" id="tags" maxlength="80" placeholder="#enstプラス #夢小説" autocomplete="off">
+          <div class="chips" id="tagChips"></div>
+        </label>
+      </div>
+
+      <button class="btn primary big" id="generateBtn" type="button">✨ 夢小説をつくる</button>
+      <div class="btnrow">
+        <button class="btn" id="saveCharBtn" type="button">💾 このキャラ設定を保存</button>
+      </div>
+      <p class="hint">生成のたびに展開が変わります。「🔄 別の展開」で何度でも作り直せるよ。</p>
+
+      <div class="links">
+        <a href="../emoji/">ホビ垢ツイートメーカー</a>
+        <a href="../trade/">お取引文章ジェネレーター</a>
+        <a href="../tree/">ダンシングツリー</a>
+      </div>
+    </section>
+
+    <!-- ============ 本文 ============ -->
+    <section class="page" id="page-text">
+      <div id="textEmpty" class="empty">
+        <div style="font-size:30px; margin-bottom:6px">📖</div>
+        まだ物語がないよ。<br>「つくる」タブで設定して、<br>「✨ 夢小説をつくる」を押してみてね。
+      </div>
+
+      <div id="textBody" style="display:none">
+        <div class="workhead">
+          <div class="wtitle" id="workTitle" contenteditable="true" spellcheck="false" role="textbox" aria-label="作品タイトル（編集できます）"></div>
+          <div class="wmeta" id="workMeta"></div>
+          <div style="font-size:10px;color:#bda9cb;margin-top:2px">タイトルはタップで変えられるよ</div>
+        </div>
+
+        <div class="card">
+          <div class="cardhead"><span class="num">✏️</span><h2>本文</h2><span class="sub">タップして手直しOK</span></div>
+          <textarea id="novelText" spellcheck="false" aria-label="本文（編集できます）"></textarea>
+          <div class="cntrow"><span>そのまま直せます（改行＝段落）</span><span><b id="textCount">0</b> 字</span></div>
+        </div>
+
+        <button class="btn primary big" id="regenBtn" type="button">🔄 別の展開を生成</button>
+        <div class="btnrow">
+          <button class="btn" id="copyAllBtn2" type="button">📋 全文コピー</button>
+          <button class="btn" id="saveWorkBtn" type="button">📁 保存庫へ</button>
+        </div>
+        <div class="btnrow">
+          <button class="btn" id="goTreeBtn" type="button">🧵 140字ツリーを見る</button>
+        </div>
+        <p class="hint">編集した内容は「🧵 ツリー」タブにそのまま反映されます。</p>
+      </div>
+    </section>
+
+    <!-- ============ ツリー ============ -->
+    <section class="page" id="page-tree">
+      <div id="treeEmpty" class="empty">
+        <div style="font-size:30px; margin-bottom:6px">🧵</div>
+        分割する物語がまだないよ。<br>まずは「つくる」で生成してみてね。
+      </div>
+
+      <div id="treeBody" style="display:none">
+        <div class="card" style="padding-bottom:12px">
+          <div class="ph" style="margin-bottom:6px"><h2>🧵 140字ツリー</h2><span class="tail" id="partCount"></span></div>
+          <p class="hint" style="text-align:left; margin:0 0 10px">文章は削らず、句点・段落の切れ目で自動分割。1本目から順にポストしてね。</p>
+          <button class="btn primary w100" id="copyAllBtn" type="button">📄 全文まとめてコピー</button>
+          <div style="display:flex; gap:7px; margin-top:7px">
+            <button class="btn" id="copyTagBtn" type="button" style="flex:1"># タグだけコピー</button>
+            <button class="btn" id="treeEditBtn" type="button" style="flex:1">✏️ 本文を直す</button>
+          </div>
+        </div>
+        <div id="parts"></div>
+        <p class="hint">𝕏 ポストでXの投稿画面が開きます（本文は自動で入ります）</p>
+      </div>
+    </section>
+
+    <!-- ============ 保存庫 ============ -->
+    <section class="page" id="page-vault">
+      <div class="sect"><h2>📚 保存した作品</h2><span class="n" id="workCount"></span></div>
+      <div id="workList"></div>
+
+      <div class="sect" style="margin-top:18px"><h2>👤 保存したキャラ設定</h2><span class="n" id="charCount"></span></div>
+      <div id="charList"></div>
+
+      <p class="hint">保存したものは、このスマホの中（ブラウザのlocalStorage）に残ります。<br>ブラウザのデータを消すと一緒に消えるので気をつけてね。</p>
+    </section>
+  </main>
+</div>
+
+<nav class="tabbar" id="tabbar">
+  <button class="active" type="button" data-tab="make"><span class="ti">✍️</span>つくる</button>
+  <button type="button" data-tab="text"><span class="ti">📖</span>本文</button>
+  <button type="button" data-tab="tree"><span class="ti">🧵</span>ツリー</button>
+  <button type="button" data-tab="vault"><span class="ti">📁</span>保存庫</button>
+</nav>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =======================================================================
+   オリジナル夢小説メーカー  engine
+   ======================================================================= */
+(function(){
+  'use strict';
+
+  /* ------------------------------------------------------------------
+     DATA
+     ------------------------------------------------------------------ */
+  var TONES = [
+    {
+      id:'tsun', name:'ツンデレ・塩対応', desc:'素直じゃないのに、不器用に優しい', fp:'俺', generic:'お前',
+      lines:{
+        soft:[
+          '「……手、冷てえな。ちょっと貸せ。」',
+          '「{d}、ちゃんと飯食ったか。……嘘つくなよ、顔見りゃ分かる。」',
+          '「ほら、これ。……余計なこと言うなよ。」'
+        ],
+        tease:[
+          '「{d}って、ほんと分かりやすいよな。……顔に出てる。」',
+          '「そんなに{fp}のこと見て、なんかあんの？」',
+          '「……なに照れてんだよ。気持ち悪い。」'
+        ],
+        tender:[
+          '「……悪かったな。……その、心配したんだよ。」',
+          '「{fp}は、お前がいないと調子狂うんだよ。……責任取れよ。」',
+          '「一回だけだ。……手、繋いでやる。」'
+        ],
+        cover:[
+          '「……勘違いすんなよ。誰でもよかっただけだ。」',
+          '「べ、別に。お前のためじゃねえし。」',
+          '「……今の、忘れろ。聞かなかったことにしろ。」'
+        ],
+        stub:[
+          '「……悪いと思ってねえわけじゃねえよ。口が、先に出ただけだ。」',
+          '「先に謝ったほうが負け、とか。……くだらねえこと、考えてた。」',
+          '「{d}が悪い。……いや、違う。……ごめん。」'
+        ],
+        confess:[
+          '「……好きだ。一回言ったら、逃がさねえからな。」',
+          '「{d}じゃなきゃ、だめなんだよ。……ほんと、めんどくせえ。」',
+          '「ずっと前からだ。……ずっと、お前だけ。」'
+        ]
+      }
+    },
+    {
+      id:'sweet', name:'甘々スパダリ', desc:'とにかく甘い。ぜったいに逃がさない', fp:'俺', generic:'きみ',
+      lines:{
+        soft:[
+          '「疲れたね。今日はもう、なにもしなくていいよ。」',
+          '「寒くない？ ……こっち、おいで。」',
+          '「{d}、手が冷たい。……{fp}が温めてあげる。」'
+        ],
+        tease:[
+          '「そんな顔されたら、我慢できなくなるよ。」',
+          '「{d}は、ほんとにずるいね。……そういうとこ。」',
+          '「ねえ、今なに考えてたの。……{fp}のこと？」'
+        ],
+        tender:[
+          '「ずっと味方だよ。……どんなときも、{d}の。」',
+          '「{d}のためなら、なんだってするよ。」',
+          '「……だいすき。何回言っても、足りないくらい。」'
+        ],
+        cover:[
+          '「……いや、なんでもないよ。忘れて。」',
+          '「今のは、なし。……まだ早かったね。」',
+          '「……ふふ、冗談。……半分は、ほんとだけど。」'
+        ],
+        stub:[
+          '「……ごめん。言いすぎた。……{fp}のほうが、幼かったね。」',
+          '「謝りたいのに、うまく言葉にならない。……ずっと、考えてた。」',
+          '「{d}を傷つけるつもりは、なかったんだ。……ほんとに。」'
+        ],
+        confess:[
+          '「好きだよ、{d}。……ずっと、{fp}だけのものになって。」',
+          '「結婚、いつにする？ ……{fp}は、本気だよ。」',
+          '「……もう離さない。覚悟して、{d}。」'
+        ]
+      }
+    },
+    {
+      id:'bright', name:'朗らか・人懐っこい', desc:'太陽みたい。笑顔でぐいぐい来る', fp:'俺', generic:'きみ',
+      lines:{
+        soft:[
+          '「おつかれ！ ……って、顔疲れてるよ。ちょっと座ろ？」',
+          '「はい、これ。あったかいやつ。飲んで元気出そ！」',
+          '「ねえ、{fp}と話すと元気出るんだって。……ほんとだよ？」'
+        ],
+        tease:[
+          '「{d}、今ちょっと照れたでしょ。見た見た〜！」',
+          '「ねえねえ、{fp}のこと好きって言ってよ。……冗談だよ、たぶん。」',
+          '「そんなに見てたら、勘違いしちゃうよ？」'
+        ],
+        tender:[
+          '「{fp}さ、{d}が笑ってるときが、いちばん好きなんだ。」',
+          '「なんでも言ってよ。……{fp}、けっこう役に立つんだから。」',
+          '「……だいすき！ 言葉にしないと、伝わらないでしょ？」'
+        ],
+        cover:[
+          '「……へへ、今のなし！ 勢いで言っちゃった。」',
+          '「あはは、冗談冗談！ ……たぶんね。」',
+          '「え、なに？ {fp}、なんか変なこと言った？」'
+        ],
+        stub:[
+          '「……ごめん！ 先に言う！ {fp}が悪かった！」',
+          '「あのね、さっきの……{fp}、言いすぎた。ごめんね。」',
+          '「怒ってる？ ……怒ってるよね。ごめん。」'
+        ],
+        confess:[
+          '「……本気だからね、これ。{fp}は、{d}がいいの。」',
+          '「ずっと好きだったんだ。……笑わないでよ？」',
+          '「ねえ、{fp}でいい？ ずっと一緒にいてくれない？」'
+        ]
+      }
+    },
+    {
+      id:'cool', name:'クール・敬語', desc:'淡々としてるのに、目が少し逸れる', fp:'私', generic:'あなた',
+      lines:{
+        soft:[
+          '「お疲れさまです。……少し、休んでください。」',
+          '「冷えていますね。……どうぞ、こちらを。」',
+          '「無理をなさる必要はありません。……{fp}が、ここにいますので。」'
+        ],
+        tease:[
+          '「……そういう顔をされるのは、得意ではありません。」',
+          '「見すぎです。……{fp}のほうが、困ります。」',
+          '「{dさん}は、ずるい方ですね。」'
+        ],
+        tender:[
+          '「……あなたが、大切です。言葉にすると、少し照れますが。」',
+          '「{fp}の優先事項は、あなたです。……それだけです。」',
+          '「……離れたくない。……珍しく、本音です。」'
+        ],
+        cover:[
+          '「……失礼しました。今の言葉は、忘れてください。」',
+          '「……いえ、なんでもありません。」',
+          '「感情的なことを言いました。……聞かなかったことに。」'
+        ],
+        stub:[
+          '「……先ほどは、失礼な物言いをしました。申し訳ありません。」',
+          '「謝罪します。……言い訳は、しません。」',
+          '「……{fp}が、間違っていました。」'
+        ],
+        confess:[
+          '「……愛しています。こういう言葉は、慣れていませんが。」',
+          '「あなたと、共にいたい。……お願いします。」',
+          '「……すべてを差し出しても惜しくない。あなたに対しては。」'
+        ]
+      }
+    },
+    {
+      id:'myst', name:'ミステリアス・大人系', desc:'余裕と、ほんの少しの危うさ', fp:'俺', generic:'きみ',
+      lines:{
+        soft:[
+          '「……眠れないの？ なら、少し話そうか。」',
+          '「そのままでいい。……動かないで。」',
+          '「……{d}、息、止まってるよ。」'
+        ],
+        tease:[
+          '「……そうやって、試すんだ。」',
+          '「{d}は、{fp}のペースを乱す子だね。」',
+          '「……その目、危ないよ。」'
+        ],
+        tender:[
+          '「……{d}と話す夜は、嫌いじゃない。……いや、好きだな。」',
+          '「……ずっと、そばにいて。……それだけが、{fp}の我儘。」',
+          '「……知ってる？ {fp}、{d}には甘いんだ。」'
+        ],
+        cover:[
+          '「……ふ、今のなし。忘れて。」',
+          '「……酔ってるのかもしれない。{fp}のほうが。」',
+          '「……こういうのは、まだ早いね。」'
+        ],
+        stub:[
+          '「……悪かったよ。言いすぎた。」',
+          '「……謝るのが、こんなに難しいとは思わなかった。」',
+          '「……ごめん。それだけは、先に言っておく。」'
+        ],
+        confess:[
+          '「……好きだよ。……だから、困ってる。」',
+          '「……{fp}のものになればいい。……なんて、言ったら逃げる？」',
+          '「……ずっと、前から。……{d}だけ、見てた。」'
+        ]
+      }
+    }
+  ];
+
+  var MOOD_NAMES = {
+    amai:'甘い・溺愛', setsunai:'切なくて甘い', kataomoi:'両片思い・じれったい',
+    kenka:'ケンカ→仲直り', yonaka:'深夜のふたりきり'
+  };
+
+  var REL_NAMES = { koibito:'恋人', kataomoi_rel:'片思い・お隣さん', osananajimi:'幼馴染', shigoto:'仕事仲間・先輩後輩' };
+
+  /* 情景（場所）だけが場面固有。地の文は場所に依存しないように書いてある */
+  var MOODS = {
+    amai:{
+      scene:[
+        '休日の午後。カーテン越しの光が、部屋いっぱいにやわらかく溶けている。ソファの端と端、手のひらひとつぶんの距離。',
+        '夜の街は、もうすっかり冷えていた。マフラーに半分顔をうずめて歩く肩に、あたたかいコートがふわりと掛けられる。',
+        '少し贅沢な夕食のあと。片づけようとした手を、そっと包んで止められた。',
+        '雨上がりの帰り道。濡れたアスファルトに、ふたりぶんの影が並んで落ちている。'
+      ],
+      mid:[
+        '隣が、いつもより近い。',
+        '沈黙が、気まずくない。むしろ、心地いい。',
+        'ふと見上げた横顔が、こちらのほうを向いていた。',
+        '言いかけた言葉が、肩に触れた手のせいで、消えてしまった。',
+        'ふいに、足が止まった。'
+      ],
+      beat:[
+        'その声が、耳の奥でゆっくり溶けていく。',
+        '指先が、かすかに震えた。',
+        '空気が、すこしだけ、あたたかくなる。',
+        '鼓動が、ひとつ、大きくなった。',
+        'その距離が、うれしかった。'
+      ],
+      detail:[
+        'ポケットの中の指先が、そっと、こちらの手を探している。',
+        'その温度が、ゆっくり広がっていく。',
+        '「……なに笑ってんの」と、少しだけ不機嫌な声。',
+        '名前を呼ばれるだけで、こんなに嬉しいなんて知らなかった。',
+        'このまま、時計が止まればいいのに。'
+      ],
+      extra:[
+        '「はい」と差し出された温かい飲みものを、両手で包む。なぜか、こちらの好みどおりだった。',
+        'いつもより、少しだけ、世界が明るく見える。そんな夜だった。',
+        'さっきまで話していた内容を、ひとつも覚えていない。覚えているのは、その声の温度だけ。'
+      ],
+      event:[
+        '時計の針が、思ったより進んでいた。',
+        '「まだ帰りたくない」——口に出したのは、どちらだっただろう。',
+        '「もう少しだけ」と、どちらからともなく、足を止めた。'
+      ],
+      react:[
+        'その声に、頬がゆるむのが止められない。',
+        'うまく言葉が返せなくて、ただ、うなずいた。',
+        '心臓の音がうるさい。聞こえていませんように。',
+        '返事の代わりに、袖をきゅっと握った。',
+        'その一言で、今日がぜんぶ報われた気がした。'
+      ],
+      inner:[
+        'この距離が、あと何センチ縮まったら、心臓がもたないんだろう。',
+        'だめだ。顔、ゆるんでる。鏡を見なくても分かる。',
+        'ずるい。こういうの、慣れてないのに。'
+      ],
+      close:[
+        'この時間が、ずっと続けばいい。そう思った瞬間、指先に、ぎゅっと力がこもった。',
+        '特別なことは、なにもない。ただ、隣にいる。それだけで、今日はもう充分すぎた。',
+        '「また明日」と言われて、その「明日」が嬉しくて、ひとりで笑ってしまった。'
+      ],
+      titles:['きみの隣が、いちばんあたたかい','特別じゃない日に、いちばん愛しい','その手を、離さないで']
+    },
+    setsunai:{
+      scene:[
+        '雨の音だけが、しんと響く夜だった。窓ガラスに映る横顔が、いつもより少しだけ遠く見える。',
+        '別れ道の、手前。ゆっくり歩いたせいで、帰り道がいつもより長い。',
+        '灯りを落とした部屋で、隣から寝息だけが聞こえている。',
+        '桜が、もう散りかけていた。花びらがひとつ、肩に落ちて、そのまま風にさらわれていく。'
+      ],
+      mid:[
+        '言いたいことは、胸の奥で渋滞したままだ。',
+        'いつもと同じ距離なのに、手は、触れそうで触れない。',
+        '名前を呼ぼうとして、声にならなかった。',
+        '「なんでもない」と笑うのが、いちばん、ずるいやり方だ。',
+        'いつもなら、なんでもない会話が、今日は続かない。'
+      ],
+      beat:[
+        'その一言が、胸の奥に沈んでいく。',
+        'まばたきを、忘れていた。',
+        '息を、飲んだ。',
+        'その声が、少しだけ、遠かった。',
+        '胸の奥が、ちくりと痛んだ。'
+      ],
+      detail:[
+        'その背中を、目で追うことしかできない。',
+        '言えない言葉が、またひとつ増えた。',
+        '風が吹いて、前髪が揺れた。',
+        '触れた袖の端を、名残惜しく思った。',
+        'この距離が、もどかしくて、愛しい。'
+      ],
+      extra:[
+        'あと少しで、この時間が終わってしまう。そう思うだけで、せつなくなった。',
+        '「送るよ」と言われて、断れなかった。断りたくなかった、というほうが正しい。',
+        '立ち止まったその一瞬だけ、世界がふたりきりになった気がした。'
+      ],
+      event:[
+        '遠くで、誰かの声がした。世界には、ふたり以外もいる。',
+        '「風邪ひくなよ」——それだけ言って、先に歩き出してしまった。',
+        'スマホが震えた。画面には、名前だけが表示されている。'
+      ],
+      react:[
+        '笑おうとしたのに、うまく笑えなかった。',
+        'その優しさが、いちばん、苦しい。',
+        '返事をしたら泣いてしまいそうで、黙った。',
+        '俯いたまま、小さく、うなずいた。',
+        '「うん」とだけ返して、視線を逸らした。'
+      ],
+      inner:[
+        'このまま、なにも言わずに帰ってしまえば、明日も同じ日が来る。',
+        '好き、の二文字が、喉の奥で溶けていく。',
+        '気づかれないように、そっと、息を吸った。'
+      ],
+      close:[
+        '明日も、隣にいるのは当たり前じゃない。そう思うと、指先が勝手に、その袖をつまんでいた。',
+        'さよならは、まだ言わない。言いたくない。……ただ、それだけだ。',
+        'この切なさも、いつか思い出になる。そう分かっていても、今はまだ、痛い。'
+      ],
+      titles:['言えなかった、ひとこと','雨の日の、さよならの手前','切なさごと、抱きしめて']
+    },
+    kataomoi:{
+      scene:[
+        '気づけば、目で追ってしまう。人混みの中でも、駅のホームでも。',
+        'いつも通りの距離が、今日はやけに遠い。',
+        '「好きな人、いるの？」——そんな不意打ちに、心臓が派手に跳ねた。',
+        'グループLINEの通知が鳴るたび、名前を見て、勝手に落ち込む。'
+      ],
+      mid:[
+        '触れそうで触れない、その数センチが、いちばん苦しい。',
+        '友達、という言葉に何度も救われて、何度も傷つく。',
+        '冗談みたいに言えたら、どんなに楽だろう。',
+        '視線に気づかれて、あわてて窓の外を見た。',
+        'ふたりきりになると、思ったより静かだった。'
+      ],
+      beat:[
+        'その言葉を、頭の中で三回くり返した。',
+        '心臓が、うるさい。',
+        '指先が、すこし冷たくなった。',
+        'その一言が、頭から離れない。',
+        '顔が、上げられない。'
+      ],
+      detail:[
+        'この時間が、ずっと続けばいいのに。',
+        '近づきたい。でも、壊したくない。',
+        '気づかれないように、こっそり息を吸う。',
+        'ばれませんように。そう願いながら、また見てしまう。',
+        '友達、でいられるなら。それでも、いい。'
+      ],
+      extra:[
+        '夕日が、視界の端でにじんでいる。その光の中にいる横顔を、まっすぐ見られない。',
+        '話しかけようとして、やめた。なんて言うかを考えているうちに、時間が過ぎた。',
+        '「じゃあね」の五分間のために、今日一日がんばれた気がする。'
+      ],
+      event:[
+        'グループの輪が、ふいに、ふたりだけになった。',
+        '同時に手を伸ばして、指が触れた。',
+        '「隣、空いてる？」——心臓が、返事より先に跳ねた。'
+      ],
+      react:[
+        'あわてて笑って、ごまかした。',
+        '心臓がうるさくて、自分の声が遠い。',
+        'なにを言ったか、たぶん、覚えていない。',
+        '平気なふり。それが、いちばん得意なこと。',
+        '「うん」と答えた声が、上ずった。'
+      ],
+      inner:[
+        'だめだ、見すぎ。ばれたら終わり。',
+        '友達、でいたい。……ほんとは、友達じゃ足りない。',
+        'この数センチのために、何日ぶんの勇気がいるんだろう。'
+      ],
+      close:[
+        'あなたのことだよ、なんて。……言えるわけ、ない。',
+        '今夜も、ひとりで復習する。今日の、その一言を。',
+        '早く、この気持ちに名前をつけて終わらせたい。……終わらせたくない。'
+      ],
+      titles:['数センチの、片思い','これは、恋でいいですか','ばれないように、好きでした']
+    },
+    kenka:{
+      scene:[
+        '沈黙が、部屋の空気を重くしている。さっきまで言い合っていた言葉が、まだ床に散らばっているみたいだった。',
+        'ケンカをして、丸一日。LINEの画面を開いては閉じて、を繰り返している。',
+        'いつもなら並んで歩く帰り道も、今日は前と後ろ。',
+        '冷蔵庫の音だけが、やけに大きく聞こえる夜。'
+      ],
+      mid:[
+        '謝りたいのに、謝るのが怖い。',
+        'ふたりの沈黙が、ずれたまま、続いている。',
+        '言いすぎたのは、分かっている。分かっているのに、意地が邪魔をする。',
+        '頭では、もう許している。問題は、口のほうだ。',
+        'その場を離れて、どれくらい経っただろう。'
+      ],
+      beat:[
+        'その声に、肩の力が抜けた。',
+        '目の奥が、熱い。',
+        '言葉が、喉でつかえた。',
+        '胸のつかえが、少しだけ下りた。',
+        'その一言で、空気が変わった。'
+      ],
+      detail:[
+        'さっきの言葉が、頭の中で、ぐるぐる回っている。',
+        '怒ってるのは、たぶん、悲しいからだ。',
+        'ひとつため息をついて、顔を上げた。',
+        '意地を張ったぶんだけ、後悔が重い。',
+        '早く、元の距離に戻りたい。'
+      ],
+      extra:[
+        'ひとりになって、深く息をついた。それなのに、視界がぼやけている。',
+        'スマホの画面が明るくなって、心臓が跳ねた。……通知は、別のアプリだった。',
+        '窓の外は、もう暗くなりかけていた。こんなに長い一日は、久しぶりだ。'
+      ],
+      event:[
+        '冷たい風が吹いて、思わず肩が縮こまった。',
+        'そのとき、向こうからも、足音が近づいてきた。',
+        '「あのさ」——ふたりの声が、重なった。'
+      ],
+      react:[
+        '鼻の奥が、つんとした。',
+        'うまく言葉が出なくて、唇を噛んだ。',
+        '意地を張るのを、やめた。',
+        '小さな声で、ごめん、と返した。',
+        '「……うん」と、やっと返せた。'
+      ],
+      inner:[
+        'なんであんなこと言ったんだろう。言い返したかっただけなのに。',
+        '先に謝ったほうが、負けなのかな。',
+        'スマホを置いて、また手に取る。これを、もう五回繰り返している。'
+      ],
+      close:[
+        '「ごめん」の三文字が、こんなに重いなんて知らなかった。',
+        '明日は、先に電話しよう。そう決めて、スマホを胸に抱いた。',
+        '仲直りのあとの空気は、ケンカの前より、少しだけ近い。'
+      ],
+      titles:['ごめん、の距離','仲直りの、そのあと','意地のはずが、涙になった']
+    },
+    yonaka:{
+      scene:[
+        '深夜一時。コンビニの明かりだけが、しんとした商店街を照らしている。',
+        '時計の針が、二時を指す。眠るには惜しい夜だった。',
+        '終電を逃した帰り道。誰もいない公園で、ベンチに並んで座った。',
+        '雨の音を聞きながら、ふたりとも、なんとなく、まだ帰らなかった。'
+      ],
+      mid:[
+        '缶コーヒーの温もりが、指先からじんわり染みた。',
+        '声をひそめて、なんでもない話を、だらだら続ける。',
+        '夜の空気が冷たくて、でも、隣が近くて、寒くなかった。',
+        '眠たくなってきたのか、その声が、少しだけゆっくりになる。',
+        '夜の静けさに、笑い声だけが小さく響く。'
+      ],
+      beat:[
+        'その声だけが、夜に溶けていく。',
+        '時間が、止まったみたいだった。',
+        '肩の重みが、やけに遠い。',
+        '夜が、すこしだけ、近づいた気がした。',
+        'その声に、目が覚めた。'
+      ],
+      detail:[
+        'このまま朝が来なければいいのに。',
+        '時計を見るのを、やめた。',
+        '遠くの街灯が、ぼんやりにじんでいる。',
+        'この時間が、永遠になればいい。',
+        '声色だけで、こんなに分かってしまうなんて。'
+      ],
+      extra:[
+        'なぜか、こちらのぶんだけ温かい缶を、そっと手渡された。',
+        'しんと静かで、ふたりの声だけが、やけに大きく響いた。',
+        '遠くのビルの明かりが、ひとつ、またひとつ消えていく。眠らないのは、たぶん、ふたりだけ。'
+      ],
+      event:[
+        '遠くで、終電の音が聞こえた。',
+        '「もう帰らないと」と言ったのに、誰も立ち上がらなかった。',
+        '気づけば、周りの音が、すっかり消えていた。'
+      ],
+      react:[
+        '夜のせいにして、鼓動が高鳴った。',
+        '静かな声が、やけに、胸に残った。',
+        '返事をしないまま、肩に頭を預けた。',
+        '暗がりで、顔が熱くなるのが分かった。',
+        '眠気が、どこかへ飛んでいった。'
+      ],
+      inner:[
+        '眠いのに、眠りたくない。この時間が、惜しい。',
+        '声、近い。鼓動が聞こえていませんように。',
+        '夜って、どうしてこんなに、人を素直にするんだろう。'
+      ],
+      close:[
+        '明日も早いのに、この時間が惜しくて、もう少しだけ、と引き止めた。',
+        '「おやすみ」のあと、しばらく、既読のつかない画面を見ていた。',
+        '夜が明けたら、この時間は夢みたいに消えてしまう。だから、今だけは。'
+      ],
+      titles:['深夜二時、きみの隣','眠らない夜の、ふたり','おやすみの、その先まで']
+    }
+  };
+
+  var RELS = {
+    koibito:[
+      '付き合って、もうすぐ一年。特別なことをしなくても、隣にいるだけで落ち着く。',
+      '恋人、という言葉に、まだ少しだけ照れる。手を繋ぐのも、当たり前になりきらない。'
+    ],
+    kataomoi_rel:[
+      'ひとつ隣の部屋に、住んでいる。壁一枚ぶんの距離が、いまはやけに遠い。',
+      'ご近所さん、というには少し親しすぎる距離。挨拶から始まった関係は、まだ名前を持たない。'
+    ],
+    osananajimi:[
+      '物心ついたときから、隣にいた。知らない時代がないくらい、長い付き合いだ。',
+      '幼馴染、という便利な言葉に、何度も逃げてきた。'
+    ],
+    shigoto:[
+      '仕事の話なら、いくらでもできる。……仕事の話しかできないのが、もどかしい。',
+      '同僚、という立場が、近いのか遠いのか。まだ、自分でも分からない。'
+    ]
+  };
+
+  /* 雰囲気ごとの「感情の流れ」。最後がクライマックス */
+  var ARC = {
+    amai:    { short:['soft','tender'],  long:['tease','soft','tender','cover','confess'] },
+    setsunai:{ short:['cover','tender'], long:['soft','tease','cover','confess','tender'] },
+    kataomoi:{ short:['tease','cover'],  long:['tease','soft','cover','tender','confess'] },
+    kenka:   { short:['stub','tender'],  long:['stub','soft','tease','tender','confess'] },
+    yonaka:  { short:['soft','confess'], long:['tease','soft','cover','tender','confess'] }
+  };
+
+  /* ------------------------------------------------------------------
+     utils
+     ------------------------------------------------------------------ */
+  var $ = function(s, r){ return (r || document).querySelector(s); };
+  var $$ = function(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var LS = 'yumeMaker.v1.';
+
+  var toastTimer = null;
+  function toast(msg){
+    var t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2100);
+  }
+  function cpLen(s){ return Array.from(String(s)).length; }
+  function esc(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function loadJSON(key, def){
+    try{ var v = localStorage.getItem(LS + key); return v ? JSON.parse(v) : def; }catch(e){ return def; }
+  }
+  function saveJSON(key, val){
+    try{ localStorage.setItem(LS + key, JSON.stringify(val)); return true; }catch(e){ return false; }
+  }
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+  function rnd(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+  function shuffled(arr){
+    var a = arr.slice();
+    for(var i = a.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function taker(arr){
+    var pool = shuffled(arr);
+    return function(){
+      if(!pool.length) pool = shuffled(arr);
+      return pool.pop();
+    };
+  }
+  function copyText(text){
+    if(!text){ toast('コピーする文がまだないよ'); return; }
+    var done = function(){ toast('コピーしたよ📋'); };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done, function(){ fallbackCopy(text); done(); });
+    } else { fallbackCopy(text); done(); }
+  }
+  function fallbackCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly','');
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try{ document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta);
+  }
+  function postToX(text){
+    text = (text || '').trim();
+    if(!text){ toast('ポストする文がまだ空だよ'); return; }
+    var url = 'https://x.com/intent/tweet?text=' + encodeURIComponent(text);
+    var w = null;
+    try{ w = window.open(url, '_blank'); }catch(e){ w = null; }
+    if(!w){ location.href = url; return; }
+    toast('Xの投稿画面を開いたよ𝕏');
+  }
+  function getTone(id){
+    for(var i = 0; i < TONES.length; i++){ if(TONES[i].id === id) return TONES[i]; }
+    return TONES[0];
+  }
+
+  /* ------------------------------------------------------------------
+     名前の解決（{c} {cc} {fp} {d} ...）
+     ------------------------------------------------------------------ */
+  function resolveNames(c){
+    var label = (c.charLabel || '').trim() || '彼';
+    if(label === '名前' || label === 'キャラ名'){ label = (c.charName || '').trim() || '彼'; }
+    var base = (c.charName || '').trim() || label;
+    var call = (c.callName || '').trim();
+    if(!call || call === '呼び捨て'){ call = base; }
+    else { call = call.replace(/〇〇/g, base); }
+    var tone = getTone(c.tone);
+    return {
+      label: label,
+      call: call,
+      dn: (c.dreamerName || '').trim(),
+      fp: (c.firstPerson || '').trim() || tone.fp,
+      generic: tone.generic || 'あなた'
+    };
+  }
+  function fill(text, R){
+    return String(text).replace(/\{dさん\}|\{dくん\}|\{dちゃん\}|\{cc\}|\{c\}|\{fp\}|\{d\}/g, function(m){
+      if(m === '{c}') return R.label;
+      if(m === '{cc}') return R.call;
+      if(m === '{fp}') return R.fp;
+      if(m === '{d}') return R.dn || R.generic;
+      if(m === '{dさん}') return R.dn ? R.dn + 'さん' : 'あなた';
+      if(m === '{dくん}') return R.dn ? R.dn + 'くん' : R.generic;
+      if(m === '{dちゃん}') return R.dn ? R.dn + 'ちゃん' : R.generic;
+      return m;
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     生成エンジン
+     ------------------------------------------------------------------ */
+  function generate(c){
+    var mood = (c.mood === 'random') ? rnd(['amai','setsunai','kataomoi','kenka','yonaka']) : c.mood;
+    var M = MOODS[mood] || MOODS.amai;
+    var R = resolveNames(c);
+    var tone = getTone(c.tone);
+    var long = (c.length === 'long');
+    var emos = ARC[mood][long ? 'long' : 'short'];
+
+    var nextScene = taker(M.scene), nextMid = taker(M.mid), nextDetail = taker(M.detail),
+        nextInner = taker(M.inner), nextEvent = taker(M.event), nextExtra = taker(M.extra),
+        nextBeat = taker(M.beat), nextReact = taker(M.react), nextClose = taker(M.close);
+
+    var used = {};
+    function lineFor(emo){
+      var bank = tone.lines[emo] || tone.lines.soft;
+      var cands = bank.filter(function(t){ return !used[t]; });
+      if(!cands.length){ cands = bank; }
+      var pick = rnd(cands);
+      used[pick] = true;
+      return fill(pick, R);
+    }
+    function exchange(emo, withDetail){
+      var s = fill(nextMid(), R) + lineFor(emo);
+      if(withDetail){ s += fill(nextBeat(), R); }
+      s += fill(nextReact(), R);
+      if(withDetail){ s += fill(nextDetail(), R); }
+      return s;
+    }
+
+    var paras = [fill(nextScene(), R)];
+
+    if(long){
+      paras.push(fill(rnd(RELS[c.rel] || RELS.koibito), R));
+      paras.push(exchange(emos[0], true));
+      paras.push(fill(nextInner(), R));
+      paras.push(exchange(emos[1], true));
+      paras.push(fill(nextExtra(), R));
+      paras.push(exchange(emos[2], true));
+      paras.push(fill(nextEvent(), R));
+      paras.push(exchange(emos[3], true));
+      paras.push(fill(nextExtra(), R));
+      paras.push(fill(nextInner(), R));
+      paras.push(exchange(emos[4], true));
+      paras.push(fill(nextExtra(), R));
+    } else {
+      paras.push(exchange(emos[0], false));
+      paras.push(exchange(emos[1], false));
+    }
+    paras.push(fill(nextClose(), R));
+
+    return { title: rnd(M.titles), text: paras.join('\n'), mood: mood };
+  }
+
+  /* ------------------------------------------------------------------
+     140字ツリー分割
+     ------------------------------------------------------------------ */
+  function sentencesOf(text){
+    var arr = Array.from(String(text)), out = [], buf = '', depth = 0;
+    var closers = '」』）)】';
+    for(var i = 0; i < arr.length; i++){
+      var ch = arr[i];
+      buf += ch;
+      if(ch === '「' || ch === '『'){ depth++; continue; }
+      if(ch === '」' || ch === '』'){
+        depth = Math.max(0, depth - 1);
+        if(depth === 0){ out.push(buf); buf = ''; }
+        continue;
+      }
+      if(depth === 0 && '。！？!?'.indexOf(ch) >= 0){
+        var j = i + 1;
+        while(j < arr.length && closers.indexOf(arr[j]) >= 0){ buf += arr[j]; j++; }
+        i = j - 1;
+        out.push(buf); buf = '';
+      }
+    }
+    if(buf.trim()) out.push(buf);
+    return out;
+  }
+  function hardSplit(t, MAX){
+    var rest = Array.from(String(t)), out = [];
+    while(rest.length > MAX){
+      var cut = -1, floor = Math.max(0, MAX - 32);
+      for(var i = MAX; i > floor; i--){
+        var c = rest[i - 1];
+        if(c === '、' || c === '，' || c === ',' || c === '。' || c === '！' || c === '？' || c === ' '){ cut = i; break; }
+      }
+      if(cut <= 0){ cut = MAX; }
+      out.push(rest.slice(0, cut).join('').trim());
+      rest = rest.slice(cut);
+      while(rest.length && rest[0] === ' '){ rest = rest.slice(1); }
+    }
+    var last = rest.join('').trim();
+    if(last) out.push(last);
+    return out;
+  }
+  function splitParts(text, tags){
+    var MAX = 140;
+    var raw = String(text || '').replace(/\r\n?/g, '\n').trim();
+    if(!raw) return [];
+    var paras = raw.split(/\n+/).map(function(t){ return t.trim(); }).filter(Boolean);
+    var segs = [];
+    paras.forEach(function(p, pi){
+      sentencesOf(p).forEach(function(s){
+        var t = s.trim();
+        if(t) segs.push({ t: t, p: pi });
+      });
+    });
+    if(tags && tags.trim()){ segs.unshift({ t: tags.trim(), p: -1 }); }
+
+    var parts = [], cur = '', curP = -2;
+    function flush(){ if(cur.trim()){ parts.push(cur.trim()); } cur = ''; curP = -2; }
+
+    segs.forEach(function(seg){
+      var t = seg.t;
+      if(cpLen(t) > MAX){
+        if(cur){ flush(); }
+        var pieces = hardSplit(t, MAX);
+        for(var k = 0; k < pieces.length; k++){
+          if(k < pieces.length - 1){ parts.push(pieces[k]); }
+          else { cur = pieces[k]; curP = seg.p; }
+        }
+        return;
+      }
+      var sep = '';
+      if(cur !== ''){
+        if(curP === -1){ sep = '\n'; }
+        else if(curP === seg.p){ sep = ''; }
+        else { sep = '\n'; }
+      }
+      if(cpLen(cur) + cpLen(sep) + cpLen(t) <= MAX){
+        cur += sep + t;
+        curP = seg.p;
+      } else {
+        flush();
+        cur = t;
+        curP = seg.p;
+      }
+    });
+    flush();
+    return parts;
+  }
+
+  /* ------------------------------------------------------------------
+     UI
+     ------------------------------------------------------------------ */
+  var DEFAULTS = {
+    charName:'', charLabel:'彼', callName:'〇〇くん', firstPerson:'俺',
+    dreamerName:'', tone:'tsun', mood:'amai', rel:'koibito', length:'short',
+    tagOn:true, tags:'#enstプラス #夢小説'
+  };
+  var cfg = {};
+  var current = null;
+  var treeTimer = null;
+
+  function persist(){ saveJSON('cfg', cfg); }
+
+  function chipEl(label, on, handler){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip' + (on ? ' on' : '');
+    b.textContent = label;
+    b.addEventListener('click', handler);
+    return b;
+  }
+
+  var GROUPS = [
+    { sel:'#labelChips', key:'charLabel', items:['彼','あの人','キャラ名'] },
+    { sel:'#callChips',  key:'callName',  items:['〇〇くん','〇〇さん','〇〇先輩','〇〇ちゃん','呼び捨て'] },
+    { sel:'#fpChips',    key:'firstPerson', items:['俺','ぼく','僕','私','おじさん','己'] },
+    { sel:'#dnChips',    key:'dreamerName', items:[{v:'',l:'名前なし'},{v:'私',l:'私'},{v:'🌸',l:'🌸'}] },
+    { sel:'#moodChips',  key:'mood', items:[
+        {v:'amai',l:'甘い・溺愛'}, {v:'setsunai',l:'切なくて甘い'}, {v:'kataomoi',l:'両片思い・じれったい'},
+        {v:'kenka',l:'ケンカ→仲直り'}, {v:'yonaka',l:'深夜のふたりきり'}, {v:'random',l:'🎲 おまかせ'}
+      ] },
+    { sel:'#relChips', key:'rel', items:[
+        {v:'koibito',l:'恋人'}, {v:'kataomoi_rel',l:'片思い・お隣さん'},
+        {v:'osananajimi',l:'幼馴染'}, {v:'shigoto',l:'仕事仲間・先輩後輩'}
+      ] },
+    { sel:'#lenChips', key:'length', items:[
+        {v:'short',l:'サクッと短編（1〜3P）'}, {v:'long',l:'たっぷり長編（6〜10P）'}
+      ] }
+  ];
+
+  var TAG_PRESETS = ['#enstプラス','#夢小説','#オリジナル夢小説'];
+
+  function renderGroups(){
+    GROUPS.forEach(function(g){
+      var box = $(g.sel);
+      if(!box) return;
+      box.innerHTML = '';
+      g.items.forEach(function(it){
+        var v = (typeof it === 'string') ? it : it.v;
+        var l = (typeof it === 'string') ? it : it.l;
+        box.appendChild(chipEl(l, cfg[g.key] === v, function(){
+          cfg[g.key] = v;
+          renderAll();
+        }));
+      });
+    });
+  }
+
+  function renderTones(){
+    var box = $('#toneList');
+    box.innerHTML = '';
+    TONES.forEach(function(t, i){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'tone' + (cfg.tone === t.id ? ' on' : '');
+      var no = document.createElement('span'); no.className = 'tno'; no.textContent = String(i + 1);
+      var tx = document.createElement('span'); tx.className = 'tx';
+      var nm = document.createElement('b'); nm.textContent = t.name;
+      var ds = document.createElement('small'); ds.textContent = t.desc;
+      tx.appendChild(nm); tx.appendChild(ds);
+      b.appendChild(no); b.appendChild(tx);
+      b.addEventListener('click', function(){
+        var before = getTone(cfg.tone);
+        var wasDefault = !cfg.firstPerson || cfg.firstPerson === before.fp;
+        cfg.tone = t.id;
+        if(wasDefault){ cfg.firstPerson = t.fp; }
+        renderAll();
+      });
+      box.appendChild(b);
+    });
+  }
+
+  function renderTagChips(){
+    var box = $('#tagChips');
+    box.innerHTML = '';
+    TAG_PRESETS.forEach(function(tag){
+      var on = (cfg.tags || '').indexOf(tag) >= 0;
+      box.appendChild(chipEl(tag, on, function(){
+        var list = (cfg.tags || '').split(/\s+/).filter(Boolean);
+        var i = list.indexOf(tag);
+        if(i >= 0){ list.splice(i, 1); } else { list.push(tag); }
+        cfg.tags = list.join(' ');
+        $('#tags').value = cfg.tags;
+        renderTagChips();
+        persist();
+        updateTree();
+      }));
+    });
+  }
+
+  function renderSummary(){
+    var box = $('#sumLine');
+    box.innerHTML = '';
+    var pills = [getTone(cfg.tone).name,
+      cfg.mood === 'random' ? '雰囲気おまかせ' : MOOD_NAMES[cfg.mood],
+      REL_NAMES[cfg.rel],
+      cfg.length === 'long' ? '長編' : '短編'];
+    var nm = (cfg.charName || '').trim();
+    if(nm) pills.unshift(nm);
+    pills.forEach(function(p){
+      var s = document.createElement('span');
+      s.className = 'sumpill';
+      s.textContent = p;
+      box.appendChild(s);
+    });
+  }
+
+  function syncForm(){
+    $('#charName').value = cfg.charName || '';
+    $('#charLabel').value = cfg.charLabel || '';
+    $('#callName').value = cfg.callName || '';
+    $('#firstPerson').value = cfg.firstPerson || '';
+    $('#dreamerName').value = cfg.dreamerName || '';
+    $('#tags').value = cfg.tags || '';
+    var sw = $('#tagSw');
+    sw.classList.toggle('on', !!cfg.tagOn);
+    sw.setAttribute('aria-checked', cfg.tagOn ? 'true' : 'false');
+    $('#tagSwLbl').textContent = cfg.tagOn ? '1本目の頭につける' : 'つけない';
+  }
+
+  function renderAll(){
+    syncForm();
+    renderGroups();
+    renderTones();
+    renderTagChips();
+    renderSummary();
+    persist();
+    updateTree();
+  }
+
+  /* ---------- text page ---------- */
+  function metaLine(){
+    var mood = (current && current.mood) ? MOOD_NAMES[current.mood]
+      : (cfg.mood === 'random' ? 'おまかせ' : MOOD_NAMES[cfg.mood]);
+    return getTone(cfg.tone).name + ' ｜ ' + mood + ' ｜ ' + REL_NAMES[cfg.rel] + ' ｜ ' + (cfg.length === 'long' ? '長編' : '短編');
+  }
+  function updateTextCount(){
+    var v = $('#novelText').value;
+    $('#textCount').textContent = cpLen(v);
+  }
+  function autoGrow(){
+    var ta = $('#novelText');
+    ta.style.height = 'auto';
+    ta.style.height = Math.max(240, ta.scrollHeight + 4) + 'px';
+  }
+  function updateTextState(){
+    var has = !!(current && current.text && current.text.trim());
+    $('#textEmpty').style.display = has ? 'none' : 'block';
+    $('#textBody').style.display = has ? 'block' : 'none';
+  }
+
+  function doGenerate(isRegen){
+    var g = generate(cfg);
+    current = { title: g.title, text: g.text, mood: g.mood, at: Date.now() };
+    $('#workTitle').textContent = current.title;
+    $('#workMeta').textContent = metaLine();
+    $('#novelText').value = current.text;
+    updateTextCount();
+    autoGrow();
+    updateTextState();
+    saveJSON('current', current);
+    updateTree();
+    showPage('text');
+    toast(isRegen ? '別の展開にしたよ✨' : 'できたよ✨');
+    window.scrollTo({ top:0 });
+  }
+
+  /* ---------- tree ---------- */
+  function tagClassify(t){
+    var n = cpLen(t);
+    return n > 140 ? 'badge over' : (n > 120 ? 'badge warn' : 'badge');
+  }
+  function partCard(t, i){
+    var d = document.createElement('div');
+    d.className = 'part';
+    var head = document.createElement('div');
+    head.className = 'phead';
+    var pno = document.createElement('span');
+    pno.className = 'pno';
+    pno.textContent = (i + 1) + '本目';
+    var badge = document.createElement('span');
+    badge.className = tagClassify(t);
+    badge.textContent = cpLen(t) + '/140';
+    head.appendChild(pno); head.appendChild(badge);
+    var p = document.createElement('div');
+    p.className = 'ptext';
+    p.innerHTML = esc(t).replace(/(^|[\s\n])(#[^\s#<]+)/g, function(m, a, b){
+      return a + '<span class="tag">' + b + '</span>';
+    });
+    var btns = document.createElement('div');
+    btns.className = 'pbtns';
+    var cp = document.createElement('button');
+    cp.type = 'button'; cp.className = 'pbtn'; cp.textContent = '📋 コピー';
+    cp.addEventListener('click', function(){ copyText(t); });
+    var px = document.createElement('button');
+    px.type = 'button'; px.className = 'pbtn x'; px.textContent = '𝕏 ポスト';
+    px.addEventListener('click', function(){ postToX(t); });
+    btns.appendChild(cp); btns.appendChild(px);
+    d.appendChild(head); d.appendChild(p); d.appendChild(btns);
+    return d;
+  }
+  function updateTree(){
+    var has = !!(current && current.text && current.text.trim());
+    $('#treeEmpty').style.display = has ? 'none' : 'block';
+    $('#treeBody').style.display = has ? 'block' : 'none';
+    if(!has) return;
+    var tags = cfg.tagOn ? (cfg.tags || '') : '';
+    var parts = splitParts(current.text, tags);
+    $('#partCount').textContent = parts.length + '本';
+    var box = $('#parts');
+    box.innerHTML = '';
+    parts.forEach(function(t, i){ box.appendChild(partCard(t, i)); });
+  }
+
+  function showPage(name){
+    $$('.page').forEach(function(p){ p.classList.remove('active'); });
+    var el = $('#page-' + name);
+    if(el) el.classList.add('active');
+    $$('#tabbar button').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-tab') === name);
+    });
+    if(name === 'vault') renderVault();
+    if(name === 'tree') updateTree();
+    if(name === 'text'){ updateTextState(); autoGrow(); }
+    window.scrollTo({ top:0 });
+  }
+
+  /* ---------- vault ---------- */
+  function fmtDate(ts){
+    try{
+      var d = new Date(ts);
+      return (d.getMonth() + 1) + '/' + d.getDate();
+    }catch(e){ return ''; }
+  }
+  function renderVault(){
+    var works = loadJSON('works', []);
+    var wl = $('#workList');
+    wl.innerHTML = '';
+    $('#workCount').textContent = works.length ? works.length + '件' : '';
+    if(!works.length){
+      wl.innerHTML = '<div class="empty">まだ保存した作品はないよ。<br>本文タブの「📁 保存庫へ」で残せます。</div>';
+    } else {
+      works.forEach(function(w){
+        var it = document.createElement('div');
+        it.className = 'item';
+        var t = document.createElement('div'); t.className = 'it'; t.textContent = w.title || '無題';
+        var m = document.createElement('div'); m.className = 'im';
+        m.textContent = (w.mood ? MOOD_NAMES[w.mood] + '｜' : '') + fmtDate(w.at) + '・' + cpLen(w.text) + '字';
+        var ex = document.createElement('div'); ex.className = 'iex'; ex.textContent = w.text;
+        var btns = document.createElement('div'); btns.className = 'ibtns';
+        var open = document.createElement('button');
+        open.type = 'button'; open.className = 'mini wide'; open.textContent = '📖 呼び出す';
+        open.addEventListener('click', function(){ loadWork(w); });
+        var cp = document.createElement('button');
+        cp.type = 'button'; cp.className = 'mini'; cp.textContent = '📋'; cp.setAttribute('aria-label','コピー');
+        cp.addEventListener('click', function(){ copyText(w.text); });
+        var del = document.createElement('button');
+        del.type = 'button'; del.className = 'mini'; del.textContent = '🗑'; del.setAttribute('aria-label','削除');
+        del.addEventListener('click', function(){
+          if(!window.confirm('「' + (w.title || '無題') + '」を保存庫から削除する？')) return;
+          var left = loadJSON('works', []).filter(function(x){ return x.id !== w.id; });
+          saveJSON('works', left);
+          renderVault();
+          toast('削除したよ');
+        });
+        btns.appendChild(open); btns.appendChild(cp); btns.appendChild(del);
+        it.appendChild(t); it.appendChild(m); it.appendChild(ex); it.appendChild(btns);
+        wl.appendChild(it);
+      });
+    }
+
+    var chars = loadJSON('chars', []);
+    var cl = $('#charList');
+    cl.innerHTML = '';
+    $('#charCount').textContent = chars.length ? chars.length + '件' : '';
+    if(!chars.length){
+      cl.innerHTML = '<div class="empty">まだキャラ設定はないよ。<br>「つくる」タブの「💾 このキャラ設定を保存」で残せます。</div>';
+    } else {
+      chars.forEach(function(c){
+        var it = document.createElement('div');
+        it.className = 'item';
+        var t = document.createElement('div'); t.className = 'it'; t.textContent = c.name || 'キャラ';
+        var m = document.createElement('div'); m.className = 'im';
+        m.textContent = getTone(c.cfg && c.cfg.tone).name + '｜' + ((c.cfg && c.cfg.callName) || '呼び捨て');
+        var btns = document.createElement('div'); btns.className = 'ibtns';
+        var open = document.createElement('button');
+        open.type = 'button'; open.className = 'mini wide'; open.textContent = '👤 設定を呼び出す';
+        open.addEventListener('click', function(){ loadChar(c); });
+        var del = document.createElement('button');
+        del.type = 'button'; del.className = 'mini'; del.textContent = '🗑'; del.setAttribute('aria-label','削除');
+        del.addEventListener('click', function(){
+          if(!window.confirm('「' + (c.name || 'キャラ') + '」の設定を削除する？')) return;
+          var left = loadJSON('chars', []).filter(function(x){ return x.id !== c.id; });
+          saveJSON('chars', left);
+          renderVault();
+          toast('削除したよ');
+        });
+        btns.appendChild(open); btns.appendChild(del);
+        it.appendChild(t); it.appendChild(m); it.appendChild(btns);
+        cl.appendChild(it);
+      });
+    }
+  }
+
+  function loadWork(w){
+    current = { title: w.title, text: w.text, mood: w.mood, at: w.at };
+    var base = Object.assign({}, DEFAULTS, w.cfg || {});
+    cfg = base;
+    saveJSON('cfg', cfg);
+    saveJSON('current', current);
+    renderAll();
+    $('#workTitle').textContent = current.title || '無題';
+    $('#workMeta').textContent = metaLine();
+    $('#novelText').value = current.text;
+    updateTextCount();
+    autoGrow();
+    updateTextState();
+    showPage('text');
+    toast('呼び出したよ📖');
+  }
+  function loadChar(c){
+    var base = Object.assign({}, cfg, c.cfg || {});
+    cfg = base;
+    saveJSON('cfg', cfg);
+    renderAll();
+    showPage('make');
+    toast('キャラ設定を呼び出したよ');
+  }
+
+  function doSaveWork(){
+    if(!current || !current.text || !current.text.trim()){ toast('まだ保存する物語がないよ'); return; }
+    var works = loadJSON('works', []);
+    works.unshift({
+      id: uid(),
+      title: (current.title || '').trim() || '無題',
+      text: current.text,
+      mood: current.mood,
+      cfg: { charName:cfg.charName, charLabel:cfg.charLabel, callName:cfg.callName,
+             firstPerson:cfg.firstPerson, dreamerName:cfg.dreamerName, tone:cfg.tone,
+             mood:cfg.mood, rel:cfg.rel, length:cfg.length, tagOn:cfg.tagOn, tags:cfg.tags },
+      at: Date.now()
+    });
+    if(works.length > 80){ works = works.slice(0, 80); }
+    saveJSON('works', works);
+    toast('保存庫に入れたよ📁');
+    if($('#page-vault').classList.contains('active')) renderVault();
+  }
+  function doSaveChar(){
+    var chars = loadJSON('chars', []);
+    var name = (cfg.charName || '').trim() || getTone(cfg.tone).name;
+    chars.unshift({
+      id: uid(),
+      name: name,
+      cfg: { charName:cfg.charName, charLabel:cfg.charLabel, callName:cfg.callName,
+             firstPerson:cfg.firstPerson, dreamerName:cfg.dreamerName, tone:cfg.tone },
+      at: Date.now()
+    });
+    if(chars.length > 40){ chars = chars.slice(0, 40); }
+    saveJSON('chars', chars);
+    toast('キャラ設定を保存したよ💾');
+    if($('#page-vault').classList.contains('active')) renderVault();
+  }
+
+  /* ---------- events ---------- */
+  function bind(){
+    ['charName','charLabel','callName','firstPerson','dreamerName','tags'].forEach(function(id){
+      var el = $('#' + id);
+      el.addEventListener('input', function(){
+        cfg[id] = el.value;
+        persist();
+        if(id === 'tags'){ renderTagChips(); updateTree(); }
+        if(id === 'dreamerName' || id === 'firstPerson' || id === 'callName' || id === 'charLabel' || id === 'charName'){ renderGroups(); renderSummary(); }
+      });
+    });
+
+    $('#tagSw').addEventListener('click', function(){
+      cfg.tagOn = !cfg.tagOn;
+      renderAll();
+    });
+
+    $('#generateBtn').addEventListener('click', function(){ doGenerate(false); });
+    $('#regenBtn').addEventListener('click', function(){ doGenerate(true); });
+    $('#diceBtn').addEventListener('click', function(){
+      cfg.tone = rnd(TONES).id;
+      cfg.mood = rnd(['amai','setsunai','kataomoi','kenka','yonaka']);
+      cfg.rel = rnd(['koibito','kataomoi_rel','osananajimi','shigoto']);
+      cfg.length = rnd(['short','long']);
+      renderAll();
+      doGenerate(false);
+    });
+
+    $('#saveCharBtn').addEventListener('click', doSaveChar);
+    $('#saveWorkBtn').addEventListener('click', doSaveWork);
+
+    $('#novelText').addEventListener('input', function(){
+      if(!current){ current = { title:'', text:'', mood:cfg.mood }; }
+      current.text = $('#novelText').value;
+      updateTextCount();
+      autoGrow();
+      saveJSON('current', current);
+      clearTimeout(treeTimer);
+      treeTimer = setTimeout(updateTree, 250);
+    });
+
+    $('#workTitle').addEventListener('blur', function(){
+      if(current){ current.title = $('#workTitle').textContent.trim(); saveJSON('current', current); }
+    });
+
+    $('#copyAllBtn').addEventListener('click', function(){ if(current) copyText(current.text); });
+    $('#copyAllBtn2').addEventListener('click', function(){ if(current) copyText(current.text); });
+    $('#copyTagBtn').addEventListener('click', function(){ copyText(cfg.tags || ''); });
+    $('#goTreeBtn').addEventListener('click', function(){ showPage('tree'); });
+    $('#treeEditBtn').addEventListener('click', function(){ showPage('text'); });
+
+    $$('#tabbar button').forEach(function(b){
+      b.addEventListener('click', function(){ showPage(b.getAttribute('data-tab')); });
+    });
+  }
+
+  function init(){
+    cfg = Object.assign({}, DEFAULTS, loadJSON('cfg', {}));
+    bind();
+    var saved = loadJSON('current', null);
+    if(saved && saved.text){
+      current = saved;
+      $('#workTitle').textContent = saved.title || '無題';
+      $('#workMeta').textContent = metaLine();
+      $('#novelText').value = saved.text;
+    }
+    renderAll();
+    updateTextCount();
+    autoGrow();
+    updateTextState();
+    renderVault();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
