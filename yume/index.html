@@ -106,6 +106,40 @@
     box-shadow:0 2px 8px rgba(255,143,199,.22);
   }
 
+  /* ---------- my tags (ハッシュタグ5) ---------- */
+  .tagrow{display:flex; gap:7px; align-items:stretch}
+  .tagrow input[type=text]{flex:1; min-width:0}
+  .tagsave{
+    flex:0 0 auto; font-family:inherit; font-size:12.5px; font-weight:800; white-space:nowrap;
+    padding:0 13px; border:none; border-radius:12px; color:#fff;
+    background:linear-gradient(135deg,#ffa8d2,#b79cff); box-shadow:0 4px 12px rgba(255,143,199,.3);
+    display:inline-flex; align-items:center; justify-content:center; gap:3px;
+  }
+  .tagsave:active{transform:scale(.96)}
+  .mytag{
+    display:inline-flex; align-items:center; border-radius:999px; overflow:hidden;
+    background:#fff; border:1.5px solid #eee6fa; transition:all .12s;
+  }
+  .mytag.on{
+    border-color:var(--pink); background:linear-gradient(135deg,#ffe6f3,#f2ecff);
+    box-shadow:0 2px 8px rgba(255,143,199,.22);
+  }
+  .mytag .mytagbtn{
+    font-family:inherit; font-size:12.5px; font-weight:700; color:var(--ink2); line-height:1;
+    background:none; border:none; padding:8px 5px 8px 11px;
+    max-width:190px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .mytag.on .mytagbtn{color:#c33a7e}
+  .mytag .mytagbtn:active{transform:scale(.97)}
+  .mytag .tagx{
+    font-family:inherit; font-size:13px; line-height:1; color:#c9b6dd;
+    background:none; border:none; padding:8px 9px 8px 2px;
+  }
+  .mytag .tagx:active{color:#d63d8b}
+  .tagcount{font-size:10px; font-weight:700; color:#bda6cf; margin-left:3px}
+  .tagempty{font-size:10.8px; color:var(--muted); line-height:1.6; margin-top:5px}
+  .tagsub{display:block; margin-top:12px; font-size:10.5px; color:var(--muted); font-weight:700; letter-spacing:.02em}
+
   /* ---------- tone list ---------- */
   .tones{display:flex; flex-direction:column; gap:7px; margin-top:6px}
   .tone{
@@ -340,7 +374,17 @@
         </div>
         <div class="fl">
           <span class="flabel">タグ（自由に編集）</span>
-          <input type="text" id="tags" maxlength="80" placeholder="#enstプラス #夢小説" autocomplete="off" aria-label="ハッシュタグ（自由に編集）">
+          <div class="tagrow">
+            <input type="text" id="tags" maxlength="80" placeholder="#夢小説 #オリジナル夢小説" autocomplete="off" aria-label="ハッシュタグ（自由に編集）">
+            <button class="tagsave" id="saveTagBtn" type="button" aria-label="いまのタグをマイタグに保存">＋ 保存</button>
+          </div>
+
+          <span class="flabel" style="margin-top:12px">マイタグ <span class="tagcount" id="myTagCount"></span></span>
+          <div class="chips" id="myTagChips"></div>
+          <div class="tagempty" id="myTagEmpty">まだないよ。よく使うタグを入れて「＋ 保存」すると、ここからワンタップでつけられるよ。</div>
+          <div class="tagempty">タップでつける／もういちどタップで外す・×で削除</div>
+
+          <span class="tagsub">よく使うタグ</span>
           <div class="chips" id="tagChips"></div>
         </div>
       </div>
@@ -1208,7 +1252,7 @@
   var DEFAULTS = {
     charName:'', charLabel:'彼', callName:'〇〇くん', firstPerson:'俺',
     dreamerName:'', tone:'tsun', mood:'amai', rel:'koibito', length:'short',
-    tagOn:true, tags:'#enstプラス #夢小説'
+    tagOn:true, tags:'#夢小説'
   };
   var cfg = {};
   var current = null;
@@ -1243,7 +1287,7 @@
       ] }
   ];
 
-  var TAG_PRESETS = ['#enstプラス','#夢小説','#オリジナル夢小説'];
+  var TAG_PRESETS = ['#夢小説','#オリジナル夢小説','#140字小説'];
 
   function renderGroups(){
     GROUPS.forEach(function(g){
@@ -1285,22 +1329,145 @@
     });
   }
 
+  /* ---------- ハッシュタグ：タグの正規化とマイタグ ---------- */
+  var MY_TAG_MAX = 30;
+  function normalizeTag(raw){
+    var s = String(raw || '').replace(/＃/g, '#')
+      .replace(/^[#\s"“”「『]+/, '')
+      .replace(/[#\s"“”」』、，,。.！!？?）)]+$/, '')
+      .replace(/\s+/g, '');
+    if(!s) return '';
+    return '#' + Array.from(s).slice(0, 24).join('');
+  }
+  function parseTags(text){
+    var out = [], seen = {};
+    String(text || '').replace(/＃/g, '#').split(/[\s,、，]+/).forEach(function(tok){
+      tok.split('#').forEach(function(part){
+        var t = normalizeTag(part);
+        if(t && !seen[t]){ seen[t] = 1; out.push(t); }
+      });
+    });
+    return out;
+  }
+  function myTags(){
+    var a = loadJSON('mytags', []);
+    if(!Array.isArray(a)) return [];
+    var out = [], seen = {};
+    a.forEach(function(t){
+      if(typeof t !== 'string') return;
+      var n = normalizeTag(t);
+      if(n && !seen[n]){ seen[n] = 1; out.push(n); }
+    });
+    return out;
+  }
+  function saveMyTagList(arr){ saveJSON('mytags', arr.slice(0, MY_TAG_MAX)); }
+
+  function applyTags(list, keepSwitch){
+    var uniq = [], seen = {};
+    (list || []).forEach(function(t){
+      var n = normalizeTag(t);
+      if(n && !seen[n]){ seen[n] = 1; uniq.push(n); }
+    });
+    cfg.tags = uniq.join(' ');
+    if(uniq.length && !keepSwitch){ cfg.tagOn = true; }
+    $('#tags').value = cfg.tags;
+    syncTagSwitch();
+    persist();
+    renderTagChips();
+    renderMyTags();
+    updateTree();
+  }
+
   function renderTagChips(){
     var box = $('#tagChips');
+    if(!box) return;
     box.innerHTML = '';
+    var now = parseTags(cfg.tags);
     TAG_PRESETS.forEach(function(tag){
-      var on = (cfg.tags || '').indexOf(tag) >= 0;
-      box.appendChild(chipEl(tag, on, function(){
-        var list = (cfg.tags || '').split(/\s+/).filter(Boolean);
+      box.appendChild(chipEl(tag, now.indexOf(tag) >= 0, function(){
+        var list = parseTags(cfg.tags);
         var i = list.indexOf(tag);
         if(i >= 0){ list.splice(i, 1); } else { list.push(tag); }
-        cfg.tags = list.join(' ');
-        $('#tags').value = cfg.tags;
-        renderTagChips();
-        persist();
-        updateTree();
+        applyTags(list);
       }));
     });
+  }
+
+  function renderMyTags(){
+    var box = $('#myTagChips');
+    if(!box) return;
+    var tags = myTags(), now = parseTags(cfg.tags);
+    box.innerHTML = '';
+    var cnt = $('#myTagCount');
+    if(cnt){ cnt.textContent = tags.length ? tags.length + '個' : ''; }
+    var emp = $('#myTagEmpty');
+    if(emp){ emp.style.display = tags.length ? 'none' : 'block'; }
+    tags.forEach(function(tag){
+      var on = now.indexOf(tag) >= 0;
+      var wrap = document.createElement('span');
+      wrap.className = 'mytag' + (on ? ' on' : '');
+
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'mytagbtn';
+      b.textContent = tag;
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.setAttribute('aria-label', tag + (on ? ' を外す' : ' をつける'));
+      b.addEventListener('click', function(){
+        var list = parseTags(cfg.tags);
+        var i = list.indexOf(tag);
+        if(i >= 0){ list.splice(i, 1); } else { list.push(tag); }
+        applyTags(list);
+      });
+
+      var x = document.createElement('button');
+      x.type = 'button';
+      x.className = 'tagx';
+      x.textContent = '×';
+      x.setAttribute('aria-label', tag + ' をマイタグから削除');
+      x.addEventListener('click', function(){
+        saveMyTagList(myTags().filter(function(t){ return t !== tag; }));
+        renderMyTags();
+        toast('マイタグから削除したよ');
+      });
+
+      wrap.appendChild(b);
+      wrap.appendChild(x);
+      box.appendChild(wrap);
+    });
+  }
+
+  function doSaveTags(){
+    var tags = parseTags(($('#tags') || {}).value || cfg.tags);
+    if(!tags.length){ toast('タグを入れてから保存してね'); return; }
+    var cur = myTags();
+    var added = tags.filter(function(t){ return cur.indexOf(t) < 0; });
+    if(!added.length){ toast('このタグはもう保存してあるよ'); return; }
+    saveMyTagList(added.concat(cur));
+    applyTags(tags, true);
+    toast(added.length === 1 ? 'マイタグに保存したよ' : 'マイタグに' + added.length + '個保存したよ');
+  }
+
+  /* 旧版（#enstプラス入り）の保存設定を一度だけ掃除する */
+  function migrateOldTags(){
+    if(loadJSON('migrEnstOff', false)) return;
+    var saved = loadJSON('cfg', null);
+    if(saved && typeof saved.tags === 'string' && saved.tags.indexOf('enst') >= 0){
+      var kept = parseTags(saved.tags).filter(function(t){ return t.indexOf('enst') < 0; });
+      saved.tags = kept.join(' ') || DEFAULTS.tags;
+      saveJSON('cfg', saved);
+    }
+    saveJSON('migrEnstOff', true);
+  }
+
+  function syncTagSwitch(){
+    var sw = $('#tagSw');
+    if(!sw) return;
+    sw.classList.toggle('on', !!cfg.tagOn);
+    sw.setAttribute('aria-checked', cfg.tagOn ? 'true' : 'false');
+    $('#tagSwLbl').textContent = cfg.tagOn ? '1本目の頭につける' : 'つけない';
+    var hint = $('#tagHint');
+    if(hint){ hint.textContent = cfg.tagOn ? 'Xのツリー1本目にタグを入れます' : '今回はタグを入れずに分割します'; }
   }
 
   function renderSummary(){
@@ -1327,12 +1494,7 @@
     $('#firstPerson').value = cfg.firstPerson || '';
     $('#dreamerName').value = cfg.dreamerName || '';
     $('#tags').value = cfg.tags || '';
-    var sw = $('#tagSw');
-    sw.classList.toggle('on', !!cfg.tagOn);
-    sw.setAttribute('aria-checked', cfg.tagOn ? 'true' : 'false');
-    $('#tagSwLbl').textContent = cfg.tagOn ? '1本目の頭につける' : 'つけない';
-    var hint = $('#tagHint');
-    if(hint){ hint.textContent = cfg.tagOn ? 'Xのツリー1本目にタグを入れます' : '今回はタグを入れずに分割します'; }
+    syncTagSwitch();
   }
 
   function renderAll(){
@@ -1340,6 +1502,7 @@
     renderGroups();
     renderTones();
     renderTagChips();
+    renderMyTags();
     renderSummary();
     persist();
     updateTree();
@@ -1585,7 +1748,7 @@
       el.addEventListener('input', function(){
         cfg[id] = el.value;
         persist();
-        if(id === 'tags'){ renderTagChips(); updateTree(); }
+        if(id === 'tags'){ renderTagChips(); renderMyTags(); updateTree(); }
         if(id === 'dreamerName' || id === 'firstPerson' || id === 'callName' || id === 'charLabel' || id === 'charName'){ renderGroups(); renderSummary(); }
       });
     });
@@ -1594,6 +1757,9 @@
       cfg.tagOn = !cfg.tagOn;
       renderAll();
     });
+
+    var saveTagBtn = $('#saveTagBtn');
+    if(saveTagBtn){ saveTagBtn.addEventListener('click', doSaveTags); }
 
     $('#generateBtn').addEventListener('click', function(){ doGenerate(false); });
     $('#regenBtn').addEventListener('click', function(){ doGenerate(true); });
@@ -1635,6 +1801,7 @@
   }
 
   function init(){
+    migrateOldTags();
     cfg = Object.assign({}, DEFAULTS, loadJSON('cfg', {}));
     bind();
     var saved = loadJSON('current', null);
